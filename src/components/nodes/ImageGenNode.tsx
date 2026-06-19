@@ -5,20 +5,30 @@ import { resolveInput } from '@/lib/edgeResolver'
 import { BaseNode } from './BaseNode'
 import { PortIndicator } from '@/components/ui/PortIndicator'
 import { StatusBar } from '@/components/ui/StatusBar'
+import { PasswordModal } from '@/components/PasswordModal'
 import type { NodeProps } from '@xyflow/react'
 import type { PromptData, StyleData, NodeStatus } from '@/types'
 
 export function ImageGenNode({ id }: NodeProps) {
   const { edges, nodeOutputs, setNodeOutput, addToast, addToHistory } = useAppStore()
-  const [images,  setImages]  = useState<string[]>([])
+  const [images,   setImages]   = useState<string[]>([])
   const [selected, setSelected] = useState(0)
-  const [status,  setStatus]  = useState<NodeStatus>('idle')
-  const [errMsg,  setErrMsg]  = useState('')
-  const [count,   setCount]   = useState(1)
+  const [status,   setStatus]   = useState<NodeStatus>('idle')
+  const [errMsg,   setErrMsg]   = useState('')
+  const [count,    setCount]    = useState(1)
+  const [showAuth, setShowAuth] = useState(false)
+  const [authed,   setAuthed]   = useState(false)
 
   const prompt = resolveInput<PromptData>(id, 'prompt', edges, nodeOutputs)
   const style  = resolveInput<StyleData>(id,  'style',  edges, nodeOutputs)
   const canGen = !!prompt
+
+  // Check existing session on mount
+  useEffect(() => {
+    fetch('/api/auth').then(r => r.json()).then(({ authenticated }) => {
+      if (authenticated) setAuthed(true)
+    }).catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (images.length > 0) {
@@ -39,6 +49,12 @@ export function ImageGenNode({ id }: NodeProps) {
           body: JSON.stringify({ promptText: prompt!.text, tone: prompt!.tone }),
         })
         const json = await res.json() as { dataUrl?: string; error?: string }
+        if (res.status === 401) {
+          setAuthed(false)
+          setShowAuth(true)
+          setStatus('idle')
+          return
+        }
         if (!res.ok || !json.dataUrl) throw new Error(json.error ?? 'Błąd generowania')
         urls.push(json.dataUrl)
         addToHistory(json.dataUrl, prompt!.text)
@@ -56,8 +72,26 @@ export function ImageGenNode({ id }: NodeProps) {
     addToast({ type: 'success', message: `✓ Wygenerowano ${count} ${count === 1 ? 'grafikę' : 'grafiki'}` })
   }
 
+  const handleClick = () => {
+    if (!authed) { setShowAuth(true); return }
+    handleGenerate()
+  }
+
+  const handleAuthSuccess = () => {
+    setAuthed(true)
+    setShowAuth(false)
+    handleGenerate()
+  }
+
   return (
     <BaseNode id={id} nodeType="imageGenNode">
+      {showAuth && (
+        <PasswordModal
+          onSuccess={handleAuthSuccess}
+          onClose={() => setShowAuth(false)}
+        />
+      )}
+
       <PortIndicator label="Prompt" connected={!!prompt} detail={prompt?.tone} />
       <PortIndicator label="Style"  connected={!!style}  detail={style?.format} />
 
@@ -74,7 +108,7 @@ export function ImageGenNode({ id }: NodeProps) {
             className="btn btn-primary"
             style={{ width: '100%', justifyContent: 'center' }}
             disabled={!canGen || status === 'running'}
-            onClick={handleGenerate}
+            onClick={handleClick}
           >
             {status === 'running'
               ? <><div className="gen-spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Gen...</>

@@ -3,6 +3,9 @@
 // Pollinations.ai — darmowe generowanie obrazów (bez klucza)
 // ═══════════════════════════════════════════════
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '../auth/route'
+
+const COOKIE_NAME = 'gen_session'
 
 const TONE_MAP: Record<string, string> = {
   luxury:  'cinematic, premium, high-end, elegant, luxury',
@@ -14,6 +17,11 @@ const TONE_MAP: Record<string, string> = {
 }
 
 export async function POST(req: NextRequest) {
+  const token = req.cookies.get(COOKIE_NAME)?.value ?? ''
+  if (!verifyToken(token)) {
+    return NextResponse.json({ error: 'Brak autoryzacji' }, { status: 401 })
+  }
+
   let body: { promptText: string; tone?: string }
   try {
     body = await req.json()
