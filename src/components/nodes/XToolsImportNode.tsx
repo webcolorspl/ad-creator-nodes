@@ -1,16 +1,6 @@
 'use client'
 // ═══════════════════════════════════════════════
 // XTOOLS IMPORT NODE
-// Dwa tryby:
-//   ☁ Szablony — pobiera z Supabase (banner_templates)
-//   📁 Plik    — wczytuje lokalny JSON
-//
-// Mapowanie danych:
-//   text elements → headline (sortowane po size)
-//   cta element   → cta
-//   bg            → background
-//   selFmts[0]    → style (1:1 | 9:16 | 16:9 | 4:5)
-//   trans         → warianty w CopyVariantsPanel
 // ═══════════════════════════════════════════════
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { BaseNode } from './BaseNode'
@@ -21,20 +11,8 @@ import { fetchTemplates, fetchTemplateProject, type TemplateEntry } from '@/lib/
 import type { NodeProps } from '@xyflow/react'
 import type { HeadlineData, CTAData, BackgroundData, StyleData } from '@/types'
 
-// ── Typy z ad-generator ───────────────────────
-interface AdElement {
-  id: string
-  type: 'text' | 'cta' | 'logo'
-  name: string
-  text?: string
-  size?: number
-}
-
-interface BgSettings {
-  bgColor?: string
-  bgImg?: string | null
-}
-
+interface AdElement { id: string; type: 'text' | 'cta' | 'logo'; name: string; text?: string; size?: number }
+interface BgSettings { bgColor?: string; bgImg?: string | null }
 interface XToolsProject {
   name?: string
   masterElems?: AdElement[]
@@ -43,7 +21,6 @@ interface XToolsProject {
   trans?: Record<string, Record<string, string>>
 }
 
-// ── Format mapping ─────────────────────────────
 function mapFormat(fmtId: string): StyleData['format'] {
   if (/story|short|tt-|reel/i.test(fmtId))               return '9:16'
   if (/square|1080x1080/i.test(fmtId))                   return '1:1'
@@ -52,14 +29,17 @@ function mapFormat(fmtId: string): StyleData['format'] {
   return '1:1'
 }
 
-function parseProject(json: unknown): {
+interface Parsed {
   headline: HeadlineData | null
   cta: CTAData | null
   background: BackgroundData | null
   style: StyleData | null
   variants: { lang: string; headline: HeadlineData; cta: CTAData }[]
   projectName: string
-} {
+  elements: { label: string; value: string; type: string }[]
+}
+
+function parseProject(json: unknown): Parsed {
   const p = json as XToolsProject
 
   const textElems = (p.masterElems ?? [])
@@ -77,9 +57,7 @@ function parseProject(json: unknown): {
     : null
 
   const bgSettings = p.bg ?? {}
-  const background: BackgroundData | null = bgSettings.bgImg
-    ? { url: bgSettings.bgImg }
-    : null
+  const background: BackgroundData | null = bgSettings.bgImg ? { url: bgSettings.bgImg } : null
 
   const fmtId = p.selFmts?.[0] ?? ''
   const ratio  = mapFormat(fmtId)
@@ -99,28 +77,49 @@ function parseProject(json: unknown): {
     })
   }
 
-  return { headline, cta, background, style, variants, projectName: p.name ?? 'XTools' }
+  // Human-readable summary of imported elements
+  const elements: Parsed['elements'] = []
+  if (headline) {
+    elements.push({ type: 'headline', label: 'Nagłówek', value: headline.main.slice(0, 40) + (headline.main.length > 40 ? '…' : '') })
+    if (headline.sub) elements.push({ type: 'sub', label: 'Podtytuł', value: headline.sub.slice(0, 40) + (headline.sub.length > 40 ? '…' : '') })
+  }
+  if (cta) elements.push({ type: 'cta', label: 'CTA', value: cta.text })
+  if (background) elements.push({ type: 'bg', label: 'Tło', value: 'URL ✓' })
+  if (style) elements.push({ type: 'format', label: 'Format', value: `${style.format} (${style.width}×${style.height})` })
+  if (variants.length) elements.push({ type: 'variants', label: 'Warianty', value: `${variants.length} języki: ${variants.map(v => v.lang).join(', ')}` })
+
+  return { headline, cta, background, style, variants, projectName: p.name ?? 'XTools', elements }
+}
+
+const TYPE_COLOR: Record<string, string> = {
+  headline: 'var(--color-process)',
+  sub: '#a78bfa',
+  cta: '#34d399',
+  bg: '#f59e0b',
+  format: '#60a5fa',
+  variants: '#f472b6',
 }
 
 type Mode = 'cloud' | 'file'
 
-// ══════════════════════════════════════════════
 export function XToolsImportNode({ id }: NodeProps) {
   const { setNodeOutput, setNodeErrors, addToast, setCopyVariant, addCopyVariant, setActiveCopyVariantIdx } = useAppStore()
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const [mode,      setMode]    = useState<Mode>('cloud')
-  const [loaded,    setLoaded]  = useState<string | null>(null)
-  const [summary,   setSummary] = useState<string | null>(null)
-  const [status,    setStatus]  = useState<'idle' | 'done' | 'error'>('idle')
+  const [mode,         setMode]        = useState<Mode>('cloud')
+  const [loaded,       setLoaded]      = useState<string | null>(null)
+  const [status,       setStatus]      = useState<'idle' | 'done' | 'error'>('idle')
+  const [importedElems, setImportedElems] = useState<Parsed['elements']>([])
 
-  // Cloud mode state
-  const [templates,   setTemplates]   = useState<TemplateEntry[]>([])
-  const [templLoading, setTemplLoading] = useState(false)
-  const [templError,   setTemplError]   = useState<string | null>(null)
+  // Cloud mode
+  const [templates,     setTemplates]    = useState<TemplateEntry[]>([])
+  const [templLoading,  setTemplLoading] = useState(false)
+  const [templError,    setTemplError]   = useState<string | null>(null)
+  const [selected,      setSelected]     = useState<TemplateEntry | null>(null)
+  const [loadingId,     setLoadingId]    = useState<string | null>(null)
 
   const applyProject = useCallback((json: unknown) => {
-    const { headline, cta, background, style, variants, projectName } = parseProject(json)
+    const { headline, cta, background, style, variants, projectName, elements } = parseProject(json)
 
     if (!headline && !cta) {
       setNodeErrors(id, ['Nie znaleziono elementów tekstowych'])
@@ -138,8 +137,8 @@ export function XToolsImportNode({ id }: NodeProps) {
     setNodeErrors(id, [])
     setStatus('done')
     setLoaded(projectName)
+    setImportedElems(elements)
 
-    // Warianty do panelu
     if (variants.length > 0 && headline && cta) {
       setCopyVariant(0, { id: 'v1', headlineMain: headline.main, headlineSub: headline.sub ?? '', ctaText: cta.text, ctaStyle: 'primary' })
       variants.forEach((v, i) => {
@@ -152,27 +151,17 @@ export function XToolsImportNode({ id }: NodeProps) {
     } else {
       addToast({ type: 'success', message: `XTools: ${projectName}` })
     }
-
-    setSummary([
-      headline   ? `"${headline.main.slice(0, 24)}${headline.main.length > 24 ? '…' : ''}"` : null,
-      cta        ? `CTA: ${cta.text.slice(0, 12)}` : null,
-      background ? 'tło ✓' : null,
-      style      ? style.format : null,
-    ].filter(Boolean).join(' · '))
   }, [id, setNodeOutput, setNodeErrors, addToast, setCopyVariant, addCopyVariant, setActiveCopyVariantIdx])
 
   const clear = () => {
-    setLoaded(null); setSummary(null); setStatus('idle')
+    setLoaded(null); setStatus('idle'); setImportedElems([])
     setNodeOutput(id, {}); setNodeErrors(id, [])
   }
 
-  // ── Cloud: fetch template list ─────────────────
   const loadTemplateList = useCallback(async () => {
-    setTemplLoading(true)
-    setTemplError(null)
+    setTemplLoading(true); setTemplError(null)
     try {
-      const list = await fetchTemplates()
-      setTemplates(list)
+      setTemplates(await fetchTemplates())
     } catch (e) {
       setTemplError(e instanceof Error ? e.message : 'Błąd połączenia')
     } finally {
@@ -186,27 +175,26 @@ export function XToolsImportNode({ id }: NodeProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, mode])
 
-  // ── Cloud: load single template ────────────────
-  const handleCloudLoad = async (templateId: string) => {
+  const handleCloudLoad = async (t: TemplateEntry) => {
+    setLoadingId(t.id)
     try {
-      const project = await fetchTemplateProject(templateId)
+      const project = await fetchTemplateProject(t.id)
       applyProject(project)
     } catch (e) {
       setNodeErrors(id, ['Błąd pobierania szablonu'])
       setStatus('error')
       addToast({ type: 'error', message: `XTools: ${e instanceof Error ? e.message : 'błąd'}` })
+    } finally {
+      setLoadingId(null)
     }
   }
 
-  // ── File: handle upload ────────────────────────
   const handleFile = (file: File) => {
     const reader = new FileReader()
     reader.onload = ev => {
-      try {
-        applyProject(JSON.parse(ev.target!.result as string))
-      } catch {
-        setNodeErrors(id, ['Nieprawidłowy plik JSON'])
-        setStatus('error')
+      try { applyProject(JSON.parse(ev.target!.result as string)) }
+      catch {
+        setNodeErrors(id, ['Nieprawidłowy plik JSON']); setStatus('error')
         addToast({ type: 'error', message: 'XTools: błąd parsowania JSON' })
       }
     }
@@ -222,83 +210,79 @@ export function XToolsImportNode({ id }: NodeProps) {
   return (
     <BaseNode id={id} nodeType="xToolsImportNode">
 
-      {/* ── Mode toggle ── */}
+      {/* Mode toggle */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
         {(['cloud', 'file'] as Mode[]).map(m => (
-          <button
-            key={m}
-            onClick={() => { setMode(m); if (status === 'done') clear() }}
-            style={{
-              flex: 1, padding: '3px 0', fontSize: 10, fontWeight: 600, cursor: 'pointer',
-              borderRadius: 5, border: '1px solid',
-              borderColor: mode === m ? 'var(--color-process)' : 'var(--color-field-border)',
-              background:  mode === m ? 'var(--blue-50)' : 'var(--color-field-bg)',
-              color:       mode === m ? 'var(--color-process)' : 'var(--color-text-muted)',
-              transition: 'all .12s',
-            }}
-          >
+          <button key={m} onClick={() => { setMode(m); if (status === 'done') clear() }} style={{
+            flex: 1, padding: '3px 0', fontSize: 10, fontWeight: 600, cursor: 'pointer',
+            borderRadius: 5, border: '1px solid',
+            borderColor: mode === m ? 'var(--color-process)' : 'var(--color-field-border)',
+            background:  mode === m ? 'var(--blue-50)' : 'var(--color-field-bg)',
+            color:       mode === m ? 'var(--color-process)' : 'var(--color-text-muted)',
+            transition: 'all .12s',
+          }}>
             {m === 'cloud' ? '☁ Szablony' : '📁 Plik JSON'}
           </button>
         ))}
       </div>
 
-      {/* ── Loaded banner ── */}
-      {status === 'done' && loaded && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--blue-50)', border: '1px solid var(--blue-200)', borderRadius: 6, padding: '5px 8px', marginBottom: 4 }}>
-          <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: 'var(--color-process)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            ✓ {loaded}
-          </span>
-          <button onClick={clear} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', fontSize: 12, padding: 0 }}>✕</button>
-        </div>
-      )}
-
       {/* ── CLOUD MODE ── */}
       {mode === 'cloud' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {templLoading && (
-            <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--color-text-muted)', padding: '8px 0' }}>
-              ⟳ Ładowanie szablonów...
-            </div>
+            <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--color-text-muted)', padding: '8px 0' }}>⟳ Ładowanie...</div>
           )}
           {templError && (
-            <div style={{ fontSize: 10, color: 'var(--red-400, #f87171)', background: 'var(--color-field-bg)', border: '1px solid var(--color-field-border)', borderRadius: 5, padding: '4px 8px' }}>
-              {templError}
-            </div>
+            <div style={{ fontSize: 10, color: 'var(--red-400, #f87171)', background: 'var(--color-field-bg)', border: '1px solid var(--color-field-border)', borderRadius: 5, padding: '4px 8px' }}>{templError}</div>
           )}
           {!templLoading && !templError && templates.length === 0 && (
             <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--color-text-muted)', padding: '8px 0', fontFamily: 'var(--font-mono)' }}>
-              Brak szablonów.<br />Zapisz pierwszy w ad-generator.
+              Brak publicznych szablonów.<br />Zapisz w Ad Generator.
             </div>
           )}
-          {templates.map(t => (
-            <div
-              key={t.id}
-              style={{ background: 'var(--color-field-bg)', border: '1px solid var(--color-field-border)', borderRadius: 6, padding: '6px 8px', display: 'flex', alignItems: 'center', gap: 6 }}
-            >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</div>
-                {t.tags?.length > 0 && (
-                  <div style={{ fontSize: 9, color: 'var(--color-text-muted)', marginTop: 2 }}>{t.tags.slice(0, 3).join(' · ')}</div>
+
+          {/* Template cards */}
+          {templates.map(t => {
+            const isSelected = selected?.id === t.id
+            const isLoading  = loadingId === t.id
+            return (
+              <div key={t.id} onClick={() => setSelected(isSelected ? null : t)} style={{
+                background: isSelected ? 'var(--blue-50)' : 'var(--color-field-bg)',
+                border: `1px solid ${isSelected ? 'var(--color-process)' : 'var(--color-field-border)'}`,
+                borderRadius: 6, overflow: 'hidden', cursor: 'pointer', transition: 'all .12s',
+              }}>
+                {/* Thumbnail */}
+                {t.thumbnail && (
+                  <div style={{ width: '100%', height: 80, overflow: 'hidden', background: '#111' }}>
+                    <img src={t.thumbnail} alt={t.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
                 )}
-                {t.sel_fmts?.length > 0 && (
-                  <div style={{ fontSize: 9, color: 'var(--blue-400, #60a5fa)', marginTop: 1 }}>{t.sel_fmts.slice(0, 3).join(', ')}</div>
-                )}
+
+                <div style={{ padding: '6px 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</div>
+                    {t.tags?.length > 0 && (
+                      <div style={{ fontSize: 9, color: 'var(--color-text-muted)', marginTop: 2 }}>{t.tags.slice(0, 3).join(' · ')}</div>
+                    )}
+                    {t.sel_fmts?.length > 0 && (
+                      <div style={{ fontSize: 9, color: 'var(--blue-400, #60a5fa)', marginTop: 1 }}>{t.sel_fmts.slice(0, 3).join(', ')}</div>
+                    )}
+                  </div>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    style={{ flexShrink: 0, fontSize: 10, opacity: isLoading ? 0.5 : 1 }}
+                    onClick={e => { e.stopPropagation(); handleCloudLoad(t) }}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? '⟳' : 'Wczytaj'}
+                  </button>
+                </div>
               </div>
-              <button
-                className="btn btn-ghost btn-sm"
-                style={{ flexShrink: 0, fontSize: 10 }}
-                onClick={() => handleCloudLoad(t.id)}
-              >
-                Wczytaj
-              </button>
-            </div>
-          ))}
-          <button
-            className="btn btn-ghost btn-sm"
-            style={{ width: '100%', justifyContent: 'center', marginTop: 2, fontSize: 10 }}
-            onClick={loadTemplateList}
-            disabled={templLoading}
-          >
+            )
+          })}
+
+          <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'center', marginTop: 2, fontSize: 10 }}
+            onClick={loadTemplateList} disabled={templLoading}>
             ↺ Odśwież
           </button>
         </div>
@@ -306,42 +290,48 @@ export function XToolsImportNode({ id }: NodeProps) {
 
       {/* ── FILE MODE ── */}
       {mode === 'file' && (
-        <div
-          onDrop={onDrop}
-          onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
-          style={{
-            border: `1.5px dashed ${status === 'done' ? 'var(--color-process)' : 'var(--color-field-border)'}`,
-            borderRadius: 8, padding: '10px 10px 8px',
-            background: status === 'done' ? 'var(--blue-50)' : 'var(--color-field-bg)',
-            display: 'flex', flexDirection: 'column', gap: 6,
-          }}
-        >
+        <div onDrop={onDrop} onDragOver={e => { e.preventDefault(); e.stopPropagation() }} style={{
+          border: `1.5px dashed ${status === 'done' ? 'var(--color-process)' : 'var(--color-field-border)'}`,
+          borderRadius: 8, padding: '10px 10px 8px',
+          background: status === 'done' ? 'var(--blue-50)' : 'var(--color-field-bg)',
+          display: 'flex', flexDirection: 'column', gap: 6,
+        }}>
           {status !== 'done' && (
             <div style={{ fontSize: 11, color: 'var(--color-text-muted)', textAlign: 'center', fontFamily: 'var(--font-mono)', lineHeight: 1.5 }}>
               Przeciągnij JSON<br />lub kliknij poniżej
             </div>
           )}
-          <button
-            className="btn btn-ghost btn-sm"
-            style={{ width: '100%', justifyContent: 'center' }}
-            onClick={() => fileRef.current?.click()}
-          >
+          <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'center' }}
+            onClick={() => fileRef.current?.click()}>
             {status === 'done' ? '↺ Zmień plik' : '⬆ Wczytaj JSON'}
           </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".json,application/json"
-            style={{ display: 'none' }}
-            onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = '' }}
-          />
+          <input ref={fileRef} type="file" accept=".json,application/json" style={{ display: 'none' }}
+            onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = '' }} />
+        </div>
+      )}
+
+      {/* ── Imported elements panel ── */}
+      {status === 'done' && importedElems.length > 0 && (
+        <div style={{ marginTop: 6, background: 'var(--color-field-bg)', border: '1px solid var(--color-field-border)', borderRadius: 6, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 8px', borderBottom: '1px solid var(--color-field-border)' }}>
+            <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              ✓ {loaded} — wczytane elementy
+            </span>
+            <button onClick={clear} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', fontSize: 11, padding: 0, lineHeight: 1 }}>✕</button>
+          </div>
+          {importedElems.map((el, i) => (
+            <div key={i} style={{ display: 'flex', gap: 6, padding: '3px 8px', borderBottom: i < importedElems.length - 1 ? '1px solid var(--color-field-border)' : 'none', alignItems: 'baseline' }}>
+              <span style={{ fontSize: 9, fontWeight: 700, color: TYPE_COLOR[el.type] ?? '#888', minWidth: 56, flexShrink: 0 }}>{el.label}</span>
+              <span style={{ fontSize: 10, color: 'var(--color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{el.value}</span>
+            </div>
+          ))}
         </div>
       )}
 
       <StatusBar
         status={status}
         message={
-          status === 'done'    ? summary ?? 'załadowano'
+          status === 'done'    ? `${importedElems.length} elementów z "${loaded}"`
           : status === 'error' ? 'błąd'
           : mode === 'cloud'   ? `${templates.length} szablonów`
           : 'oczekuje na JSON'

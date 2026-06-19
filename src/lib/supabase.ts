@@ -13,12 +13,13 @@ export interface TemplateEntry {
   sel_fmts: string[]
   created_at: string
   is_public: boolean
+  thumbnail: string | null
 }
 
 export async function fetchTemplates(): Promise<TemplateEntry[]> {
   const { data, error } = await supabase
     .from('banner_templates')
-    .select('id, name, description, tags, sel_fmts, created_at, is_public')
+    .select('id, name, description, tags, sel_fmts, created_at, is_public, thumbnail')
     .eq('is_public', true)
     .order('created_at', { ascending: false })
 
