@@ -7,8 +7,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ReactFlow, ReactFlowProvider, Background, BackgroundVariant, Controls, MiniMap, Panel,
   addEdge, useNodesState, useEdgesState, useReactFlow,
-  type Node, type Edge, type OnConnect,
+  type Node, type Edge, type OnConnect, type Rect,
 } from '@xyflow/react'
+import { Palette, FolderInput, Sparkles, PackageOpen } from 'lucide-react'
 import { useAppStore }   from '@/store/appStore'
 import { NODE_REGISTRY, PORT_COLORS, CAT_COLORS } from '@/lib/constants'
 import {
@@ -17,7 +18,9 @@ import {
   CopyGroupNode, StyleNode,
   ImageGenNode, BGLibraryNode,
   BannerComposerNode, BatchExportNode,
+  ThemeNode,
 } from './nodes'
+import { HintNode } from './nodes/HintNode'
 
 // Node type map for React Flow
 const NODE_TYPES = {
@@ -34,25 +37,34 @@ const NODE_TYPES = {
   bgLibraryNode:      BGLibraryNode,
   bannerComposerNode: BannerComposerNode,
   batchExportNode:    BatchExportNode,
+  themeNode:          ThemeNode,
+  hintNode:           HintNode,
+}
+
+// Section bounds for navigation pills
+const SECTION_BOUNDS: Record<string, Rect> = {
+  'brand':    { x: -480, y: 0,   width: 380, height: 1000 },
+  'import':   { x:    0, y: 0,   width: 440, height: 1400 },
+  'generate': { x:  460, y: 0,   width: 440, height: 900  },
+  'export':   { x:  900, y: 100, width: 440, height: 1000 },
 }
 
 // Demo flow
 const DEMO_NODES: Node[] = [
-  // ── Źródła (col 1, x=60) ───────────────────────────
-  { id:'wi1', type:'webImportNode',      position:{x:60,   y:60  }, data:{} },
-  { id:'p1',  type:'promptNode',         position:{x:60,   y:400 }, data:{text:'Kampania letnia dla marki odzieżowej premium. Styl minimalistyczny, kobiety 25-40 lat.',tone:'minimal',lang:'pl'} },
-  // ── Warianty copy (col 1, x=60, y=760) ─────────────
-  { id:'cv1', type:'copyVariantsNode',   position:{x:60,   y:760 }, data:{} },
-  // ── Przetwarzanie (col 2, x=680) ───────────────────
-  { id:'cg1', type:'copyGroupNode',      position:{x:680,  y:500 }, data:{} },
-  { id:'s1',  type:'styleNode',          position:{x:680,  y:840 }, data:{format:'1:1'} },
-  // ── Generowanie (col 3, x=1100) ────────────────────
-  { id:'ig1', type:'imageGenNode',       position:{x:1100, y:140 }, data:{} },
-  { id:'bg1', type:'bgLibraryNode',      position:{x:1100, y:580 }, data:{} },
-  // ── Output (col 4, x=1520) ─────────────────────────
-  { id:'bc1', type:'bannerComposerNode', position:{x:1520, y:400 }, data:{} },
-  // ── Export (col 5, x=1940) ─────────────────────────
-  { id:'be1', type:'batchExportNode',    position:{x:1940, y:420 }, data:{} },
+  // ── Brand (col 0, x=-420) ──────────────────────────
+  { id:'th1', type:'themeNode',        position:{x:-420, y:80  }, data:{} },
+  { id:'s1',  type:'styleNode',        position:{x:-420, y:480 }, data:{format:'ig-square'} },
+  // ── Input (col 1, x=60) ────────────────────────────
+  { id:'xt1', type:'xToolsImportNode', position:{x:60,   y:80  }, data:{} },
+  { id:'wi1', type:'webImportNode',    position:{x:60,   y:600 }, data:{} },
+  { id:'p1',  type:'promptNode',       position:{x:60,   y:900 }, data:{text:'Kampania letnia dla marki odzieżowej premium. Styl minimalistyczny, kobiety 25-40 lat.',tone:'minimal',lang:'pl'} },
+  { id:'cv1', type:'copyVariantsNode', position:{x:60,   y:1200}, data:{} },
+  // ── Generate (col 2, x=520) ─────────────────────────
+  { id:'ig1', type:'imageGenNode',     position:{x:520,  y:80  }, data:{} },
+  { id:'bg1', type:'bgLibraryNode',    position:{x:520,  y:580 }, data:{} },
+  // ── Output (col 3, x=960) ───────────────────────────
+  { id:'bc1', type:'bannerComposerNode', position:{x:960, y:200 }, data:{} },
+  { id:'be1', type:'batchExportNode',    position:{x:960, y:720 }, data:{} },
 ]
 
 const mke = (id: string, src: string, sh: string, tgt: string, th: string, type: string): Edge => ({
@@ -61,36 +73,121 @@ const mke = (id: string, src: string, sh: string, tgt: string, th: string, type:
   style: { stroke: PORT_COLORS[type] ?? '#C8D4F0', strokeWidth: 1.5, opacity: 0.7 },
 })
 
+// ── Wizard flow for Marketer mode ───────────────
+const WIZARD_NODES: Node[] = [
+  // ── Step nodes ──────────────────────────────────
+  { id:'th1', type:'themeNode',          position:{x:0,    y:-280}, data:{} },
+  { id:'s1',  type:'styleNode',          position:{x:0,    y:-60 }, data:{format:'ig-square'} },
+  { id:'cv1', type:'copyVariantsNode',   position:{x:0,    y:200 }, data:{} },
+  { id:'wi1', type:'webImportNode',      position:{x:0,    y:560 }, data:{} },
+  { id:'ig1', type:'imageGenNode',       position:{x:420,  y:200 }, data:{} },
+  { id:'bg1', type:'bgLibraryNode',      position:{x:420,  y:600 }, data:{} },
+  { id:'bc1', type:'bannerComposerNode', position:{x:840,  y:200 }, data:{} },
+  { id:'be1', type:'batchExportNode',    position:{x:1280, y:200 }, data:{} },
+  // ── Hint callouts ───────────────────────────────
+  { id:'hint1', type:'hintNode', draggable:false, selectable:false, position:{x:-230, y:-200},
+    data:{ text:'Zacznij tutaj — ustaw brand\ni styl formatu reklamy' } },
+  { id:'hint2', type:'hintNode', draggable:false, selectable:false, position:{x:-230, y:260},
+    data:{ text:'Wpisz teksty kampanii\nlub wklej URL strony ↓', arrow:'right' } },
+  { id:'hint3', type:'hintNode', draggable:false, selectable:false, position:{x:175,  y:135},
+    data:{ text:'Kliknij Generuj — Gemini\nstworzy grafikę AI', arrow:'right' } },
+  { id:'hint4', type:'hintNode', draggable:false, selectable:false, position:{x:635,  y:135},
+    data:{ text:'Baner składa się automatycznie\ngdy dane są podłączone', arrow:'right' } },
+  { id:'hint5', type:'hintNode', draggable:false, selectable:false, position:{x:1075, y:135},
+    data:{ text:'Wybierz formaty i pobierz\nZIP lub osobne PNG', arrow:'right' } },
+]
+
+const WIZARD_EDGES: Edge[] = [
+  mke('wth1','th1','theme',     'bc1','theme',     'theme'),
+  mke('wth2','th1','theme',     'be1','theme',     'theme'),
+  mke('ws1', 's1', 'style',     'ig1','style',     'style'),
+  mke('ws2', 's1', 'style',     'bc1','style',     'style'),
+  mke('ws3', 's1', 'style',     'be1','style',     'style'),
+  mke('wcv1','cv1','headline',  'bc1','headline',  'headline'),
+  mke('wcv2','cv1','cta',       'bc1','cta',       'cta'),
+  mke('wcv3','cv1','headline',  'be1','headline',  'headline'),
+  mke('wcv4','cv1','cta',       'be1','cta',       'cta'),
+  mke('wcv5','cv1','headline',  'ig1','headline',  'headline'),
+  mke('wwi1','wi1','prompt',    'ig1','prompt',    'prompt'),
+  mke('wwi2','wi1','background','bc1','background','background'),
+  mke('wwi3','wi1','headline',  'bc1','headline',  'headline'),
+  mke('wig1','ig1','image',     'bg1','image',     'image'),
+  mke('wig2','ig1','image',     'bc1','image',     'image'),
+  mke('wbg1','bg1','background','bc1','background','background'),
+  mke('wbg2','bg1','background','be1','background','background'),
+  mke('wbc1','bc1','banner',    'be1','banner',    'banner'),
+]
+
 const DEMO_EDGES: Edge[] = [
-  mke('e1', 'p1', 'prompt',     'cg1','prompt',    'prompt'),
-  mke('ecv1','cv1','headline',  'cg1','headline',  'headline'),
-  mke('ecv2','cv1','cta',       'cg1','cta',       'cta'),
-  mke('e4', 'p1', 'prompt',     'ig1','prompt',    'prompt'),
-  mke('e5', 's1', 'style',      'ig1','style',     'style'),
-  mke('e6', 'cg1','copyGroup',  'bc1','copyGroup', 'copy_group'),
-  mke('e7', 'bg1','background', 'bc1','background','background'),
-  mke('e8', 's1', 'style',      'bc1','style',     'style'),
-  mke('e9', 'ig1','image',      'bc1','image',     'image'),
-  mke('ea', 'bc1','banner',     'be1','banner',    'banner'),
+  // Theme → BannerComposer
+  mke('eth1','th1','theme',     'bc1','theme',     'theme'),
+  // Theme → BatchExport
+  mke('eth2','th1','theme',     'be1','theme',     'theme'),
+  // Style → ImageGen, BannerComposer, BatchExport
+  mke('es1', 's1', 'style',     'ig1','style',     'style'),
+  mke('es2', 's1', 'style',     'bc1','style',     'style'),
+  mke('es3', 's1', 'style',     'be1','style',     'style'),
+  // XTools → BannerComposer direct (headline, cta, background) — priority
+  mke('ext1','xt1','headline',  'bc1','headline',  'headline'),
+  mke('ext2','xt1','cta',       'bc1','cta',       'cta'),
+  mke('ext3','xt1','background','bc1','background','background'),
+  // XTools → BatchExport direct
+  mke('ext4','xt1','headline',  'be1','headline',  'headline'),
+  mke('ext5','xt1','cta',       'be1','cta',       'cta'),
+  mke('ext6','xt1','background','be1','background','background'),
+  // CopyVariants → BannerComposer (fallback when XTools empty)
+  mke('ecv1','cv1','headline',  'bc1','headline',  'headline'),
+  mke('ecv2','cv1','cta',       'bc1','cta',       'cta'),
+  // CopyVariants → BatchExport (fallback)
+  mke('ecv3','cv1','headline',  'be1','headline',  'headline'),
+  mke('ecv4','cv1','cta',       'be1','cta',       'cta'),
+  // Prompt → ImageGen (p1 first, wi1 as fallback)
+  mke('e1',  'p1', 'prompt',    'ig1','prompt',    'prompt'),
+  mke('ewi1','wi1','prompt',    'ig1','prompt',    'prompt'),
+  // WebImport → BannerComposer/BatchExport (headline + background, fallback after XTools)
+  mke('ewi2','wi1','background','bc1','background','background'),
+  mke('ewi3','wi1','background','be1','background','background'),
+  mke('ewi4','wi1','headline',  'bc1','headline',  'headline'),
+  mke('ewi5','wi1','headline',  'be1','headline',  'headline'),
+  // XTools → ImageGen (context for image prompt, fallback)
+  mke('ext7','xt1','headline',  'ig1','headline',  'headline'),
+  mke('ecv5','cv1','headline',  'ig1','headline',  'headline'),
+  // ImageGen → BGLibrary (save to lib) + BannerComposer direct
+  mke('eig1','ig1','image',     'bg1','image',     'image'),
+  mke('e9',  'ig1','image',     'bc1','image',     'image'),
+  mke('e7',  'bg1','background','bc1','background','background'),
+  mke('e7b', 'bg1','background','be1','background','background'),
+  // BannerComposer → BatchExport
+  mke('ea',  'bc1','banner',    'be1','banner',    'banner'),
 ]
 
 interface FlowCanvasProps {
   onChange: (nodes: Node[], edges: Edge[]) => void
 }
 
-function FlowCanvasInner({ onChange }: FlowCanvasProps) {
-  const { syncEdges, deleteNode, addToast, selectNode, zoomToId, clearZoom } = useAppStore()
-  const { setCenter, getNode } = useReactFlow()
+interface FlowCanvasInnerProps extends FlowCanvasProps {
+  initialNodes: Node[]
+  initialEdges: Edge[]
+}
+
+function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInnerProps) {
+  const syncEdges  = useAppStore(s => s.syncEdges)
+  const deleteNode = useAppStore(s => s.deleteNode)
+  const addToast   = useAppStore(s => s.addToast)
+  const selectNode = useAppStore(s => s.selectNode)
+  const zoomToId   = useAppStore(s => s.zoomToId)
+  const clearZoom  = useAppStore(s => s.clearZoom)
+  const { setCenter, getNode, fitBounds } = useReactFlow()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [rfInstance, setRfInstance] = useState<{ screenToFlowPosition: (p: {x:number,y:number}) => {x:number,y:number} } | null>(null)
-  const [nodes, setNodes, onNodesChange] = useNodesState(DEMO_NODES)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(DEMO_EDGES)
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
   const idRef = useRef(200)
 
   // Sync initial state to store + Inspector on mount
   useEffect(() => {
-    syncEdges(DEMO_EDGES)
-    onChange(DEMO_NODES, DEMO_EDGES)
+    syncEdges(initialEdges)
+    onChange(initialNodes, initialEdges)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Zoom to node on request from sidebar
@@ -105,11 +202,6 @@ function FlowCanvasInner({ onChange }: FlowCanvasProps) {
     }
     clearZoom()
   }, [zoomToId]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleChange = useCallback((n: Node[], e: Edge[]) => {
-    syncEdges(e)
-    onChange(n, e)
-  }, [syncEdges, onChange])
 
   const onConnect: OnConnect = useCallback(params => {
     const srcNode = nodes.find(n => n.id === params.source)
@@ -177,11 +269,44 @@ function FlowCanvasInner({ onChange }: FlowCanvasProps) {
           <p>Przeciągnij node z panelu lub wczytaj flow</p>
         </div>
       )}
+      {/* Navigation pills */}
+      <div style={{
+        position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 10, display: 'flex', gap: 6, background: 'rgba(18,18,24,0.85)',
+        border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '5px 10px',
+        backdropFilter: 'blur(8px)',
+      }}>
+        {[
+          { key: 'brand',    label: 'Brand',   Icon: Palette      },
+          { key: 'import',   label: 'Import',  Icon: FolderInput  },
+          { key: 'generate', label: 'Generuj', Icon: Sparkles     },
+          { key: 'export',   label: 'Eksport', Icon: PackageOpen  },
+        ].map(({ key, label, Icon }) => (
+          <button
+            key={key}
+            onClick={() => {
+              const b = SECTION_BOUNDS[key]
+              if (b) fitBounds(b, { padding: 0.15, duration: 500 })
+            }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '4px 12px', fontSize: 11, fontWeight: 600, borderRadius: 14, cursor: 'pointer',
+              border: 'none', background: 'transparent', color: 'rgba(255,255,255,0.55)',
+              transition: 'color .15s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.55)')}
+          >
+            <Icon size={13} strokeWidth={1.75} />
+            {label}
+          </button>
+        ))}
+      </div>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={NODE_TYPES}
-        onNodesChange={changes => { onNodesChange(changes); onChange(nodes, edges) }}
+        onNodesChange={onNodesChange}
         onEdgesChange={changes => {
           onEdgesChange(changes)
           setEdges(eds => { syncEdges(eds); return eds })
@@ -229,9 +354,16 @@ function FlowCanvasInner({ onChange }: FlowCanvasProps) {
 }
 
 export function FlowCanvas({ onChange }: FlowCanvasProps) {
+  const appMode = useAppStore(s => s.appMode)
+  const initialNodes = appMode === 'marketer' ? WIZARD_NODES : DEMO_NODES
+  const initialEdges = appMode === 'marketer' ? WIZARD_EDGES : DEMO_EDGES
   return (
-    <ReactFlowProvider>
-      <FlowCanvasInner onChange={onChange} />
+    <ReactFlowProvider key={appMode}>
+      <FlowCanvasInner
+        onChange={onChange}
+        initialNodes={initialNodes}
+        initialEdges={initialEdges}
+      />
     </ReactFlowProvider>
   )
 }

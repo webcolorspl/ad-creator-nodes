@@ -38,6 +38,8 @@ interface AppState {
   setInspectorTab: (tab: 'node' | 'flow' | 'history') => void
   showTests: boolean
   setShowTests: (show: boolean) => void
+  appMode: 'marketer' | 'agency'
+  setAppMode: (mode: 'marketer' | 'agency') => void
 
   // Floating panels
   panels: {
@@ -114,11 +116,13 @@ export const useAppStore = create<AppState>((set) => ({
   setInspectorTab: (tab) => set({ inspectorTab: tab }),
   showTests: false,
   setShowTests: (show) => set({ showTests: show }),
+  appMode: 'marketer',
+  setAppMode: (mode) => set({ appMode: mode }),
 
   // Floating panels
   panels: {
     left:   { x: 8,   y: 60, minimized: false },
-    right:  { x: typeof window !== 'undefined' ? window.innerWidth - 308 : 1132, y: 60, minimized: false },
+    right:  { x: typeof window !== 'undefined' ? window.innerWidth - 308 : 1132, y: 60, minimized: true },
     copy:   { x: 8, y: 420, minimized: false },
   },
   setPanelPos: (side, x, y) =>

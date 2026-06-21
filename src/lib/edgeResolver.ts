@@ -15,19 +15,22 @@ export function resolveInput<T>(
   edges: Edge[],
   nodeOutputs: Record<string, NodeOutputs>
 ): T | null {
-  const edge = edges.find(
+  // Try all matching edges in order — return first non-null value (fallback support)
+  const matching = edges.filter(
     e => e.target === nodeId && e.targetHandle === portId
   )
-  if (!edge) return null
 
-  const sourceOutput = nodeOutputs[edge.source]
-  if (!sourceOutput) return null
+  for (const edge of matching) {
+    const sourceOutput = nodeOutputs[edge.source]
+    if (!sourceOutput) continue
 
-  // Jeśli source ma konkretny port, zwróć jego dane
-  if (edge.sourceHandle) {
-    const val = sourceOutput[edge.sourceHandle as keyof NodeOutputs]
-    return val !== undefined ? (val as T) : null
+    if (edge.sourceHandle) {
+      const val = sourceOutput[edge.sourceHandle as keyof NodeOutputs]
+      if (val !== undefined) return val as T
+    } else {
+      return sourceOutput as unknown as T
+    }
   }
 
-  return sourceOutput as unknown as T
+  return null
 }

@@ -13,6 +13,7 @@ export const PORT_TYPES = {
   IMAGE:      'image',
   BACKGROUND: 'background',
   BANNER:     'banner',
+  THEME:      'theme',
 } as const
 
 export type PortType = typeof PORT_TYPES[keyof typeof PORT_TYPES]
@@ -40,13 +41,24 @@ export interface PromptData {
 
 export interface HeadlineData {
   main: string
+  mainColor?: string
+  mainFont?: string
+  mainWeight?: number
+  mainSize?: number
   sub?: string
+  subColor?: string
+  subFont?: string
+  subWeight?: number
+  subSize?: number
   variants?: string[]
 }
 
 export interface CTAData {
   text: string
-  style: 'primary' | 'outline' | 'ghost' | 'text'
+  style: 'primary' | 'outline' | 'ghost' | 'text' | 'solid' | 'pill' | 'gradient'
+  bgColor?: string
+  textColor?: string
+  size?: number
 }
 
 export interface HeadlineCTAVariant {
@@ -64,7 +76,7 @@ export interface CopyGroupData {
 }
 
 export interface StyleData {
-  format: '1:1' | '9:16' | '16:9' | '4:5'
+  format: string
   width: number
   height: number
 }
@@ -76,7 +88,17 @@ export interface ImageData {
 
 export interface BackgroundData {
   url: string
+  color?: string
   all?: Array<{ id: number; name: string; url: string }>
+}
+
+export interface ThemeData {
+  brandName: string
+  bgColor: string
+  accentColor: string
+  fontFamily: string
+  logoUrl?: string
+  logoVariant: 'horizontal' | 'vertical' | 'icon'
 }
 
 export interface BannerData {
@@ -96,6 +118,7 @@ export interface NodeOutputs {
   image?:      ImageData
   background?: BackgroundData
   banner?:     BannerData
+  theme?:      ThemeData
 }
 
 // ── Web Scrape Data ───────────────────────────
@@ -110,7 +133,7 @@ export interface WebData {
 
 // ── Format definition ─────────────────────────
 export interface AdFormat {
-  id: '1:1' | '9:16' | '16:9' | '4:5'
+  id: string
   label: string
   w: number
   h: number

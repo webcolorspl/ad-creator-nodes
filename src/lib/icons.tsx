@@ -22,6 +22,7 @@ import {
   X,
   ChevronRight,
   FileJson,
+  Palette,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -39,6 +40,7 @@ export const NODE_ICONS: Record<string, LucideIcon> = {
   bgLibraryNode:      ImageIcon,
   bannerComposerNode: LayoutTemplate,
   batchExportNode:    PackageOpen,
+  themeNode:          Palette,
 }
 
 export {

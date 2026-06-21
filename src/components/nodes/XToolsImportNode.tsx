@@ -11,7 +11,20 @@ import { fetchTemplates, fetchTemplateProject, type TemplateEntry } from '@/lib/
 import type { NodeProps } from '@xyflow/react'
 import type { HeadlineData, CTAData, BackgroundData, StyleData } from '@/types'
 
-interface AdElement { id: string; type: 'text' | 'cta' | 'logo'; name: string; text?: string; size?: number }
+interface AdElement {
+  id: string
+  type: 'text' | 'cta' | 'logo'
+  name: string
+  text?: string
+  size?: number
+  visible?: boolean
+  color?: string
+  font?: string
+  weight?: number
+  ctaStyle?: string
+  ctaBg?: string
+  ctaTc?: string
+}
 interface BgSettings { bgColor?: string; bgImg?: string | null }
 interface XToolsProject {
   name?: string
@@ -42,22 +55,41 @@ interface Parsed {
 function parseProject(json: unknown): Parsed {
   const p = json as XToolsProject
 
+  // All text elements sorted by size desc (larger = more prominent)
   const textElems = (p.masterElems ?? [])
     .filter(e => e.type === 'text' && e.text?.trim())
     .sort((a, b) => (b.size ?? 0) - (a.size ?? 0))
 
-  const ctaElem = (p.masterElems ?? []).find(e => e.type === 'cta' && e.text?.trim())
+  // All CTA elements in order
+  const ctaElems = (p.masterElems ?? [])
+    .filter(e => e.type === 'cta' && e.text?.trim())
 
-  const headline: HeadlineData | null = textElems.length
-    ? { main: textElems[0].text!.trim(), sub: textElems[1]?.text?.trim() || undefined }
-    : null
+  const headline: HeadlineData | null = textElems.length ? {
+    main:       textElems[0].text!.trim(),
+    mainColor:  textElems[0].color,
+    mainFont:   textElems[0].font,
+    mainWeight: textElems[0].weight,
+    mainSize:   textElems[0].size,
+    sub:        textElems[1]?.text?.trim() || undefined,
+    subColor:   textElems[1]?.color,
+    subFont:    textElems[1]?.font,
+    subWeight:  textElems[1]?.weight,
+    subSize:    textElems[1]?.size,
+  } : null
 
-  const cta: CTAData | null = ctaElem
-    ? { text: ctaElem.text!.trim().slice(0, 30), style: 'primary' }
-    : null
+  const cta: CTAData | null = ctaElems.length ? {
+    text:      ctaElems[0].text!.trim().slice(0, 30),
+    style:     (ctaElems[0].ctaStyle as CTAData['style']) ?? 'primary',
+    bgColor:   ctaElems[0].ctaBg,
+    textColor: ctaElems[0].ctaTc,
+    size:      ctaElems[0].size,
+  } : null
 
+  // Background: prefer image URL, fallback to solid color
   const bgSettings = p.bg ?? {}
-  const background: BackgroundData | null = bgSettings.bgImg ? { url: bgSettings.bgImg } : null
+  const background: BackgroundData | null = (bgSettings.bgImg || bgSettings.bgColor)
+    ? { url: bgSettings.bgImg ?? '', color: bgSettings.bgColor }
+    : null
 
   const fmtId = p.selFmts?.[0] ?? ''
   const ratio  = mapFormat(fmtId)
@@ -65,6 +97,19 @@ function parseProject(json: unknown): Parsed {
   const style: StyleData | null = { format: ratio, width: fmt.w, height: fmt.h }
 
   const variants: { lang: string; headline: HeadlineData; cta: CTAData }[] = []
+
+  // Variants from multiple CTAs (CTA 2, CTA 3, ...)
+  if (ctaElems.length > 1 && headline) {
+    ctaElems.slice(1).forEach((ce, i) => {
+      variants.push({
+        lang: `CTA ${i + 2}`,
+        headline,
+        cta: { text: ce.text!.trim().slice(0, 30), style: 'primary' },
+      })
+    })
+  }
+
+  // Variants from translations
   for (const [lang, dict] of Object.entries(p.trans ?? {})) {
     const texts = Object.values(dict).filter(Boolean)
     if (!texts.length) continue
@@ -77,16 +122,28 @@ function parseProject(json: unknown): Parsed {
     })
   }
 
-  // Human-readable summary of imported elements
+  // Human-readable summary of ALL imported elements
   const elements: Parsed['elements'] = []
-  if (headline) {
-    elements.push({ type: 'headline', label: 'Nagłówek', value: headline.main.slice(0, 40) + (headline.main.length > 40 ? '…' : '') })
-    if (headline.sub) elements.push({ type: 'sub', label: 'Podtytuł', value: headline.sub.slice(0, 40) + (headline.sub.length > 40 ? '…' : '') })
+  textElems.forEach((e, i) => {
+    const label = i === 0 ? 'Nagłówek' : i === 1 ? 'Podtytuł' : `Tekst ${i + 1}`
+    const type  = i === 0 ? 'headline' : 'sub'
+    const val   = e.text!.trim()
+    const colorHint = e.color ? ` (${e.color})` : ''
+    elements.push({ type, label, value: val.slice(0, 36) + (val.length > 36 ? '…' : '') + colorHint })
+  })
+  ctaElems.forEach((e, i) => {
+    const colorHint = e.ctaBg ? ` bg:${e.ctaBg}` : ''
+    elements.push({ type: 'cta', label: i === 0 ? 'CTA' : `CTA ${i + 1}`, value: e.text!.trim() + colorHint })
+  })
+  if (background) {
+    if (background.url)   elements.push({ type: 'bg', label: 'Tło (obraz)', value: 'URL ✓' })
+    if (background.color) elements.push({ type: 'bg', label: 'Tło (kolor)', value: background.color })
   }
-  if (cta) elements.push({ type: 'cta', label: 'CTA', value: cta.text })
-  if (background) elements.push({ type: 'bg', label: 'Tło', value: 'URL ✓' })
   if (style) elements.push({ type: 'format', label: 'Format', value: `${style.format} (${style.width}×${style.height})` })
-  if (variants.length) elements.push({ type: 'variants', label: 'Warianty', value: `${variants.length} języki: ${variants.map(v => v.lang).join(', ')}` })
+  if (p.selFmts && p.selFmts.length > 1) {
+    elements.push({ type: 'format', label: 'Wszystkie formaty', value: p.selFmts.join(', ') })
+  }
+  if (variants.length) elements.push({ type: 'variants', label: 'Warianty', value: `${variants.length}: ${variants.map(v => v.lang).join(', ')}` })
 
   return { headline, cta, background, style, variants, projectName: p.name ?? 'XTools', elements }
 }

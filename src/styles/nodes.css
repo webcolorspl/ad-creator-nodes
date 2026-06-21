@@ -40,6 +40,28 @@
 .node-card.cat-gen.selected     { outline-color: var(--color-gen); }
 .node-card.cat-output.selected  { outline-color: var(--color-output); }
 
+/* Type-specific widths */
+.node-card.type-bannerComposerNode { min-width: 340px; max-width: 400px; }
+.node-card.type-batchExportNode    { min-width: 300px; max-width: 360px; }
+.node-card.type-imageGenNode       { min-width: 280px; max-width: 320px; }
+.node-card.type-copyVariantsNode   { min-width: 260px; max-width: 300px; }
+
+/* Step badge */
+.node-step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-input);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
 /* ── Node Header ────────────────────────────── */
 .node-header {
   display: flex;

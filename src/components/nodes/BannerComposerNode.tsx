@@ -8,7 +8,7 @@ import { BaseNode } from './BaseNode'
 import { PortIndicator } from '@/components/ui/PortIndicator'
 import { StatusBar } from '@/components/ui/StatusBar'
 import type { NodeProps } from '@xyflow/react'
-import type { CopyGroupData, BackgroundData, StyleData, ImageData } from '@/types'
+import type { CopyGroupData, BackgroundData, StyleData, ImageData, ThemeData, HeadlineData, CTAData } from '@/types'
 
 export function BannerComposerNode({ id }: NodeProps) {
   const { edges, nodeOutputs, setNodeOutput, addToast } = useAppStore()
@@ -16,48 +16,61 @@ export function BannerComposerNode({ id }: NodeProps) {
   const [composing, setComposing] = useState(false)
   const [composed,  setComposed]  = useState(false)
 
-  const copy  = resolveInput<CopyGroupData>(id,   'copyGroup',  edges, nodeOutputs)
-  const bg    = resolveInput<BackgroundData>(id,  'background', edges, nodeOutputs)
-  const style = resolveInput<StyleData>(id,       'style',      edges, nodeOutputs)
-  const img   = resolveInput<ImageData>(id,       'image',      edges, nodeOutputs)
-  const fmt   = AD_FORMATS.find(f => f.id === (style?.format ?? '1:1')) ?? AD_FORMATS[0]
+  const copy           = resolveInput<CopyGroupData>(id,  'copyGroup',  edges, nodeOutputs)
+  const directHeadline = resolveInput<HeadlineData>(id,   'headline',   edges, nodeOutputs)
+  const directCta      = resolveInput<CTAData>(id,        'cta',        edges, nodeOutputs)
+  const bg             = resolveInput<BackgroundData>(id, 'background', edges, nodeOutputs)
+  const style          = resolveInput<StyleData>(id,      'style',      edges, nodeOutputs)
+  const img            = resolveInput<ImageData>(id,      'image',      edges, nodeOutputs)
+  const theme          = resolveInput<ThemeData>(id,      'theme',      edges, nodeOutputs)
+  const fmt            = AD_FORMATS.find(f => f.id === (style?.format ?? 'fb-feed')) ?? AD_FORMATS[0]
+
+  const effectiveCopy: CopyGroupData | null = copy ?? (
+    (directHeadline || directCta) ? {
+      prompt:   { text: '', tone: 'neutral', lang: 'pl' },
+      headline: directHeadline ?? { main: '' },
+      cta:      directCta      ?? { text: '', style: 'primary' },
+    } : null
+  )
 
   const compose = useCallback(async () => {
     if (!canvasRef.current) return
     setComposing(true)
     try {
       await composeBanner(canvasRef.current, {
-        copy:       copy ?? null,
-        background: bg?.url ?? null,
+        copy:       effectiveCopy ?? null,
+        background: bg?.url || null,
+        bgColor:    bg?.color ?? null,
         image:      img?.url ?? null,
         style:      style ?? null,
+        theme:      theme ?? null,
       })
       const dataUrl = canvasRef.current.toDataURL('image/png')
-      setNodeOutput(id, { banner: { dataUrl, format: style?.format ?? '1:1', width: fmt.w, height: fmt.h } })
+      setNodeOutput(id, { banner: { dataUrl, format: style?.format ?? 'fb-feed', width: fmt.w, height: fmt.h } })
       setComposed(true)
     } catch (e) {
       addToast({ type: 'error', message: `Błąd kompozycji: ${e instanceof Error ? e.message : 'nieznany'}` })
     }
     setComposing(false)
-  }, [copy, bg, style, img, id, fmt, setNodeOutput, addToast])
+  }, [effectiveCopy, bg, style, img, theme, id, fmt, setNodeOutput, addToast])
 
   useEffect(() => {
-    if (copy || bg || img) void compose()
+    if (effectiveCopy || bg || img) void compose()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify({ copy, bg, img, style })])
+  }, [JSON.stringify({ copy, directHeadline, directCta, bg, img, style, theme })])
 
   const exportPng = () => {
     if (!canvasRef.current) return
     const a = document.createElement('a')
-    a.download = `banner-${style?.format ?? '1:1'}-${Date.now()}.png`
+    a.download = `banner-${style?.format ?? 'fb-feed'}-${Date.now()}.png`
     a.href = canvasRef.current.toDataURL('image/png')
     a.click()
-    addToast({ type: 'success', message: `Pobrano banner-${style?.format ?? '1:1'}.png` })
+    addToast({ type: 'success', message: `Pobrano banner-${style?.format ?? 'fb-feed'}.png` })
   }
 
   return (
     <BaseNode id={id} nodeType="bannerComposerNode">
-      <PortIndicator label="Copy Group"   connected={!!copy}      />
+      <PortIndicator label="Copy Group"   connected={!!effectiveCopy} />
       <PortIndicator label="Tło / Grafika" connected={!!(bg || img)} />
       <PortIndicator label="Style"        connected={!!style}     />
       <div className="field-divider" />
@@ -68,7 +81,7 @@ export function BannerComposerNode({ id }: NodeProps) {
           </div>
         )}
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
-        {!copy && !bg && !img && (
+        {!effectiveCopy && !bg && !img && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, background: 'var(--color-field-bg)', fontSize: 11, color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>
             <span style={{ fontSize: 24 }}>🎬</span>
             <span>Podłącz wejścia</span>
@@ -82,7 +95,7 @@ export function BannerComposerNode({ id }: NodeProps) {
       )}
       <StatusBar
         status={composing ? 'running' : composed ? 'done' : 'idle'}
-        message={composing ? 'komponowanie...' : composed ? `${fmt.w}×${fmt.h}px` : 'oczekuje na wejścia'}
+        message={composing ? 'komponowanie...' : composed ? `${fmt.label} · ${fmt.w}×${fmt.h}px` : 'oczekuje na wejścia'}
       />
     </BaseNode>
   )

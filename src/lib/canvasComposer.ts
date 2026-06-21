@@ -3,13 +3,24 @@
 // Renderuje banner na HTML Canvas
 // ═══════════════════════════════════════════════
 import { AD_FORMATS } from './constants'
-import type { CopyGroupData, StyleData } from '@/types'
+import type { CopyGroupData, StyleData, ThemeData } from '@/types'
 
 interface ComposeOptions {
   copy?: CopyGroupData | null
   background?: string | null
+  bgColor?: string | null
   image?: string | null
   style?: StyleData | null
+  theme?: ThemeData | null
+}
+
+function isColorDark(hex: string): boolean {
+  const c = hex.replace('#', '')
+  if (c.length < 6) return true
+  const r = parseInt(c.slice(0, 2), 16)
+  const g = parseInt(c.slice(2, 4), 16)
+  const b = parseInt(c.slice(4, 6), 16)
+  return (0.299 * r + 0.587 * g + 0.114 * b) < 128
 }
 
 async function loadImage(url: string): Promise<HTMLImageElement> {
@@ -27,7 +38,7 @@ async function loadImage(url: string): Promise<HTMLImageElement> {
 
 export async function composeBanner(
   canvas: HTMLCanvasElement,
-  { copy, background, image, style }: ComposeOptions
+  { copy, background, bgColor, image, style, theme }: ComposeOptions
 ): Promise<void> {
   const fmt = AD_FORMATS.find(f => f.id === (style?.format ?? '1:1')) ?? AD_FORMATS[0]
   canvas.width  = Math.min(fmt.w, 2000)
@@ -47,9 +58,15 @@ export async function composeBanner(
       const sw = img.width * scale
       const sh = img.height * scale
       ctx.drawImage(img, (W - sw) / 2, (H - sh) / 2, sw, sh)
+    } else if (bgColor) {
+      ctx.fillStyle = bgColor
+      ctx.fillRect(0, 0, W, H)
     } else {
       drawFallbackBg(ctx, W, H)
     }
+  } else if (bgColor) {
+    ctx.fillStyle = bgColor
+    ctx.fillRect(0, 0, W, H)
   } else {
     drawFallbackBg(ctx, W, H)
   }
@@ -67,11 +84,27 @@ export async function composeBanner(
   const px = (n: number) => Math.round(n * (W / 1080))
   const centerX = W / 2
 
+  // Logo placeholder (top-left corner)
+  if (theme?.brandName && theme.brandName !== 'Custom') {
+    ctx.shadowBlur = 0
+    const logoFont = theme.fontFamily ?? 'Inter'
+    ctx.font = `700 ${px(20)}px ${logoFont}, sans-serif`
+    ctx.fillStyle = theme.accentColor
+    ctx.textAlign = 'left'
+    ctx.shadowColor = 'rgba(0,0,0,0.8)'
+    ctx.shadowBlur = px(8)
+    ctx.fillText(theme.brandName, px(32), px(56))
+    ctx.shadowBlur = 0
+  }
+
   // Headline
   if (copy.headline?.main) {
+    const hFont   = copy.headline.mainFont   ?? theme?.fontFamily ?? 'Inter'
+    const hWeight = copy.headline.mainWeight ?? 700
+    const hColor  = copy.headline.mainColor  ?? '#FFFFFF'
     const fontSize = px(copy.headline.main.length > 30 ? 52 : 68)
-    ctx.font = `700 ${fontSize}px Inter, system-ui, sans-serif`
-    ctx.fillStyle = '#FFFFFF'
+    ctx.font = `${hWeight} ${fontSize}px ${hFont}, system-ui, sans-serif`
+    ctx.fillStyle = hColor
     ctx.textAlign = 'center'
     ctx.shadowColor = 'rgba(0,0,0,0.6)'
     ctx.shadowBlur = px(12)
@@ -100,8 +133,11 @@ export async function composeBanner(
 
   // Sub-headline
   if (copy.headline?.sub) {
-    ctx.font = `400 ${px(28)}px Inter, system-ui, sans-serif`
-    ctx.fillStyle = 'rgba(255,255,255,0.80)'
+    const sFont   = copy.headline.subFont   ?? copy.headline.mainFont   ?? theme?.fontFamily ?? 'Inter'
+    const sWeight = copy.headline.subWeight ?? 400
+    const sColor  = copy.headline.subColor  ?? 'rgba(255,255,255,0.80)'
+    ctx.font = `${sWeight} ${px(28)}px ${sFont}, system-ui, sans-serif`
+    ctx.fillStyle = sColor
     ctx.shadowBlur = px(6)
     ctx.fillText(copy.headline.sub, centerX, H * 0.77)
   }
@@ -114,7 +150,12 @@ export async function composeBanner(
     const btnY = H * 0.84
     const radius = btnH / 2
 
-    ctx.fillStyle = '#3DFFA0'
+    const ctaBg   = copy.cta.bgColor   ?? theme?.accentColor ?? '#3DFFA0'
+    const ctaTc   = copy.cta.textColor ?? (isColorDark(ctaBg) ? '#FFFFFF' : '#000000')
+    const ctaFontFamily = theme?.fontFamily ?? 'Inter'
+    const ctaFontSize   = copy.cta.size ? px(Math.min(copy.cta.size, 28)) : px(26)
+
+    ctx.fillStyle = ctaBg
     ctx.beginPath()
     ctx.moveTo(btnX + radius, btnY)
     ctx.lineTo(btnX + btnW - radius, btnY)
@@ -128,8 +169,8 @@ export async function composeBanner(
     ctx.closePath()
     ctx.fill()
 
-    ctx.font = `600 ${px(26)}px Inter, system-ui, sans-serif`
-    ctx.fillStyle = '#000000'
+    ctx.font = `600 ${ctaFontSize}px ${ctaFontFamily}, system-ui, sans-serif`
+    ctx.fillStyle = ctaTc
     ctx.textAlign = 'center'
     ctx.fillText(copy.cta.text, centerX, btnY + btnH * 0.65)
   }

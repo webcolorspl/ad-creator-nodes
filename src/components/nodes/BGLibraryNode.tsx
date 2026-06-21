@@ -83,10 +83,29 @@ export function BGLibraryNode({ id }: NodeProps) {
         </div>
       )}
 
-      {/* Preview of image from Image Gen (when no uploads) */}
-      {bgs.length === 0 && imageInput?.url && (
-        <div className="canvas-wrap">
-          <img src={imageInput.url} alt="z Image Gen" style={{ width: '100%', height: 'auto', display: 'block' }} />
+      {/* Preview + save button for image from Image Gen */}
+      {imageInput?.url && (
+        <div>
+          {bgs.length === 0 && (
+            <div className="canvas-wrap">
+              <img src={imageInput.url} alt="z Image Gen" style={{ width: '100%', height: 'auto', display: 'block' }} />
+            </div>
+          )}
+          <button
+            className="btn btn-ghost btn-sm"
+            style={{ width: '100%', justifyContent: 'center', marginTop: 4 }}
+            onClick={() => {
+              const url = imageInput.url
+              setBgs(prev => {
+                const next = [...prev, { id: Date.now(), name: `gen-${prev.length + 1}`, url }]
+                setSel(next.length - 1)
+                setNodeOutput(id, { background: { url, all: next } })
+                return next
+              })
+            }}
+          >
+            + Zapisz do biblioteki
+          </button>
         </div>
       )}
 

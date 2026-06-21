@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { Zap, ImageIcon } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'
 import { resolveInput } from '@/lib/edgeResolver'
 import { BaseNode } from './BaseNode'
@@ -7,7 +8,7 @@ import { PortIndicator } from '@/components/ui/PortIndicator'
 import { StatusBar } from '@/components/ui/StatusBar'
 import { PasswordModal } from '@/components/PasswordModal'
 import type { NodeProps } from '@xyflow/react'
-import type { PromptData, StyleData, NodeStatus } from '@/types'
+import type { PromptData, StyleData, NodeStatus, CopyGroupData, HeadlineData } from '@/types'
 
 export function ImageGenNode({ id }: NodeProps) {
   const { edges, nodeOutputs, setNodeOutput, addToast, addToHistory } = useAppStore()
@@ -19,8 +20,10 @@ export function ImageGenNode({ id }: NodeProps) {
   const [showAuth, setShowAuth] = useState(false)
   const [authed,   setAuthed]   = useState(false)
 
-  const prompt = resolveInput<PromptData>(id, 'prompt', edges, nodeOutputs)
-  const style  = resolveInput<StyleData>(id,  'style',  edges, nodeOutputs)
+  const prompt         = resolveInput<PromptData>(id,     'prompt',    edges, nodeOutputs)
+  const style          = resolveInput<StyleData>(id,      'style',     edges, nodeOutputs)
+  const copy           = resolveInput<CopyGroupData>(id,  'copyGroup', edges, nodeOutputs)
+  const directHeadline = resolveInput<HeadlineData>(id,   'headline',  edges, nodeOutputs)
   const canGen = !!prompt
 
   // Check existing session on mount
@@ -41,12 +44,18 @@ export function ImageGenNode({ id }: NodeProps) {
     setErrMsg('')
     const urls: string[] = []
 
+    const headline = copy?.headline ?? directHeadline
+    const contextSuffix = headline?.main
+      ? `. Banner headline: "${headline.main}"${headline.sub ? `, "${headline.sub}"` : ''}${copy?.cta?.text ? `, CTA: "${copy.cta.text}"` : ''}`
+      : ''
+    const enhancedPromptText = (prompt?.text ?? '') + contextSuffix
+
     for (let i = 0; i < count; i++) {
       try {
         const res = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ promptText: prompt!.text, tone: prompt!.tone }),
+          body: JSON.stringify({ promptText: enhancedPromptText, tone: prompt!.tone }),
         })
         const json = await res.json() as { dataUrl?: string; error?: string }
         if (res.status === 401) {
@@ -94,6 +103,9 @@ export function ImageGenNode({ id }: NodeProps) {
 
       <PortIndicator label="Prompt" connected={!!prompt} detail={prompt?.tone} />
       <PortIndicator label="Style"  connected={!!style}  detail={style?.format} />
+      {(copy?.headline?.main || directHeadline?.main) && (
+        <div style={{ fontSize: 9, color: '#3DFFA0', marginBottom: 4 }}>✓ kontekst banera</div>
+      )}
 
       <div className="field-row">
         <div>
@@ -112,7 +124,7 @@ export function ImageGenNode({ id }: NodeProps) {
           >
             {status === 'running'
               ? <><div className="gen-spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Gen...</>
-              : '▶ Generuj'
+              : <><Zap size={13} strokeWidth={1.75} style={{ marginRight: 5 }} /> Generuj</>
             }
           </button>
         </div>
@@ -120,7 +132,7 @@ export function ImageGenNode({ id }: NodeProps) {
 
       {status === 'idle' && images.length === 0 && (
         <div className="gen-placeholder">
-          <span style={{ fontSize: 24 }}>🖼️</span>
+          <ImageIcon size={28} strokeWidth={1.25} style={{ opacity: 0.35 }} />
           <span>{canGen ? 'Kliknij Generuj' : 'Podłącz Prompt'}</span>
         </div>
       )}
