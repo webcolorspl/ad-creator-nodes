@@ -67,6 +67,9 @@ export async function composeBanner(
   } else if (bgColor) {
     ctx.fillStyle = bgColor
     ctx.fillRect(0, 0, W, H)
+  } else if (theme?.bgColor) {
+    ctx.fillStyle = theme.bgColor
+    ctx.fillRect(0, 0, W, H)
   } else {
     drawFallbackBg(ctx, W, H)
   }

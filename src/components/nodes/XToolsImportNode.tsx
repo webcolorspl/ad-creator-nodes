@@ -34,12 +34,13 @@ interface XToolsProject {
   trans?: Record<string, Record<string, string>>
 }
 
-function mapFormat(fmtId: string): StyleData['format'] {
-  if (/story|short|tt-|reel/i.test(fmtId))               return '9:16'
-  if (/square|1080x1080/i.test(fmtId))                   return '1:1'
-  if (/portrait|1350|4:5/i.test(fmtId))                  return '4:5'
-  if (/feed|wide|banner|16:9|youtube|yt-thumb/i.test(fmtId)) return '16:9'
-  return '1:1'
+function mapFormat(fmtId: string): string {
+  if (/story|short|tt-|reel/i.test(fmtId))               return 'ig-story'
+  if (/square|1080x1080/i.test(fmtId))                   return 'ig-square'
+  if (/portrait|1350|4:5/i.test(fmtId))                  return 'ig-portrait'
+  if (/feed|wide|16:9|youtube|yt-thumb/i.test(fmtId))    return 'fb-feed'
+  if (/banner/i.test(fmtId))                              return 'li-banner'
+  return 'ig-square'
 }
 
 interface Parsed {
