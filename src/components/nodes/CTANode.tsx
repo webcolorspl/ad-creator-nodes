@@ -20,7 +20,11 @@ const VAR_BTN_HOVER: React.CSSProperties = {
 }
 
 export function CTANode({ id, data }: NodeProps) {
-  const { setNodeOutput, setNodeErrors, edges, nodeOutputs, copyVariants } = useAppStore()
+  const setNodeOutput = useAppStore(s => s.setNodeOutput)
+  const setNodeErrors = useAppStore(s => s.setNodeErrors)
+  const edges         = useAppStore(s => s.edges)
+  const nodeOutputs   = useAppStore(s => s.nodeOutputs)
+  const copyVariants  = useAppStore(s => s.copyVariants)
   const d = data as Record<string, unknown>
   const [text,       setText]       = useState((d.text  as string) ?? '')
   const [style,      setStyle]      = useState((d.style as string) ?? 'primary')

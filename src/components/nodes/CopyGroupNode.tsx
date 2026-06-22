@@ -9,7 +9,9 @@ import type { NodeProps } from '@xyflow/react'
 import type { PromptData, HeadlineData, CTAData } from '@/types'
 
 export function CopyGroupNode({ id }: NodeProps) {
-  const { edges, nodeOutputs, setNodeOutput } = useAppStore()
+  const edges         = useAppStore(s => s.edges)
+  const nodeOutputs   = useAppStore(s => s.nodeOutputs)
+  const setNodeOutput = useAppStore(s => s.setNodeOutput)
 
   const p = resolveInput<PromptData>(id,   'prompt',   edges, nodeOutputs)
   const h = resolveInput<HeadlineData>(id, 'headline', edges, nodeOutputs)

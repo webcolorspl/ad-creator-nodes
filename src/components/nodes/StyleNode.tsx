@@ -7,7 +7,7 @@ import { AD_FORMATS, PLATFORM_GROUPS } from '@/lib/constants'
 import type { NodeProps } from '@xyflow/react'
 
 export function StyleNode({ id, data }: NodeProps) {
-  const { setNodeOutput } = useAppStore()
+  const setNodeOutput = useAppStore(s => s.setNodeOutput)
   const d = data as Record<string, unknown>
   const [format, setFormat] = useState<string>((d.format as string) ?? 'fb-feed')
   const [activePlatform, setActivePlatform] = useState<string>('Facebook')

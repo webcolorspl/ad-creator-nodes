@@ -20,7 +20,7 @@ const PRESETS: Record<string, Omit<ThemeData, 'brandName'>> = {
 const FONT_OPTIONS = ['Inter', 'Manrope', 'Montserrat', 'Poppins', 'Roboto', 'Open Sans']
 
 export function ThemeNode({ id }: NodeProps) {
-  const { setNodeOutput } = useAppStore()
+  const setNodeOutput = useAppStore(s => s.setNodeOutput)
 
   const [brand,       setBrand]       = useState<string>('Trans.eu')
   const [bgColor,     setBgColor]     = useState(PRESETS['Trans.eu'].bgColor)

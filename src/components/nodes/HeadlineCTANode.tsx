@@ -18,7 +18,8 @@ function makeVariant(n: number): HeadlineCTAVariant {
 }
 
 export function HeadlineCTANode({ id, data }: NodeProps) {
-  const { setNodeOutput, setNodeErrors } = useAppStore()
+  const setNodeOutput = useAppStore(s => s.setNodeOutput)
+  const setNodeErrors = useAppStore(s => s.setNodeErrors)
   const d = data as Record<string, unknown>
 
   const [variants,  setVariants]  = useState<HeadlineCTAVariant[]>(

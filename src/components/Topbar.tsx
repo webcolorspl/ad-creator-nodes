@@ -3,8 +3,13 @@ import { useAppStore } from '@/store/appStore'
 import { FlaskConical, KeyRound } from '@/lib/icons'
 
 export function Topbar() {
-  const { apiKey, nodeErrors, genHistory, setShowApiModal, setShowTests } = useAppStore()
-  const { appMode, setAppMode } = useAppStore(s => ({ appMode: s.appMode, setAppMode: s.setAppMode }))
+  const apiKey         = useAppStore(s => s.apiKey)
+  const nodeErrors     = useAppStore(s => s.nodeErrors)
+  const genHistory     = useAppStore(s => s.genHistory)
+  const setShowApiModal = useAppStore(s => s.setShowApiModal)
+  const setShowTests   = useAppStore(s => s.setShowTests)
+  const appMode        = useAppStore(s => s.appMode)
+  const setAppMode     = useAppStore(s => s.setAppMode)
   const totalErrors = Object.values(nodeErrors).reduce((s, e) => s + e.length, 0)
 
   return (

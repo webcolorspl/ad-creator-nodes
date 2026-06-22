@@ -7,7 +7,8 @@ import type { NodeProps } from '@xyflow/react'
 import type { NodeStatus, WebData } from '@/types'
 
 export function WebImportNode({ id }: NodeProps) {
-  const { setNodeOutput, addToast } = useAppStore()
+  const setNodeOutput = useAppStore(s => s.setNodeOutput)
+  const addToast      = useAppStore(s => s.addToast)
   const [url,    setUrl]    = useState('')
   const [status, setStatus] = useState<NodeStatus>('idle')
   const [errMsg, setErrMsg] = useState('')

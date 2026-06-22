@@ -12,7 +12,10 @@ import { useAppStore } from '@/store/appStore'
 import type { NodeProps } from '@xyflow/react'
 
 export function CopyVariantsNode({ id }: NodeProps) {
-  const { setNodeOutput, setNodeErrors, copyVariants, activeCopyVariantIdx } = useAppStore()
+  const setNodeOutput        = useAppStore(s => s.setNodeOutput)
+  const setNodeErrors        = useAppStore(s => s.setNodeErrors)
+  const copyVariants         = useAppStore(s => s.copyVariants)
+  const activeCopyVariantIdx = useAppStore(s => s.activeCopyVariantIdx)
 
   const active = copyVariants[activeCopyVariantIdx] ?? copyVariants[0]
   const validHeadline = active?.headlineMain.trim().length > 0 && active.headlineMain.length <= 60

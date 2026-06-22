@@ -20,7 +20,11 @@ const VAR_BTN_HOVER: React.CSSProperties = {
 }
 
 export function HeadlineNode({ id, data }: NodeProps) {
-  const { setNodeOutput, setNodeErrors, edges, nodeOutputs, copyVariants } = useAppStore()
+  const setNodeOutput = useAppStore(s => s.setNodeOutput)
+  const setNodeErrors = useAppStore(s => s.setNodeErrors)
+  const edges         = useAppStore(s => s.edges)
+  const nodeOutputs   = useAppStore(s => s.nodeOutputs)
+  const copyVariants  = useAppStore(s => s.copyVariants)
   const d = data as Record<string, unknown>
   const [main,     setMain]     = useState((d.main as string) ?? '')
   const [sub,      setSub]      = useState((d.sub  as string) ?? '')

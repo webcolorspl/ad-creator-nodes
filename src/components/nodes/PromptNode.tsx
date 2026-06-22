@@ -7,7 +7,8 @@ import { validatePromptNode } from '@/lib/validation'
 import type { NodeProps } from '@xyflow/react'
 
 export function PromptNode({ id, data }: NodeProps) {
-  const { setNodeOutput, setNodeErrors } = useAppStore()
+  const setNodeOutput = useAppStore(s => s.setNodeOutput)
+  const setNodeErrors = useAppStore(s => s.setNodeErrors)
   const d = data as Record<string, unknown>
   const [text,     setText]     = useState((d.text     as string) ?? '')
   const [tone,     setTone]     = useState((d.tone     as string) ?? 'neutral')

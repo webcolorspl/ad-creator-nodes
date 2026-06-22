@@ -161,7 +161,12 @@ const TYPE_COLOR: Record<string, string> = {
 type Mode = 'cloud' | 'file'
 
 export function XToolsImportNode({ id }: NodeProps) {
-  const { setNodeOutput, setNodeErrors, addToast, setCopyVariant, addCopyVariant, setActiveCopyVariantIdx } = useAppStore()
+  const setNodeOutput          = useAppStore(s => s.setNodeOutput)
+  const setNodeErrors          = useAppStore(s => s.setNodeErrors)
+  const addToast               = useAppStore(s => s.addToast)
+  const setCopyVariant         = useAppStore(s => s.setCopyVariant)
+  const addCopyVariant         = useAppStore(s => s.addCopyVariant)
+  const setActiveCopyVariantIdx = useAppStore(s => s.setActiveCopyVariantIdx)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const [mode,         setMode]        = useState<Mode>('cloud')

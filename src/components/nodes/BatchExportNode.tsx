@@ -10,7 +10,9 @@ import type { NodeProps } from '@xyflow/react'
 import type { BannerData, BackgroundData, StyleData, ThemeData, CopyGroupData, HeadlineData, CTAData } from '@/types'
 
 export function BatchExportNode({ id }: NodeProps) {
-  const { edges, nodeOutputs, addToast } = useAppStore()
+  const edges       = useAppStore(s => s.edges)
+  const nodeOutputs = useAppStore(s => s.nodeOutputs)
+  const addToast    = useAppStore(s => s.addToast)
   const [exporting, setExporting] = useState(false)
   const [selected,  setSelected]  = useState<Set<string>>(new Set(['fb-feed', 'ig-square', 'ig-story']))
   const [activePlt, setActivePlt] = useState('Facebook')

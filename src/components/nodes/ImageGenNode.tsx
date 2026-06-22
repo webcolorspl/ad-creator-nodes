@@ -11,7 +11,11 @@ import type { NodeProps } from '@xyflow/react'
 import type { PromptData, StyleData, NodeStatus, CopyGroupData, HeadlineData } from '@/types'
 
 export function ImageGenNode({ id }: NodeProps) {
-  const { edges, nodeOutputs, setNodeOutput, addToast, addToHistory } = useAppStore()
+  const edges         = useAppStore(s => s.edges)
+  const nodeOutputs   = useAppStore(s => s.nodeOutputs)
+  const setNodeOutput = useAppStore(s => s.setNodeOutput)
+  const addToast      = useAppStore(s => s.addToast)
+  const addToHistory  = useAppStore(s => s.addToHistory)
   const [images,   setImages]   = useState<string[]>([])
   const [selected, setSelected] = useState(0)
   const [status,   setStatus]   = useState<NodeStatus>('idle')

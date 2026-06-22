@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { useAppStore } from '@/store/appStore'
 
 export function ApiKeyModal() {
-  const { setApiKey, setShowApiModal } = useAppStore()
+  const setApiKey       = useAppStore(s => s.setApiKey)
+  const setShowApiModal = useAppStore(s => s.setShowApiModal)
   const [key, setKey] = useState('')
 
   return (

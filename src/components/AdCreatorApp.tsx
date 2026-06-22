@@ -17,7 +17,8 @@ import { TestsPanel }        from './TestsPanel'
 import { useAppStore }       from '@/store/appStore'
 
 export function AdCreatorApp() {
-  const { showApiModal, showTests } = useAppStore()
+  const showApiModal = useAppStore(s => s.showApiModal)
+  const showTests    = useAppStore(s => s.showTests)
   const [liveNodes, setLiveNodes] = useState<Node[]>([])
   const [liveEdges, setLiveEdges] = useState<Edge[]>([])
 

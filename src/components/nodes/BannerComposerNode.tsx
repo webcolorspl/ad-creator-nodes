@@ -11,7 +11,10 @@ import type { NodeProps } from '@xyflow/react'
 import type { CopyGroupData, BackgroundData, StyleData, ImageData, ThemeData, HeadlineData, CTAData } from '@/types'
 
 export function BannerComposerNode({ id }: NodeProps) {
-  const { edges, nodeOutputs, setNodeOutput, addToast } = useAppStore()
+  const edges         = useAppStore(s => s.edges)
+  const nodeOutputs   = useAppStore(s => s.nodeOutputs)
+  const setNodeOutput = useAppStore(s => s.setNodeOutput)
+  const addToast      = useAppStore(s => s.addToast)
   const canvasRef   = useRef<HTMLCanvasElement>(null)
   const [composing, setComposing] = useState(false)
   const [composed,  setComposed]  = useState(false)

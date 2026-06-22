@@ -9,7 +9,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ nodes }: SidebarProps) {
-  const { requestZoom } = useAppStore()
+  const requestZoom = useAppStore(s => s.requestZoom)
 
   const onDragStart = (e: React.DragEvent, nodeType: string) => {
     e.dataTransfer.setData('nodeType', nodeType)

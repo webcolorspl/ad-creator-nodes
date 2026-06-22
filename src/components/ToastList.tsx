@@ -3,7 +3,8 @@ import { useEffect } from 'react'
 import { useAppStore } from '@/store/appStore'
 
 export function ToastList() {
-  const { toasts, dismissToast } = useAppStore()
+  const toasts      = useAppStore(s => s.toasts)
+  const dismissToast = useAppStore(s => s.dismissToast)
 
   useEffect(() => {
     toasts.forEach(t => {

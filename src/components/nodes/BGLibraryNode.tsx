@@ -11,7 +11,9 @@ import type { ImageData } from '@/types'
 interface BgItem { id: number; name: string; url: string }
 
 export function BGLibraryNode({ id }: NodeProps) {
-  const { edges, nodeOutputs, setNodeOutput } = useAppStore()
+  const edges         = useAppStore(s => s.edges)
+  const nodeOutputs   = useAppStore(s => s.nodeOutputs)
+  const setNodeOutput = useAppStore(s => s.setNodeOutput)
   const [bgs, setBgs] = useState<BgItem[]>([])
   const [sel, setSel] = useState(0)
 

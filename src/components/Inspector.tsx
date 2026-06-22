@@ -6,7 +6,12 @@ import { NODE_REGISTRY, PORT_COLORS } from '@/lib/constants'
 interface InspectorProps { nodes: Node[]; edges: Edge[] }
 
 export function Inspector({ nodes, edges }: InspectorProps) {
-  const { selectedId, nodeOutputs, nodeErrors, inspectorTab, genHistory, setInspectorTab } = useAppStore()
+  const selectedId     = useAppStore(s => s.selectedId)
+  const nodeOutputs    = useAppStore(s => s.nodeOutputs)
+  const nodeErrors     = useAppStore(s => s.nodeErrors)
+  const inspectorTab   = useAppStore(s => s.inspectorTab)
+  const genHistory     = useAppStore(s => s.genHistory)
+  const setInspectorTab = useAppStore(s => s.setInspectorTab)
   const selNode = nodes.find(n => n.id === selectedId)
   const output  = selectedId ? nodeOutputs[selectedId] : null
   const errs    = selectedId ? nodeErrors[selectedId]  : []
