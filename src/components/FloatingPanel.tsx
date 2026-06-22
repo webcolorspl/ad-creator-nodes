@@ -3,7 +3,7 @@
 // FLOATING PANEL — draggable overlay panel
 // Drag the header to reposition; click ▴/▾ to minimize
 // ═══════════════════════════════════════════════
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 import { useAppStore } from '@/store/appStore'
 
 interface FloatingPanelProps {
@@ -17,6 +17,17 @@ export function FloatingPanel({ side, title, width, children }: FloatingPanelPro
   const panel            = useAppStore(s => s.panels[side])
   const setPanelPos      = useAppStore(s => s.setPanelPos)
   const toggleMinimized  = useAppStore(s => s.togglePanelMinimized)
+
+  // Adjust right panel position to screen width after mount (avoids SSR/client mismatch)
+  useEffect(() => {
+    if (side === 'right') {
+      const targetX = window.innerWidth - width - 8
+      if (Math.abs(panel.x - targetX) > 50) {
+        setPanelPos('right', targetX, panel.y)
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const posRef = useRef({ x: panel.x, y: panel.y })
   posRef.current = { x: panel.x, y: panel.y }

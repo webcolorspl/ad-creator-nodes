@@ -122,7 +122,7 @@ export const useAppStore = create<AppState>((set) => ({
   // Floating panels
   panels: {
     left:   { x: 8,   y: 60, minimized: false },
-    right:  { x: typeof window !== 'undefined' ? window.innerWidth - 308 : 1132, y: 60, minimized: true },
+    right:  { x: 1132, y: 60, minimized: true },
     copy:   { x: 8, y: 420, minimized: false },
   },
   setPanelPos: (side, x, y) =>
