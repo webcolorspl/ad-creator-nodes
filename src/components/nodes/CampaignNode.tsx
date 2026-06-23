@@ -152,7 +152,12 @@ export function CampaignNode({ id }: NodeProps) {
             {CAMPAIGN_TYPES.map(t => (
               <div
                 key={t.id}
-                onMouseDown={e => { e.stopPropagation(); setType(t.id) }}
+                onMouseDown={e => {
+                  e.stopPropagation()
+                  setType(t.id)
+                  setGoals([])
+                  setTimeout(() => setTab('goals'), 120)
+                }}
                 style={{
                   display:'flex', alignItems:'center', gap:8, padding:'6px 8px', borderRadius:6, cursor:'pointer',
                   border:`1px solid ${type === t.id ? 'var(--color-process)' : 'var(--color-field-border)'}`,
@@ -178,27 +183,39 @@ export function CampaignNode({ id }: NodeProps) {
               <div style={{ fontSize:11, color:'var(--color-text-muted)', padding:'8px', textAlign:'center' }}>
                 Najpierw wybierz typ kampanii
               </div>
-            ) : GOALS_BY_TYPE[type].map(g => (
-              <label
-                key={g.id}
-                onMouseDown={e => e.stopPropagation()}
-                style={{
-                  display:'flex', alignItems:'center', gap:8, padding:'6px 8px', borderRadius:6, cursor:'pointer',
-                  border:`1px solid ${goals.includes(g.id) ? 'var(--color-process)' : 'var(--color-field-border)'}`,
-                  background: goals.includes(g.id) ? 'rgba(124,92,245,0.08)' : 'var(--color-field-bg)',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={goals.includes(g.id)}
-                  onChange={() => toggleGoal(g.id)}
-                  style={{ accentColor:'var(--color-process)', width:13, height:13, flexShrink:0 }}
-                />
-                <span style={{ fontSize:11, color:'var(--color-text)', fontWeight: goals.includes(g.id) ? 600 : 400 }}>
-                  {g.label}
-                </span>
-              </label>
-            ))}
+            ) : (
+              <>
+                {GOALS_BY_TYPE[type].map(g => (
+                  <label
+                    key={g.id}
+                    onMouseDown={e => e.stopPropagation()}
+                    style={{
+                      display:'flex', alignItems:'center', gap:8, padding:'6px 8px', borderRadius:6, cursor:'pointer',
+                      border:`1px solid ${goals.includes(g.id) ? 'var(--color-process)' : 'var(--color-field-border)'}`,
+                      background: goals.includes(g.id) ? 'rgba(124,92,245,0.08)' : 'var(--color-field-bg)',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={goals.includes(g.id)}
+                      onChange={() => toggleGoal(g.id)}
+                      style={{ accentColor:'var(--color-process)', width:13, height:13, flexShrink:0 }}
+                    />
+                    <span style={{ fontSize:11, color:'var(--color-text)', fontWeight: goals.includes(g.id) ? 600 : 400 }}>
+                      {g.label}
+                    </span>
+                  </label>
+                ))}
+                <button
+                  className="btn btn-primary btn-sm"
+                  disabled={!goals.length}
+                  onMouseDown={e => { e.stopPropagation(); setTab('groups') }}
+                  style={{ width:'100%', justifyContent:'center', marginTop:6 }}
+                >
+                  Dalej → Grupy
+                </button>
+              </>
+            )}
           </div>
         )}
 
@@ -229,27 +246,16 @@ export function CampaignNode({ id }: NodeProps) {
                 </div>
               </label>
             ))}
+            <button
+              className="btn btn-primary btn-sm"
+              disabled={!groups.length}
+              onMouseDown={e => { e.stopPropagation(); handleLaunch() }}
+              style={{ width:'100%', justifyContent:'center', marginTop:6 }}
+            >
+              Uruchom kampanię →
+            </button>
           </div>
         )}
-
-        {/* Launch button — zawsze widoczny, aktywny gdy wszystko wypełnione */}
-        <div style={{ marginTop: 12, borderTop:'1px solid var(--color-field-border)', paddingTop:10 }}>
-          {!canLaunch && (
-            <div style={{ display:'flex', gap:6, marginBottom:6, flexWrap:'wrap' }}>
-              {!type    && <span style={{ fontSize:9, color:'var(--color-text-muted)' }}>· wybierz typ</span>}
-              {!goals.length  && <span style={{ fontSize:9, color:'var(--color-text-muted)' }}>· wybierz cele</span>}
-              {!groups.length && <span style={{ fontSize:9, color:'var(--color-text-muted)' }}>· wybierz grupy</span>}
-            </div>
-          )}
-          <button
-            className="btn btn-primary btn-sm"
-            disabled={!canLaunch}
-            onMouseDown={e => { e.stopPropagation(); handleLaunch() }}
-            style={{ width:'100%', justifyContent:'center' }}
-          >
-            Uruchom kampanię →
-          </button>
-        </div>
 
       </div>
     </BaseNode>
