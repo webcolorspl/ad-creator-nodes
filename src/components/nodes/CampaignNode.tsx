@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useReactFlow } from '@xyflow/react'
 import { BaseNode } from './BaseNode'
 import { useAppStore } from '@/store/appStore'
 import type { CampaignConfig } from '@/store/appStore'
@@ -38,6 +39,8 @@ export function CampaignNode({ id }: NodeProps) {
   const campaign       = useAppStore(s => s.campaign)
   const setCampaign    = useAppStore(s => s.setCampaign)
 
+  const { fitView } = useReactFlow()
+
   const [type,   setType]   = useState<CampaignConfig['type'] | null>(null)
   const [goals,  setGoals]  = useState<string[]>([])
   const [groups, setGroups] = useState<CampaignConfig['groups']>([])
@@ -45,12 +48,19 @@ export function CampaignNode({ id }: NodeProps) {
   const showGoals  = !!type
   const showGroups = goals.length > 0
 
+  function recenter() {
+    setTimeout(() => fitView({ nodes: [{ id }], duration: 350, padding: 0.35 }), 320)
+  }
+
   function handleSelectType(t: CampaignConfig['type']) {
     setType(t)
     setGoals([])
+    if (!type) recenter()   // tylko pierwsze rozwinięcie
   }
   function toggleGoal(g: string) {
+    const wasEmpty = goals.length === 0
     setGoals(p => p.includes(g) ? p.filter(x => x !== g) : [...p, g])
+    if (wasEmpty) recenter()  // pierwsze zaznaczenie → pojawia się col3
   }
   function toggleGroup(g: CampaignConfig['groups'][number]) {
     setGroups(p => p.includes(g) ? p.filter(x => x !== g) : [...p, g])
