@@ -87,6 +87,12 @@ export const NODE_REGISTRY: Record<string, NodeDef> = {
     outs: [],
     description: 'Konfiguracja kampanii — typ, cele, grupy banerów',
   },
+  channelNode: {
+    label: 'Kanały', icon: '📡', cat: NODE_CATEGORIES.PROCESS,
+    ins: [],
+    outs: [],
+    description: 'Wybór kanałów dystrybucji i formatów banerów',
+  },
   webImportNode: {
     label: 'Web Import', icon: '🌐', cat: NODE_CATEGORIES.INPUT,
     ins: [],

@@ -24,11 +24,13 @@ import {
   ChevronRight,
   Palette,
   Megaphone,
+  Radio,
   type LucideIcon,
 } from 'lucide-react'
 
 export const NODE_ICONS: Record<string, LucideIcon> = {
   campaignNode:       Megaphone,
+  channelNode:        Radio,
   webImportNode:      Globe,
   promptNode:         Target,
   headlineNode:       Heading1,

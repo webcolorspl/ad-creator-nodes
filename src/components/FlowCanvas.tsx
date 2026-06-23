@@ -22,6 +22,7 @@ import {
 } from './nodes'
 import { HintNode } from './nodes/HintNode'
 import { CampaignNode } from './nodes/CampaignNode'
+import { ChannelNode }  from './nodes/ChannelNode'
 
 // Node type map for React Flow
 const NODE_TYPES = {
@@ -41,6 +42,7 @@ const NODE_TYPES = {
   themeNode:          ThemeNode,
   hintNode:           HintNode,
   campaignNode:       CampaignNode,
+  channelNode:        ChannelNode,
 }
 
 // Section bounds for navigation pills
