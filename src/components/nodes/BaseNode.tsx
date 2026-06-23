@@ -83,8 +83,8 @@ export function BaseNode({ id, nodeType, children }: BaseNodeProps) {
         </div>
       )}
 
-      {/* Node content */}
-      <div className="node-body">{children}</div>
+      {/* Node content — nodrag zapobiega przechwytywaniu kliknięć przez ReactFlow */}
+      <div className="node-body nodrag">{children}</div>
 
       {/* Output handles */}
       {def.outs.map((port, i) => (
