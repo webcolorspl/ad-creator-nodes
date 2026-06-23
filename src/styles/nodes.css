@@ -41,6 +41,7 @@
 .node-card.cat-output.selected  { outline-color: var(--color-output); }
 
 /* Type-specific widths */
+.node-card.type-campaignNode       { min-width: 180px; max-width: none; width: max-content; }
 .node-card.type-bannerComposerNode { min-width: 340px; max-width: 400px; }
 .node-card.type-batchExportNode    { min-width: 300px; max-width: 360px; }
 .node-card.type-imageGenNode       { min-width: 280px; max-width: 320px; }
