@@ -31,12 +31,20 @@ const BANNER_GROUPS: { id: CampaignConfig['groups'][number]; label: string; icon
   { id: 'brand',       label: 'Brand',       icon: '◇', desc: 'Wizerunek marki' },
 ]
 
+type Tab = 'type' | 'goals' | 'groups'
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'type',   label: 'TYP'    },
+  { id: 'goals',  label: 'CELE'   },
+  { id: 'groups', label: 'GRUPY'  },
+]
+
 export function CampaignNode({ id }: NodeProps) {
   const launchCampaign = useAppStore(s => s.launchCampaign)
   const campaign       = useAppStore(s => s.campaign)
   const setCampaign    = useAppStore(s => s.setCampaign)
 
-  const [step,   setStep]   = useState<1 | 2 | 3>(1)
+  const [tab,    setTab]    = useState<Tab>('type')
   const [type,   setType]   = useState<CampaignConfig['type'] | null>(null)
   const [goals,  setGoals]  = useState<string[]>([])
   const [groups, setGroups] = useState<CampaignConfig['groups']>([])
@@ -47,16 +55,20 @@ export function CampaignNode({ id }: NodeProps) {
   function toggleGroup(g: CampaignConfig['groups'][number]) {
     setGroups(p => p.includes(g) ? p.filter(x => x !== g) : [...p, g])
   }
+
+  const canLaunch = !!type && goals.length > 0 && groups.length > 0
+
   function handleLaunch() {
     if (!type || !goals.length || !groups.length) return
     launchCampaign({ type, goals, groups })
   }
 
+  // ── Summary view (after launch) ──────────────────────────────────
   if (campaign) {
     const typeInfo = CAMPAIGN_TYPES.find(t => t.id === campaign.type)
     return (
       <BaseNode id={id} nodeType="campaignNode">
-        <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:8, minWidth:220 }}>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <span style={{ fontSize:18 }}>{typeInfo?.icon}</span>
             <div>
@@ -64,18 +76,21 @@ export function CampaignNode({ id }: NodeProps) {
               <div style={{ fontSize:10, color:'var(--color-text-muted)' }}>{campaign.goals.join(' · ')}</div>
             </div>
           </div>
-          <div style={{ display:'flex', gap:4, flexWrap:'wrap', marginTop:2 }}>
+          <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
             {campaign.groups.map(g => {
               const info = BANNER_GROUPS.find(x => x.id === g)
               return (
-                <span key={g} style={{ fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:4, background:'var(--color-process)', color:'#fff', opacity:0.85 }}>
+                <span key={g} style={{ fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:4, background:'var(--color-process)', color:'#fff', opacity:0.9 }}>
                   {info?.icon} {info?.label}
                 </span>
               )
             })}
           </div>
-          <button className="btn btn-ghost btn-sm" style={{ marginTop:4, width:'100%', justifyContent:'center', fontSize:10 }}
-            onClick={() => { setCampaign(null); setStep(1); setType(null); setGoals([]); setGroups([]) }}>
+          <button
+            className="btn btn-ghost btn-sm"
+            style={{ width:'100%', justifyContent:'center', fontSize:10, marginTop:2 }}
+            onClick={() => { setCampaign(null); setTab('type'); setType(null); setGoals([]); setGroups([]) }}
+          >
             ✎ Zmień konfigurację
           </button>
         </div>
@@ -83,87 +98,159 @@ export function CampaignNode({ id }: NodeProps) {
     )
   }
 
+  // ── Config view ──────────────────────────────────────────────────
+  const tabDone: Record<Tab, boolean> = {
+    type:   !!type,
+    goals:  goals.length > 0,
+    groups: groups.length > 0,
+  }
+
   return (
     <BaseNode id={id} nodeType="campaignNode">
-      <div style={{ display:'flex', flexDirection:'column', gap:10, minWidth:220 }}>
+      <div style={{ display:'flex', flexDirection:'column', gap:0, minWidth:240 }}>
 
-        {/* Progress bar */}
-        <div style={{ display:'flex', gap:3, marginBottom:2 }}>
-          {([1,2,3] as const).map(s => (
-            <div key={s} style={{ flex:1, height:2, borderRadius:2, background: s <= step ? 'var(--color-process)' : 'var(--color-field-border)', transition:'background .2s' }} />
+        {/* Tab bar */}
+        <div style={{
+          display: 'flex',
+          borderBottom: '1px solid var(--color-field-border)',
+          marginBottom: 10,
+          gap: 0,
+        }}>
+          {TABS.map(t => (
+            <button
+              key={t.id}
+              onMouseDown={e => { e.stopPropagation(); setTab(t.id) }}
+              style={{
+                flex: 1,
+                padding: '6px 4px',
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: '.07em',
+                border: 'none',
+                borderBottom: tab === t.id ? '2px solid var(--color-process)' : '2px solid transparent',
+                background: 'none',
+                color: tab === t.id ? 'var(--color-process)' : 'var(--color-text-muted)',
+                cursor: 'pointer',
+                transition: 'all .12s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 3,
+              }}
+            >
+              {tabDone[t.id] && (
+                <span style={{ color:'var(--color-gen)', fontSize:8, fontWeight:900 }}>✓</span>
+              )}
+              {t.label}
+            </button>
           ))}
         </div>
 
-        {/* Step 1 */}
-        {step === 1 && (
-          <>
-            <div style={{ fontSize:10, fontWeight:700, color:'var(--color-text-muted)', textTransform:'uppercase', letterSpacing:'.08em' }}>Krok 1 — Typ kampanii</div>
+        {/* Tab: TYP */}
+        {tab === 'type' && (
+          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
             {CAMPAIGN_TYPES.map(t => (
-              <div key={t.id} onClick={() => setType(t.id)} style={{
-                display:'flex', alignItems:'center', gap:8, padding:'6px 8px', borderRadius:6, cursor:'pointer',
-                border:`1px solid ${type === t.id ? 'var(--color-process)' : 'var(--color-field-border)'}`,
-                background: type === t.id ? 'rgba(99,102,241,0.08)' : 'var(--color-field-bg)', transition:'all .12s',
-              }}>
-                <span style={{ fontSize:14, width:20, textAlign:'center' }}>{t.icon}</span>
+              <div
+                key={t.id}
+                onMouseDown={e => { e.stopPropagation(); setType(t.id) }}
+                style={{
+                  display:'flex', alignItems:'center', gap:8, padding:'6px 8px', borderRadius:6, cursor:'pointer',
+                  border:`1px solid ${type === t.id ? 'var(--color-process)' : 'var(--color-field-border)'}`,
+                  background: type === t.id ? 'rgba(124,92,245,0.08)' : 'var(--color-field-bg)',
+                  transition:'all .12s',
+                }}
+              >
+                <span style={{ fontSize:13, width:18, textAlign:'center' }}>{t.icon}</span>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:11, fontWeight:600, color:'var(--color-text)' }}>{t.label}</div>
                   <div style={{ fontSize:9, color:'var(--color-text-muted)' }}>{t.desc}</div>
                 </div>
-                {type === t.id && <span style={{ color:'var(--color-process)', fontSize:12 }}>✓</span>}
+                {type === t.id && <span style={{ color:'var(--color-process)', fontSize:11, fontWeight:900 }}>✓</span>}
               </div>
             ))}
-            <button className="btn btn-primary btn-sm" disabled={!type} onClick={() => type && setStep(2)} style={{ width:'100%', justifyContent:'center', marginTop:4 }}>
-              Dalej →
-            </button>
-          </>
+          </div>
         )}
 
-        {/* Step 2 */}
-        {step === 2 && type && (
-          <>
-            <div style={{ fontSize:10, fontWeight:700, color:'var(--color-text-muted)', textTransform:'uppercase', letterSpacing:'.08em' }}>Krok 2 — Cele kampanii</div>
-            {GOALS_BY_TYPE[type].map(g => (
-              <label key={g.id} style={{
-                display:'flex', alignItems:'center', gap:8, padding:'5px 8px', borderRadius:6, cursor:'pointer',
-                border:`1px solid ${goals.includes(g.id) ? 'var(--color-process)' : 'var(--color-field-border)'}`,
-                background: goals.includes(g.id) ? 'rgba(99,102,241,0.08)' : 'var(--color-field-bg)',
-              }}>
-                <input type="checkbox" checked={goals.includes(g.id)} onChange={() => toggleGoal(g.id)}
-                  style={{ accentColor:'var(--color-process)', width:13, height:13 }} />
-                <span style={{ fontSize:11, color:'var(--color-text)', fontWeight: goals.includes(g.id) ? 600 : 400 }}>{g.label}</span>
+        {/* Tab: CELE */}
+        {tab === 'goals' && (
+          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+            {!type ? (
+              <div style={{ fontSize:11, color:'var(--color-text-muted)', padding:'8px', textAlign:'center' }}>
+                Najpierw wybierz typ kampanii
+              </div>
+            ) : GOALS_BY_TYPE[type].map(g => (
+              <label
+                key={g.id}
+                onMouseDown={e => e.stopPropagation()}
+                style={{
+                  display:'flex', alignItems:'center', gap:8, padding:'6px 8px', borderRadius:6, cursor:'pointer',
+                  border:`1px solid ${goals.includes(g.id) ? 'var(--color-process)' : 'var(--color-field-border)'}`,
+                  background: goals.includes(g.id) ? 'rgba(124,92,245,0.08)' : 'var(--color-field-bg)',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={goals.includes(g.id)}
+                  onChange={() => toggleGoal(g.id)}
+                  style={{ accentColor:'var(--color-process)', width:13, height:13, flexShrink:0 }}
+                />
+                <span style={{ fontSize:11, color:'var(--color-text)', fontWeight: goals.includes(g.id) ? 600 : 400 }}>
+                  {g.label}
+                </span>
               </label>
             ))}
-            <div style={{ display:'flex', gap:6, marginTop:4 }}>
-              <button className="btn btn-ghost btn-sm" onClick={() => setStep(1)} style={{ flex:1, justifyContent:'center' }}>← Wróć</button>
-              <button className="btn btn-primary btn-sm" disabled={!goals.length} onClick={() => setStep(3)} style={{ flex:1, justifyContent:'center' }}>Dalej →</button>
-            </div>
-          </>
+          </div>
         )}
 
-        {/* Step 3 */}
-        {step === 3 && (
-          <>
-            <div style={{ fontSize:10, fontWeight:700, color:'var(--color-text-muted)', textTransform:'uppercase', letterSpacing:'.08em' }}>Krok 3 — Grupy banerów</div>
+        {/* Tab: GRUPY */}
+        {tab === 'groups' && (
+          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
             {BANNER_GROUPS.map(g => (
-              <label key={g.id} style={{
-                display:'flex', alignItems:'center', gap:8, padding:'5px 8px', borderRadius:6, cursor:'pointer',
-                border:`1px solid ${groups.includes(g.id) ? 'var(--color-process)' : 'var(--color-field-border)'}`,
-                background: groups.includes(g.id) ? 'rgba(99,102,241,0.08)' : 'var(--color-field-bg)',
-              }}>
-                <input type="checkbox" checked={groups.includes(g.id)} onChange={() => toggleGroup(g.id)}
-                  style={{ accentColor:'var(--color-process)', width:13, height:13 }} />
+              <label
+                key={g.id}
+                onMouseDown={e => e.stopPropagation()}
+                style={{
+                  display:'flex', alignItems:'center', gap:8, padding:'6px 8px', borderRadius:6, cursor:'pointer',
+                  border:`1px solid ${groups.includes(g.id) ? 'var(--color-process)' : 'var(--color-field-border)'}`,
+                  background: groups.includes(g.id) ? 'rgba(124,92,245,0.08)' : 'var(--color-field-bg)',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={groups.includes(g.id)}
+                  onChange={() => toggleGroup(g.id)}
+                  style={{ accentColor:'var(--color-process)', width:13, height:13, flexShrink:0 }}
+                />
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:11, color:'var(--color-text)', fontWeight: groups.includes(g.id) ? 600 : 400 }}>{g.icon} {g.label}</div>
+                  <div style={{ fontSize:11, color:'var(--color-text)', fontWeight: groups.includes(g.id) ? 600 : 400 }}>
+                    {g.icon} {g.label}
+                  </div>
                   <div style={{ fontSize:9, color:'var(--color-text-muted)' }}>{g.desc}</div>
                 </div>
               </label>
             ))}
-            <div style={{ display:'flex', gap:6, marginTop:4 }}>
-              <button className="btn btn-ghost btn-sm" onClick={() => setStep(2)} style={{ flex:1, justifyContent:'center' }}>← Wróć</button>
-              <button className="btn btn-primary btn-sm" disabled={!groups.length} onClick={handleLaunch} style={{ flex:1, justifyContent:'center' }}>Uruchom →</button>
-            </div>
-          </>
+          </div>
         )}
+
+        {/* Launch button — zawsze widoczny, aktywny gdy wszystko wypełnione */}
+        <div style={{ marginTop: 12, borderTop:'1px solid var(--color-field-border)', paddingTop:10 }}>
+          {!canLaunch && (
+            <div style={{ display:'flex', gap:6, marginBottom:6, flexWrap:'wrap' }}>
+              {!type    && <span style={{ fontSize:9, color:'var(--color-text-muted)' }}>· wybierz typ</span>}
+              {!goals.length  && <span style={{ fontSize:9, color:'var(--color-text-muted)' }}>· wybierz cele</span>}
+              {!groups.length && <span style={{ fontSize:9, color:'var(--color-text-muted)' }}>· wybierz grupy</span>}
+            </div>
+          )}
+          <button
+            className="btn btn-primary btn-sm"
+            disabled={!canLaunch}
+            onMouseDown={e => { e.stopPropagation(); handleLaunch() }}
+            style={{ width:'100%', justifyContent:'center' }}
+          >
+            Uruchom kampanię →
+          </button>
+        </div>
+
       </div>
     </BaseNode>
   )

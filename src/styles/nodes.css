@@ -81,10 +81,10 @@
   flex-shrink: 0;
   color: var(--color-text-subtle);
 }
-.node-icon.cat-input   { background: #EEF2FF; color: var(--color-input); }
-.node-icon.cat-process { background: #F3EEFF; color: var(--color-process); }
-.node-icon.cat-gen     { background: #ECFDF5; color: var(--color-gen); }
-.node-icon.cat-output  { background: #FFF4EE; color: var(--color-output); }
+.node-icon.cat-input   { background: linear-gradient(135deg, #dce4ff 0%, #b3c5ff 100%); color: #2a52cc; }
+.node-icon.cat-process { background: linear-gradient(135deg, #ede8ff 0%, #cbb8ff 100%); color: #5e35d4; }
+.node-icon.cat-gen     { background: linear-gradient(135deg, #d4f5e8 0%, #9de8c8 100%); color: #0a8a62; }
+.node-icon.cat-output  { background: linear-gradient(135deg, #ffe8d6 0%, #ffbd96 100%); color: #c05a1a; }
 
 .node-title {
   font-family: var(--font-ui);
