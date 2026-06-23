@@ -8,8 +8,9 @@ export function Topbar() {
   const genHistory     = useAppStore(s => s.genHistory)
   const setShowApiModal = useAppStore(s => s.setShowApiModal)
   const setShowTests   = useAppStore(s => s.setShowTests)
-  const appMode        = useAppStore(s => s.appMode)
-  const setAppMode     = useAppStore(s => s.setAppMode)
+  const appMode            = useAppStore(s => s.appMode)
+  const setAppMode         = useAppStore(s => s.setAppMode)
+  const setShowResetConfirm = useAppStore(s => s.setShowResetConfirm)
   const totalErrors = Object.values(nodeErrors).reduce((s, e) => s + e.length, 0)
 
   return (
@@ -47,6 +48,9 @@ export function Topbar() {
         </span>
       )}
       <div className="topbar-actions">
+        <button className="btn btn-ghost btn-sm" onClick={() => setShowResetConfirm(true)} style={{ color: '#ef4444' }}>
+          ↺ Reset
+        </button>
         <button className="btn btn-ghost btn-sm" onClick={() => setShowTests(true)}>
           <FlaskConical size={13} strokeWidth={1.75} />
           Testy

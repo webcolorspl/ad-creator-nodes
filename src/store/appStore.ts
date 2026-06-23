@@ -6,6 +6,12 @@ import { create } from 'zustand'
 import type { Edge } from '@xyflow/react'
 import type { Toast, GenHistoryItem, NodeOutputs, HeadlineCTAVariant } from '@/types'
 
+export interface CampaignConfig {
+  type: 'brand' | 'performance' | 'leads' | 'launch' | 'seasonal' | 'remarketing'
+  goals: string[]
+  groups: ('prospecting' | 'remarketing' | 'upsell' | 'seasonal' | 'brand')[]
+}
+
 interface AppState {
   // API
   apiKey: string
@@ -66,6 +72,18 @@ interface AppState {
   // Generation history
   genHistory: GenHistoryItem[]
   addToHistory: (url: string, prompt: string) => void
+
+  // Campaign
+  campaign: CampaignConfig | null
+  campaignLaunchKey: number
+  canvasResetKey: number
+  showStartModal: boolean
+  showResetConfirm: boolean
+  setCampaign: (c: CampaignConfig | null) => void
+  launchCampaign: (c: CampaignConfig) => void
+  resetCanvas: () => void
+  setShowStartModal: (v: boolean) => void
+  setShowResetConfirm: (v: boolean) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -174,4 +192,16 @@ export const useAppStore = create<AppState>((set) => ({
         ...s.genHistory,
       ].slice(0, 20),
     })),
+
+  // Campaign
+  campaign: null,
+  campaignLaunchKey: 0,
+  canvasResetKey: 0,
+  showStartModal: true,
+  showResetConfirm: false,
+  setCampaign: (c) => set({ campaign: c }),
+  launchCampaign: (c) => set(s => ({ campaign: c, campaignLaunchKey: s.campaignLaunchKey + 1 })),
+  resetCanvas: () => set(s => ({ campaign: null, showStartModal: true, canvasResetKey: s.canvasResetKey + 1, campaignLaunchKey: 0 })),
+  setShowStartModal: (v) => set({ showStartModal: v }),
+  setShowResetConfirm: (v) => set({ showResetConfirm: v }),
 }))

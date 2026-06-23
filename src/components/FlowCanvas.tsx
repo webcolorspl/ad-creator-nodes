@@ -21,6 +21,7 @@ import {
   ThemeNode,
 } from './nodes'
 import { HintNode } from './nodes/HintNode'
+import { CampaignNode } from './nodes/CampaignNode'
 
 // Node type map for React Flow
 const NODE_TYPES = {
@@ -39,6 +40,7 @@ const NODE_TYPES = {
   batchExportNode:    BatchExportNode,
   themeNode:          ThemeNode,
   hintNode:           HintNode,
+  campaignNode:       CampaignNode,
 }
 
 // Section bounds for navigation pills
@@ -73,28 +75,22 @@ const mke = (id: string, src: string, sh: string, tgt: string, th: string, type:
   style: { stroke: PORT_COLORS[type] ?? '#C8D4F0', strokeWidth: 1.5, opacity: 0.7 },
 })
 
-// ── Wizard flow for Marketer mode ───────────────
+// ── Setup view: tylko CampaignNode (przed uruchomieniem kampanii) ───
+const SETUP_NODES: Node[] = [
+  { id:'camp1', type:'campaignNode', position:{x:0, y:0}, data:{} },
+]
+
+// ── Wizard flow for Marketer mode (legacy / agency mode) ───────────
 const WIZARD_NODES: Node[] = [
-  // ── Step nodes ──────────────────────────────────
-  { id:'th1', type:'themeNode',          position:{x:0,    y:-280}, data:{} },
-  { id:'s1',  type:'styleNode',          position:{x:0,    y:-60 }, data:{format:'ig-square'} },
-  { id:'cv1', type:'copyVariantsNode',   position:{x:0,    y:200 }, data:{} },
-  { id:'wi1', type:'webImportNode',      position:{x:0,    y:560 }, data:{} },
-  { id:'ig1', type:'imageGenNode',       position:{x:420,  y:200 }, data:{} },
-  { id:'bg1', type:'bgLibraryNode',      position:{x:420,  y:600 }, data:{} },
-  { id:'bc1', type:'bannerComposerNode', position:{x:840,  y:200 }, data:{} },
-  { id:'be1', type:'batchExportNode',    position:{x:1280, y:200 }, data:{} },
-  // ── Hint callouts ───────────────────────────────
-  { id:'hint1', type:'hintNode', draggable:false, selectable:false, position:{x:-230, y:-200},
-    data:{ text:'Zacznij tutaj — ustaw brand\ni styl formatu reklamy' } },
-  { id:'hint2', type:'hintNode', draggable:false, selectable:false, position:{x:-230, y:260},
-    data:{ text:'Wpisz teksty kampanii\nlub wklej URL strony ↓', arrow:'right' } },
-  { id:'hint3', type:'hintNode', draggable:false, selectable:false, position:{x:175,  y:135},
-    data:{ text:'Kliknij Generuj — Gemini\nstworzy grafikę AI', arrow:'right' } },
-  { id:'hint4', type:'hintNode', draggable:false, selectable:false, position:{x:635,  y:135},
-    data:{ text:'Baner składa się automatycznie\ngdy dane są podłączone', arrow:'right' } },
-  { id:'hint5', type:'hintNode', draggable:false, selectable:false, position:{x:1075, y:135},
-    data:{ text:'Wybierz formaty i pobierz\nZIP lub osobne PNG', arrow:'right' } },
+  { id:'camp1', type:'campaignNode',      position:{x:0,    y:-680}, data:{} },
+  { id:'th1',   type:'themeNode',         position:{x:0,    y:-280}, data:{} },
+  { id:'s1',    type:'styleNode',         position:{x:0,    y:-60 }, data:{format:'ig-square'} },
+  { id:'cv1',   type:'copyVariantsNode',  position:{x:0,    y:200 }, data:{} },
+  { id:'wi1',   type:'webImportNode',     position:{x:0,    y:560 }, data:{} },
+  { id:'ig1',   type:'imageGenNode',      position:{x:420,  y:200 }, data:{} },
+  { id:'bg1',   type:'bgLibraryNode',     position:{x:420,  y:600 }, data:{} },
+  { id:'bc1',   type:'bannerComposerNode',position:{x:840,  y:200 }, data:{} },
+  { id:'be1',   type:'batchExportNode',   position:{x:1280, y:200 }, data:{} },
 ]
 
 const WIZARD_EDGES: Edge[] = [
@@ -171,13 +167,16 @@ interface FlowCanvasInnerProps extends FlowCanvasProps {
 }
 
 function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInnerProps) {
-  const syncEdges  = useAppStore(s => s.syncEdges)
-  const deleteNode = useAppStore(s => s.deleteNode)
-  const addToast   = useAppStore(s => s.addToast)
-  const selectNode = useAppStore(s => s.selectNode)
-  const zoomToId   = useAppStore(s => s.zoomToId)
-  const clearZoom  = useAppStore(s => s.clearZoom)
-  const { setCenter, getNode, fitBounds } = useReactFlow()
+  const syncEdges         = useAppStore(s => s.syncEdges)
+  const deleteNode        = useAppStore(s => s.deleteNode)
+  const addToast          = useAppStore(s => s.addToast)
+  const selectNode        = useAppStore(s => s.selectNode)
+  const zoomToId          = useAppStore(s => s.zoomToId)
+  const clearZoom         = useAppStore(s => s.clearZoom)
+  const campaignLaunchKey = useAppStore(s => s.campaignLaunchKey)
+  const campaign          = useAppStore(s => s.campaign)
+  const canvasResetKey    = useAppStore(s => s.canvasResetKey)
+  const { setCenter, getNode, fitBounds, fitView } = useReactFlow()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [rfInstance, setRfInstance] = useState<{ screenToFlowPosition: (p: {x:number,y:number}) => {x:number,y:number} } | null>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
@@ -202,6 +201,63 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     }
     clearZoom()
   }, [zoomToId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Spawn nodes when campaign is launched
+  useEffect(() => {
+    if (campaignLaunchKey === 0 || !campaign) return
+
+    const GROUP_LABELS: Record<string, string> = {
+      prospecting: 'Prospecting', remarketing: 'Remarketing',
+      upsell: 'Upsell', seasonal: 'Sezonowy', brand: 'Brand',
+    }
+
+    const baseNodes: Node[] = [
+      { id:'camp1', type:'campaignNode',  position:{x:0,   y:-680}, data:{} },
+      { id:'th1',   type:'themeNode',     position:{x:0,   y:-460}, data:{} },
+      { id:'s1',    type:'styleNode',     position:{x:0,   y:-200}, data:{format:'ig-square'} },
+    ]
+
+    const groupNodes: Node[] = []
+    const groupEdges: Edge[] = []
+
+    campaign.groups.forEach((group, i) => {
+      const yBase = i * 500
+      const gid = `g${i}`
+      groupNodes.push(
+        { id:`${gid}_hint`, type:'hintNode', position:{x:-240, y:yBase+80}, data:{text:`${GROUP_LABELS[group]} — Grupa ${i+1}`}, draggable:false, selectable:false },
+        { id:`${gid}_cv`,   type:'copyVariantsNode',   position:{x:0,    y:yBase+80}, data:{} },
+        { id:`${gid}_ig`,   type:'imageGenNode',       position:{x:440,  y:yBase+80}, data:{} },
+        { id:`${gid}_bc`,   type:'bannerComposerNode', position:{x:880,  y:yBase+80}, data:{} },
+        { id:`${gid}_be`,   type:'batchExportNode',    position:{x:1320, y:yBase+80}, data:{} },
+      )
+      groupEdges.push(
+        mke(`${gid}_eth`,  'th1',       'theme',    `${gid}_bc`, 'theme',      'theme'),
+        mke(`${gid}_eth2`, 'th1',       'theme',    `${gid}_be`, 'theme',      'theme'),
+        mke(`${gid}_es1`,  's1',        'style',    `${gid}_ig`, 'style',      'style'),
+        mke(`${gid}_es2`,  's1',        'style',    `${gid}_bc`, 'style',      'style'),
+        mke(`${gid}_es3`,  's1',        'style',    `${gid}_be`, 'style',      'style'),
+        mke(`${gid}_ecv1`, `${gid}_cv`, 'headline', `${gid}_bc`, 'headline',   'headline'),
+        mke(`${gid}_ecv2`, `${gid}_cv`, 'cta',      `${gid}_bc`, 'cta',        'cta'),
+        mke(`${gid}_ecv3`, `${gid}_cv`, 'headline', `${gid}_be`, 'headline',   'headline'),
+        mke(`${gid}_ecv4`, `${gid}_cv`, 'cta',      `${gid}_be`, 'cta',        'cta'),
+        mke(`${gid}_ecv5`, `${gid}_cv`, 'headline', `${gid}_ig`, 'headline',   'headline'),
+        mke(`${gid}_eig1`, `${gid}_ig`, 'image',    `${gid}_bc`, 'image',      'image'),
+        mke(`${gid}_ebc1`, `${gid}_bc`, 'banner',   `${gid}_be`, 'banner',     'banner'),
+      )
+    })
+
+    setNodes([...baseNodes, ...groupNodes])
+    setEdges(groupEdges)
+    setTimeout(() => fitView({ padding: 0.08, duration: 600 }), 150)
+  }, [campaignLaunchKey]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Reset canvas
+  useEffect(() => {
+    if (canvasResetKey === 0) return
+    setNodes([{ id:'camp1', type:'campaignNode', position:{x:0, y:0}, data:{} }])
+    setEdges([])
+    setTimeout(() => fitView({ padding: 0.3, duration: 400 }), 100)
+  }, [canvasResetKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const onConnect: OnConnect = useCallback(params => {
     const srcNode = nodes.find(n => n.id === params.source)
@@ -355,8 +411,9 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
 
 export function FlowCanvas({ onChange }: FlowCanvasProps) {
   const appMode = useAppStore(s => s.appMode)
-  const initialNodes = appMode === 'marketer' ? WIZARD_NODES : DEMO_NODES
-  const initialEdges = appMode === 'marketer' ? WIZARD_EDGES : DEMO_EDGES
+  // Marketer mode zaczyna od samego CampaignNode — reszta pojawia się po "Uruchom"
+  const initialNodes = appMode === 'marketer' ? SETUP_NODES : DEMO_NODES
+  const initialEdges = appMode === 'marketer' ? [] : DEMO_EDGES
   return (
     <ReactFlowProvider key={appMode}>
       <FlowCanvasInner

@@ -81,6 +81,12 @@ export interface NodeDef {
 }
 
 export const NODE_REGISTRY: Record<string, NodeDef> = {
+  campaignNode: {
+    label: 'Campaign Setup', icon: '✦', cat: NODE_CATEGORIES.PROCESS,
+    ins: [],
+    outs: [],
+    description: 'Konfiguracja kampanii — typ, cele, grupy banerów',
+  },
   webImportNode: {
     label: 'Web Import', icon: '🌐', cat: NODE_CATEGORIES.INPUT,
     ins: [],

@@ -14,11 +14,14 @@ import { CopyVariantsPanel } from './CopyVariantsPanel'
 import { ApiKeyModal }       from './ApiKeyModal'
 import { ToastList }         from './ToastList'
 import { TestsPanel }        from './TestsPanel'
+import { StartModal }        from './StartModal'
+import { ResetConfirmModal } from './ResetConfirmModal'
 import { useAppStore }       from '@/store/appStore'
 
 export function AdCreatorApp() {
   const showApiModal = useAppStore(s => s.showApiModal)
   const showTests    = useAppStore(s => s.showTests)
+  const resetCanvas  = useAppStore(s => s.resetCanvas)
   const [liveNodes, setLiveNodes] = useState<Node[]>([])
   const [liveEdges, setLiveEdges] = useState<Edge[]>([])
 
@@ -45,6 +48,8 @@ export function AdCreatorApp() {
       {showApiModal && <ApiKeyModal />}
       {showTests    && <TestsPanel />}
       <ToastList />
+      <StartModal />
+      <ResetConfirmModal onConfirm={resetCanvas} />
     </div>
   )
 }
