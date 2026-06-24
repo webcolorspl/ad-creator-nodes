@@ -10,7 +10,7 @@ import { useAppStore } from '@/store/appStore'
 import { resolveInput } from '@/lib/edgeResolver'
 import { composeBanner } from '@/lib/canvasComposer'
 import { AD_FORMATS } from '@/lib/constants'
-import type { HeadlineData, CTAData, ImageData, ThemeData, CopyGroupData, StyleData } from '@/types'
+import type { HeadlineData, CTAData, ImageData, BackgroundData, ThemeData, CopyGroupData, StyleData } from '@/types'
 
 const DEFAULT_FORMATS = ['ig-square', 'fb-feed', 'tt-video']
 
@@ -41,12 +41,12 @@ function AspectSwatch({ w, h, size = 28 }: { w: number; h: number; size?: number
 
 // ── FormatCard ─────────────────────────────────────────────────────────
 interface FormatCardProps {
-  uid: string          // unique key (fmtId + index)
+  uid: string
   formatId: string
   nodeId: string
   headline: HeadlineData | null
   cta: CTAData | null
-  image: ImageData | null
+  imageUrl: string | null
   theme: ThemeData | null
   onRemove: () => void
   onDuplicate: () => void
@@ -54,13 +54,12 @@ interface FormatCardProps {
   allActive: string[]
 }
 
-function FormatCard({ uid, formatId, nodeId, headline, cta, image, theme, onRemove, onDuplicate, onChangeFormat, allActive }: FormatCardProps) {
+function FormatCard({ uid, formatId, nodeId, headline, cta, imageUrl, theme, onRemove, onDuplicate, onChangeFormat, allActive }: FormatCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
   const fmt = AD_FORMATS.find(f => f.id === formatId)
 
-  // Serializujemy wejścia żeby efekt odpyalał się tylko gdy dane się zmieniają
-  const inputKey = JSON.stringify({ formatId, headline, cta, imageUrl: image?.url, theme })
+  const inputKey = JSON.stringify({ formatId, headline, cta, imageUrl, theme })
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -77,15 +76,14 @@ function FormatCard({ uid, formatId, nodeId, headline, cta, image, theme, onRemo
       copy,
       background: null,
       bgColor: theme?.bgColor ?? '#1a1a2e',
-      image: image?.url ?? null,
+      image: imageUrl,
       style,
       theme: theme ?? null,
     }).catch(() => {
-      // fallback: przynajmniej narysuj tło
       canvas.width  = Math.min(fmt.w, 1080)
       canvas.height = Math.min(fmt.h, 1080)
       const ctx = canvas.getContext('2d')
-      if (ctx) { ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0, 0, canvas.width, canvas.height) }
+      if (ctx) { ctx.fillStyle = theme?.bgColor ?? '#1a1a2e'; ctx.fillRect(0, 0, canvas.width, canvas.height) }
     })
   }, [inputKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -199,10 +197,14 @@ export function BannerGridNode({ id }: NodeProps) {
   const edges       = useAppStore(s => s.edges)
   const nodeOutputs = useAppStore(s => s.nodeOutputs)
 
-  const headline = resolveInput<HeadlineData>(id, 'headline', edges, nodeOutputs)
-  const cta      = resolveInput<CTAData>(id, 'cta', edges, nodeOutputs)
-  const image    = resolveInput<ImageData>(id, 'image', edges, nodeOutputs)
-  const theme    = resolveInput<ThemeData>(id, 'theme', edges, nodeOutputs)
+  const headline    = resolveInput<HeadlineData>(id, 'headline',   edges, nodeOutputs)
+  const cta         = resolveInput<CTAData>(id, 'cta',          edges, nodeOutputs)
+  const image       = resolveInput<ImageData>(id, 'image',       edges, nodeOutputs)
+  const background  = resolveInput<BackgroundData>(id, 'background', edges, nodeOutputs)
+  const theme       = resolveInput<ThemeData>(id, 'theme',      edges, nodeOutputs)
+
+  // URL obrazu: bezpośredni image lub tło z biblioteki
+  const imageUrl = image?.url ?? background?.url ?? null
 
   // Each entry: { uid: string, formatId: string }
   const [cards, setCards] = useState(() =>
@@ -281,7 +283,7 @@ export function BannerGridNode({ id }: NodeProps) {
               nodeId={id}
               headline={headline}
               cta={cta}
-              image={image}
+              imageUrl={imageUrl}
               theme={theme}
               onRemove={() => removeCard(card.uid)}
               onDuplicate={() => duplicateCard(card.uid)}

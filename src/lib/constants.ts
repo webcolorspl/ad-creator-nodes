@@ -228,10 +228,11 @@ export const NODE_REGISTRY: Record<string, NodeDef> = {
   bannerGridNode: {
     label: 'Banner Preview', icon: '🖼', cat: NODE_CATEGORIES.OUTPUT,
     ins: [
-      { id: 'headline', type: PORT_TYPES.HEADLINE, label: 'headline' },
-      { id: 'cta',      type: PORT_TYPES.CTA,      label: 'cta' },
-      { id: 'image',    type: PORT_TYPES.IMAGE,     label: 'image' },
-      { id: 'theme',    type: PORT_TYPES.THEME,     label: 'theme' },
+      { id: 'headline',   type: PORT_TYPES.HEADLINE,   label: 'headline' },
+      { id: 'cta',        type: PORT_TYPES.CTA,        label: 'cta' },
+      { id: 'image',      type: PORT_TYPES.IMAGE,      label: 'image' },
+      { id: 'background', type: PORT_TYPES.BACKGROUND, label: 'tło' },
+      { id: 'theme',      type: PORT_TYPES.THEME,      label: 'theme' },
     ],
     outs: [],
     description: 'Podgląd banerów we wszystkich formatach',
