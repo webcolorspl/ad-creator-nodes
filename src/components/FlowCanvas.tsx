@@ -315,17 +315,20 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
       )}
       {/* Navigation pills */}
       <div style={{
-        position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
-        zIndex: 10, display: 'flex', gap: 6, background: 'rgba(18,18,24,0.85)',
-        border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '5px 10px',
-        backdropFilter: 'blur(8px)',
+        position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 10, display: 'flex', gap: 3,
+        background: 'rgba(255,255,255,0.92)',
+        border: '1px solid rgba(210,220,250,0.5)',
+        borderRadius: 18, padding: '4px',
+        backdropFilter: 'blur(16px)',
+        boxShadow: '0 2px 8px rgba(26,34,64,0.07), 0 8px 24px rgba(26,34,64,0.06), inset 0 1px 0 rgba(255,255,255,0.9)',
       }}>
         {[
-          { key: 'brand',    label: 'Brand',   Icon: Palette      },
-          { key: 'import',   label: 'Import',  Icon: FolderInput  },
-          { key: 'generate', label: 'Generuj', Icon: Sparkles     },
-          { key: 'export',   label: 'Eksport', Icon: PackageOpen  },
-        ].map(({ key, label, Icon }) => (
+          { key: 'brand',    label: 'Brand',   Icon: Palette,    color: '#3A67F0', bg: 'rgba(58,103,240,0.1)'  },
+          { key: 'import',   label: 'Import',  Icon: FolderInput,color: '#7C5CF5', bg: 'rgba(124,92,245,0.1)'  },
+          { key: 'generate', label: 'Generuj', Icon: Sparkles,   color: '#0EA87A', bg: 'rgba(14,168,122,0.1)'  },
+          { key: 'export',   label: 'Eksport', Icon: PackageOpen,color: '#F07A3A', bg: 'rgba(240,122,58,0.1)'  },
+        ].map(({ key, label, Icon, color, bg }) => (
           <button
             key={key}
             onClick={() => {
@@ -334,14 +337,21 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
             }}
             style={{
               display: 'flex', alignItems: 'center', gap: 5,
-              padding: '4px 12px', fontSize: 11, fontWeight: 600, borderRadius: 14, cursor: 'pointer',
-              border: 'none', background: 'transparent', color: 'rgba(255,255,255,0.55)',
-              transition: 'color .15s',
+              padding: '5px 12px', fontSize: 11, fontWeight: 600, borderRadius: 13, cursor: 'pointer',
+              border: 'none', background: 'transparent', color: 'var(--color-text-muted)',
+              transition: 'background .18s, color .18s',
+              letterSpacing: '.01em',
             }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.55)')}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = bg
+              e.currentTarget.style.color = color
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = 'var(--color-text-muted)'
+            }}
           >
-            <Icon size={13} strokeWidth={1.75} />
+            <Icon size={12} strokeWidth={2} />
             {label}
           </button>
         ))}
