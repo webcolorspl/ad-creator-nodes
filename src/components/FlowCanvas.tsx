@@ -212,16 +212,19 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
   useEffect(() => {
     if (campaignLaunchKey === 0 || !campaign) return
 
+    // ── 4 nody: Campaign | Brand | Copy | Preview ───────────────────
+    // Camp (x:0) → Theme (x:0, y:320) pionowo
+    // HeadlineCTA (x:500, y:0) → BannerGrid (x:960, y:0)
     const spawnNodes: Node[] = [
-      { id:'camp1',     type:'campaignNode',   position:{x:0,    y:0}, data:{} },
-      { id:'creative1', type:'creativeNode',   position:{x:520,  y:0}, data:{} },
-      { id:'result1',   type:'bannerGridNode', position:{x:1040, y:0}, data:{} },
+      { id:'camp1',  type:'campaignNode',    position:{x:0,   y:0},   data:{} },
+      { id:'th1',    type:'themeNode',       position:{x:0,   y:320}, data:{} },
+      { id:'copy1',  type:'headlineCTANode', position:{x:500, y:0},   data:{} },
+      { id:'grid1',  type:'bannerGridNode',  position:{x:960, y:0},   data:{} },
     ]
     const spawnEdges: Edge[] = [
-      mke('e-hl',    'creative1', 'headline', 'result1', 'headline', 'headline'),
-      mke('e-cta',   'creative1', 'cta',      'result1', 'cta',      'cta'),
-      mke('e-img',   'creative1', 'image',    'result1', 'image',    'image'),
-      mke('e-theme', 'creative1', 'theme',    'result1', 'theme',    'theme'),
+      mke('e-hl',    'copy1', 'headline', 'grid1', 'headline', 'headline'),
+      mke('e-cta',   'copy1', 'cta',      'grid1', 'cta',      'cta'),
+      mke('e-theme', 'th1',   'theme',    'grid1', 'theme',    'theme'),
     ]
     setNodes(spawnNodes)
     setEdges(spawnEdges)
