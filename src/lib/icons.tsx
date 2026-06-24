@@ -27,6 +27,18 @@ import {
   Radio,
   Pencil,
   Grid2x2,
+  // Campaign type icons
+  Eye,
+  TrendingUp,
+  Mail,
+  Rocket,
+  Sparkles,
+  RefreshCw,
+  // Banner group icons
+  Users,
+  ArrowUpRight,
+  CalendarDays,
+  Heart,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -51,6 +63,8 @@ export const NODE_ICONS: Record<string, LucideIcon> = {
   bannerGridNode:     Grid2x2,
 }
 
+export type { LucideIcon }
+
 export {
   FlaskConical,
   KeyRound,
@@ -58,4 +72,15 @@ export {
   Plus,
   X,
   ChevronRight,
+  // Campaign icons
+  Eye,
+  TrendingUp,
+  Mail,
+  Rocket,
+  Sparkles,
+  RefreshCw,
+  Users,
+  ArrowUpRight,
+  CalendarDays,
+  Heart,
 }

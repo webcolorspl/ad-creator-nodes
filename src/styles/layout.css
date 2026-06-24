@@ -29,20 +29,20 @@
   z-index: 100;
 }
 .topbar-logo {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: .06em;
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+  font-weight: var(--fw-bold);
+  letter-spacing: -.01em;
   color: var(--color-text);
 }
 .topbar-logo span { color: var(--blue-500); }
-.topbar-divider { width: 1px; height: 20px; background: var(--color-border); }
+.topbar-divider { width: 1px; height: 20px; background: rgba(210,220,250,0.5); }
 .topbar-badge {
-  font-size: 10px;
-  font-family: var(--font-mono);
-  padding: 2px 8px;
+  font-size: var(--text-micro);
+  font-family: var(--font-ui);
+  font-weight: var(--fw-semi);
+  padding: 3px 9px;
   border-radius: 20px;
-  font-weight: 500;
 }
 .topbar-actions { display: flex; gap: 8px; margin-left: auto; }
 
@@ -58,9 +58,10 @@
   gap: 2px;
 }
 .sidebar-section-label {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: .12em;
+  font-family: var(--font-ui);
+  font-size: var(--text-micro);
+  font-weight: var(--fw-bold);
+  letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--color-text-muted);
   padding: 10px 8px 4px;

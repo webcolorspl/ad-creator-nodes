@@ -40,6 +40,21 @@
   --font-ui:   'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
+  /* Type scale */
+  --text-micro:  9px;    /* badge, label caps */
+  --text-xs:     10px;   /* hint, caption */
+  --text-sm:     11px;   /* secondary body */
+  --text-base:   12px;   /* body, fields */
+  --text-md:     13px;   /* node title */
+  --text-lg:     14px;   /* section header */
+  --text-xl:     16px;   /* modal title */
+
+  /* Font weights */
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semi:     600;
+  --fw-bold:     700;
+
   /* Node */
   --node-radius: 20px;
   --node-shadow:

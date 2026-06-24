@@ -8,14 +8,15 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 13px;
-  border-radius: 7px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: var(--text-base);
+  font-weight: var(--fw-medium);
   font-family: var(--font-ui);
+  letter-spacing: -.01em;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all .15s;
+  transition: all .18s ease;
   white-space: nowrap;
 }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
