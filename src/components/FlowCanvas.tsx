@@ -214,7 +214,8 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     }
 
     const baseNodes: Node[] = [
-      { id:'camp1', type:'campaignNode',  position:{x:0,   y:-680}, data:{} },
+      { id:'camp1', type:'campaignNode',  position:{x:0,   y:-820}, data:{} },
+      { id:'ch1',   type:'channelNode',   position:{x:0,   y:-620}, data:{} },
       { id:'th1',   type:'themeNode',     position:{x:0,   y:-460}, data:{} },
       { id:'s1',    type:'styleNode',     position:{x:0,   y:-200}, data:{format:'ig-square'} },
     ]
