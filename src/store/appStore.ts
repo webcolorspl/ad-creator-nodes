@@ -84,6 +84,10 @@ interface AppState {
   resetCanvas: () => void
   setShowStartModal: (v: boolean) => void
   setShowResetConfirm: (v: boolean) => void
+
+  // Master banner
+  masterBannerId: string | null
+  setMasterBanner: (id: string | null) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -204,4 +208,8 @@ export const useAppStore = create<AppState>((set) => ({
   resetCanvas: () => set(s => ({ campaign: null, showStartModal: true, canvasResetKey: s.canvasResetKey + 1, campaignLaunchKey: 0 })),
   setShowStartModal: (v) => set({ showStartModal: v }),
   setShowResetConfirm: (v) => set({ showResetConfirm: v }),
+
+  // Master banner
+  masterBannerId: null,
+  setMasterBanner: (id) => set({ masterBannerId: id }),
 }))

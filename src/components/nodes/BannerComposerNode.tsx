@@ -11,10 +11,13 @@ import type { NodeProps } from '@xyflow/react'
 import type { CopyGroupData, BackgroundData, StyleData, ImageData, ThemeData, HeadlineData, CTAData } from '@/types'
 
 export function BannerComposerNode({ id }: NodeProps) {
-  const edges         = useAppStore(s => s.edges)
-  const nodeOutputs   = useAppStore(s => s.nodeOutputs)
-  const setNodeOutput = useAppStore(s => s.setNodeOutput)
-  const addToast      = useAppStore(s => s.addToast)
+  const edges           = useAppStore(s => s.edges)
+  const nodeOutputs     = useAppStore(s => s.nodeOutputs)
+  const setNodeOutput   = useAppStore(s => s.setNodeOutput)
+  const addToast        = useAppStore(s => s.addToast)
+  const masterBannerId  = useAppStore(s => s.masterBannerId)
+  const setMasterBanner = useAppStore(s => s.setMasterBanner)
+  const isMaster        = masterBannerId === id
   const canvasRef   = useRef<HTMLCanvasElement>(null)
   const [composing, setComposing] = useState(false)
   const [composed,  setComposed]  = useState(false)
@@ -92,9 +95,20 @@ export function BannerComposerNode({ id }: NodeProps) {
         )}
       </div>
       {composed && (
-        <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={exportPng}>
-          ⬇ Pobierz PNG
-        </button>
+        <div style={{ display:'flex', gap:6 }}>
+          <button className="btn btn-primary" style={{ flex:1, justifyContent:'center' }} onClick={exportPng}>
+            ⬇ PNG
+          </button>
+          <button
+            className={`btn btn-sm ${isMaster ? 'btn-primary' : 'btn-ghost'}`}
+            style={{ flexShrink:0, justifyContent:'center', fontSize:10, padding:'5px 10px',
+              ...(isMaster ? { background:'var(--color-gen)', borderColor:'var(--color-gen)' } : {}) }}
+            onClick={() => setMasterBanner(isMaster ? null : id)}
+            title="Ustaw jako wzorzec dla wszystkich grup"
+          >
+            {isMaster ? '★ Master' : '☆ Master'}
+          </button>
+        </div>
       )}
       <StatusBar
         status={composing ? 'running' : composed ? 'done' : 'idle'}
