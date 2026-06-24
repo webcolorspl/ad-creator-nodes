@@ -169,13 +169,24 @@ function FormatCard({ uid, formatId, nodeId, headline, cta, imageUrl, theme, onR
         </div>
       )}
 
-      {/* Canvas */}
-      <div style={{ background:'#111', display:'flex', justifyContent:'center', alignItems:'center' }}>
+      {/* Canvas / placeholder */}
+      <div style={{ background:'#111', display:'flex', justifyContent:'center', alignItems:'center', position:'relative' }}>
         <canvas
           ref={canvasRef}
           data-banner-canvas={`${nodeId}-${uid}`}
           style={{ width: THUMB_W, height: THUMB_H, display:'block' }}
         />
+        {!headline && !cta && !imageUrl && !theme && (
+          <div style={{
+            position:'absolute', inset:0, display:'flex', flexDirection:'column',
+            alignItems:'center', justifyContent:'center', gap:5, pointerEvents:'none',
+          }}>
+            <span style={{ fontSize:18, opacity:0.35 }}>🖼</span>
+            <span style={{ fontSize:9, color:'rgba(255,255,255,0.35)', textAlign:'center', lineHeight:1.4 }}>
+              Podłącz<br/>Headline + CTA
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Export */}

@@ -234,6 +234,7 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     ]
     setNodes(spawnNodes)
     setEdges(spawnEdges)
+    syncEdges(spawnEdges)
     setTimeout(() => fitView({ padding: 0.15, duration: 600 }), 150)
   }, [campaignLaunchKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -242,6 +243,7 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     if (canvasResetKey === 0) return
     setNodes([{ id:'camp1', type:'campaignNode', position:{x:0, y:0}, data:{} }])
     setEdges([])
+    syncEdges([])
     setTimeout(() => fitView({ padding: 0.3, duration: 400 }), 100)
   }, [canvasResetKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
