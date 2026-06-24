@@ -3,7 +3,7 @@
 // Podgląd banerów we wszystkich formatach
 // ═══════════════════════════════════════════════
 'use client'
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { NodeProps } from '@xyflow/react'
 import { BaseNode } from './BaseNode'
 import { useAppStore } from '@/store/appStore'
@@ -59,29 +59,35 @@ function FormatCard({ uid, formatId, nodeId, headline, cta, image, theme, onRemo
   const [pickerOpen, setPickerOpen] = useState(false)
   const fmt = AD_FORMATS.find(f => f.id === formatId)
 
-  const style: StyleData | null = fmt
-    ? { format: fmt.id, width: fmt.w, height: fmt.h }
-    : null
+  // Serializujemy wejścia żeby efekt odpyalał się tylko gdy dane się zmieniają
+  const inputKey = JSON.stringify({ formatId, headline, cta, imageUrl: image?.url, theme })
 
-  const render = useCallback(async () => {
+  useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas || !fmt) return
+
+    const style: StyleData = { format: fmt.id, width: fmt.w, height: fmt.h }
     const copy: CopyGroupData | null = (headline || cta) ? {
       prompt: { text: '', tone: 'neutral', lang: 'pl' },
       headline: headline ?? { main: '' },
       cta: cta ?? { text: '', style: 'primary' },
     } : null
-    await composeBanner(canvas, {
+
+    composeBanner(canvas, {
       copy,
       background: null,
       bgColor: theme?.bgColor ?? '#1a1a2e',
       image: image?.url ?? null,
       style,
       theme: theme ?? null,
+    }).catch(() => {
+      // fallback: przynajmniej narysuj tło
+      canvas.width  = Math.min(fmt.w, 1080)
+      canvas.height = Math.min(fmt.h, 1080)
+      const ctx = canvas.getContext('2d')
+      if (ctx) { ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0, 0, canvas.width, canvas.height) }
     })
-  }, [fmt, headline, cta, image, theme, style]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => { render() }, [render])
+  }, [inputKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!fmt) return null
 
