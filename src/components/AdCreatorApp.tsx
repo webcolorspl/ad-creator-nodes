@@ -10,7 +10,6 @@ import { Sidebar }           from './Sidebar'
 import { Inspector }         from './Inspector'
 import { Topbar }            from './Topbar'
 import { FloatingPanel }     from './FloatingPanel'
-import { CopyVariantsPanel } from './CopyVariantsPanel'
 import { ApiKeyModal }       from './ApiKeyModal'
 import { ToastList }         from './ToastList'
 import { TestsPanel }        from './TestsPanel'
@@ -43,7 +42,6 @@ export function AdCreatorApp() {
         <Inspector nodes={liveNodes} edges={liveEdges} />
       </FloatingPanel>
 
-      <CopyVariantsPanel />
 
       {showApiModal && <ApiKeyModal />}
       {showTests    && <TestsPanel />}

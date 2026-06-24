@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useReactFlow } from '@xyflow/react'
 import { BaseNode } from './BaseNode'
 import { useAppStore } from '@/store/appStore'
@@ -40,28 +40,49 @@ export function CampaignNode({ id }: NodeProps) {
   const campaign       = useAppStore(s => s.campaign)
   const setCampaign    = useAppStore(s => s.setCampaign)
 
-  const { fitView } = useReactFlow()
+  const { setNodes } = useReactFlow()
 
   const [type,   setType]   = useState<CampaignConfig['type'] | null>(null)
   const [goals,  setGoals]  = useState<string[]>([])
   const [groups, setGroups] = useState<CampaignConfig['groups']>([])
+  const xShiftRef = useRef(0)
 
   const showGoals  = !!type
   const showGroups = goals.length > 0
 
-  function recenter() {
-    setTimeout(() => fitView({ nodes: [{ id }], duration: 350, padding: 0.35 }), 320)
+  // Shift node left by dx (positive = shift left) — creates symmetric expand effect
+  function shiftNode(dx: number) {
+    setNodes(nds => nds.map(n =>
+      n.id === id ? { ...n, position: { ...n.position, x: n.position.x - dx } } : n
+    ))
+    xShiftRef.current += dx
+  }
+
+  function restoreNode() {
+    if (xShiftRef.current !== 0) {
+      shiftNode(-xShiftRef.current)
+    }
   }
 
   function handleSelectType(t: CampaignConfig['type']) {
+    const isFirstExpand = !type
+    const hadGoals = goals.length > 0   // col3 visible before
+
     setType(t)
     setGoals([])
-    if (!type) recenter()   // tylko pierwsze rozwinięcie
+
+    if (isFirstExpand) shiftNode(COL_W / 2)  // col2 appears → shift left
+    if (hadGoals)      shiftNode(-COL_W / 2) // col3 disappears (goals cleared) → shift right
   }
+
   function toggleGoal(g: string) {
-    const wasEmpty = goals.length === 0
+    const wasEmpty     = goals.length === 0
+    const willBeEmpty  = goals.length === 1 && goals.includes(g)
+
     setGoals(p => p.includes(g) ? p.filter(x => x !== g) : [...p, g])
-    if (wasEmpty) recenter()  // pierwsze zaznaczenie → pojawia się col3
+
+    if (wasEmpty)    shiftNode(COL_W / 2)   // col3 appears → shift left
+    if (willBeEmpty) shiftNode(-COL_W / 2)  // col3 disappears → shift right
   }
   function toggleGroup(g: CampaignConfig['groups'][number]) {
     setGroups(p => p.includes(g) ? p.filter(x => x !== g) : [...p, g])
@@ -113,7 +134,7 @@ export function CampaignNode({ id }: NodeProps) {
           <button
             className="btn btn-ghost btn-sm"
             style={{ width:'100%', justifyContent:'center', fontSize:10 }}
-            onMouseDown={e => { e.stopPropagation(); setCampaign(null); setType(null); setGoals([]); setGroups([]) }}
+            onMouseDown={e => { e.stopPropagation(); restoreNode(); setCampaign(null); setType(null); setGoals([]); setGroups([]) }}
           >
             ✎ Zmień konfigurację
           </button>

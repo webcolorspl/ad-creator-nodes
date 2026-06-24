@@ -135,6 +135,14 @@ html, body {
   border-radius: 8px;
 }
 
+/* ── CampaignNode — smooth symmetric expand ── */
+.react-flow__node-campaignNode {
+  transition: transform 0.28s cubic-bezier(.4, 0, .2, 1);
+}
+.react-flow__node-campaignNode.react-flow__node-dragging {
+  transition: none;
+}
+
 /* ── Edge hover label ───────────────────────── */
 .react-flow__edge-interaction {
   cursor: pointer;
