@@ -19,6 +19,8 @@ import {
   ImageGenNode, BGLibraryNode,
   BannerComposerNode, BatchExportNode,
   ThemeNode,
+  CreativeNode,
+  BannerGridNode,
 } from './nodes'
 import { HintNode } from './nodes/HintNode'
 import { CampaignNode } from './nodes/CampaignNode'
@@ -43,6 +45,8 @@ const NODE_TYPES = {
   hintNode:           HintNode,
   campaignNode:       CampaignNode,
   channelNode:        ChannelNode,
+  creativeNode:       CreativeNode,
+  bannerGridNode:     BannerGridNode,
 }
 
 // Section bounds for navigation pills
@@ -208,74 +212,20 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
   useEffect(() => {
     if (campaignLaunchKey === 0 || !campaign) return
 
-    const GROUP_LABELS: Record<string, string> = {
-      prospecting: 'Prospecting', remarketing: 'Remarketing',
-      upsell: 'Upsell', seasonal: 'Sezonowy', brand: 'Brand',
-    }
-
-    // ── Layout:
-    // Rząd -1 (y=-320): Campaign Setup  |  Kanały          ← setup
-    // Rząd  0 (y=-80):  Brand / Theme                      ← brand (wspólny)
-    // Rząd  1+ (y=100+): lanes per group                   ← copy→image→baner→export
-
-    const SETUP_Y  = -320
-    const BRAND_Y  = -60
-    const LANES_Y  =  120
-    const LANE_GAP =  520   // odstęp pionowy między grupami
-
-    const baseNodes: Node[] = [
-      // Setup row
-      { id:'camp1', type:'campaignNode', position:{x:0,   y:SETUP_Y}, data:{} },
-      { id:'ch1',   type:'channelNode',  position:{x:520, y:SETUP_Y}, data:{} },
-      // Brand row (wspólny)
-      { id:'th1',   type:'themeNode',    position:{x:0,   y:BRAND_Y}, data:{} },
+    const spawnNodes: Node[] = [
+      { id:'camp1',     type:'campaignNode',   position:{x:0,    y:0}, data:{} },
+      { id:'creative1', type:'creativeNode',   position:{x:520,  y:0}, data:{} },
+      { id:'result1',   type:'bannerGridNode', position:{x:1040, y:0}, data:{} },
     ]
-
-    const baseEdges: Edge[] = [
-      // Theme → wszystkie bannerComposer i batchExport generowane niżej
+    const spawnEdges: Edge[] = [
+      mke('e-hl',    'creative1', 'headline', 'result1', 'headline', 'headline'),
+      mke('e-cta',   'creative1', 'cta',      'result1', 'cta',      'cta'),
+      mke('e-img',   'creative1', 'image',    'result1', 'image',    'image'),
+      mke('e-theme', 'creative1', 'theme',    'result1', 'theme',    'theme'),
     ]
-
-    const groupNodes: Node[] = []
-    const groupEdges: Edge[] = []
-
-    campaign.groups.forEach((group, i) => {
-      const yBase = LANES_Y + i * LANE_GAP
-      const gid   = `g${i}`
-
-      groupNodes.push(
-        // Label grupy
-        { id:`${gid}_hint`, type:'hintNode',
-          position:{x:-260, y:yBase},
-          data:{text:`${GROUP_LABELS[group]} — Grupa ${i+1}`},
-          draggable:false, selectable:false },
-        // Copy
-        { id:`${gid}_cv`, type:'copyVariantsNode',   position:{x:0,    y:yBase}, data:{} },
-        // Image
-        { id:`${gid}_ig`, type:'imageGenNode',        position:{x:460,  y:yBase}, data:{} },
-        // Banner Component (scala copy + image + theme)
-        { id:`${gid}_bc`, type:'bannerComposerNode',  position:{x:920,  y:yBase}, data:{} },
-        // Export
-        { id:`${gid}_be`, type:'batchExportNode',     position:{x:1380, y:yBase}, data:{} },
-      )
-
-      groupEdges.push(
-        // Theme → Banner Component + Export
-        mke(`${gid}_eth1`, 'th1',       'theme',    `${gid}_bc`, 'theme',    'theme'),
-        mke(`${gid}_eth2`, 'th1',       'theme',    `${gid}_be`, 'theme',    'theme'),
-        // Copy → Image + Banner + Export
-        mke(`${gid}_ecv1`, `${gid}_cv`, 'headline', `${gid}_bc`, 'headline', 'headline'),
-        mke(`${gid}_ecv2`, `${gid}_cv`, 'cta',      `${gid}_bc`, 'cta',      'cta'),
-        mke(`${gid}_ecv3`, `${gid}_cv`, 'headline', `${gid}_ig`, 'headline', 'headline'),
-        // Image → Banner
-        mke(`${gid}_eig1`, `${gid}_ig`, 'image',    `${gid}_bc`, 'image',    'image'),
-        // Banner → Export
-        mke(`${gid}_ebc1`, `${gid}_bc`, 'banner',   `${gid}_be`, 'banner',   'banner'),
-      )
-    })
-
-    setNodes([...baseNodes, ...groupNodes])
-    setEdges([...baseEdges, ...groupEdges])
-    setTimeout(() => fitView({ padding: 0.1, duration: 600 }), 150)
+    setNodes(spawnNodes)
+    setEdges(spawnEdges)
+    setTimeout(() => fitView({ padding: 0.15, duration: 600 }), 150)
   }, [campaignLaunchKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Reset canvas

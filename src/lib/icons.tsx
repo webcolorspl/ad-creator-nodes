@@ -25,6 +25,8 @@ import {
   Palette,
   Megaphone,
   Radio,
+  Pencil,
+  Grid2x2,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -45,6 +47,8 @@ export const NODE_ICONS: Record<string, LucideIcon> = {
   bannerComposerNode: LayoutTemplate,
   batchExportNode:    FolderDown,
   themeNode:          Palette,
+  creativeNode:       Pencil,
+  bannerGridNode:     Grid2x2,
 }
 
 export {

@@ -214,6 +214,28 @@ export const NODE_REGISTRY: Record<string, NodeDef> = {
     outs: [],
     description: 'Eksportuje wiele formatów jednocześnie',
   },
+  creativeNode: {
+    label: 'Creative', icon: '✏', cat: NODE_CATEGORIES.PROCESS,
+    ins: [],
+    outs: [
+      { id: 'headline', type: PORT_TYPES.HEADLINE, label: 'headline' },
+      { id: 'cta',      type: PORT_TYPES.CTA,      label: 'cta' },
+      { id: 'image',    type: PORT_TYPES.IMAGE,     label: 'image' },
+      { id: 'theme',    type: PORT_TYPES.THEME,     label: 'theme' },
+    ],
+    description: 'Copy, obraz i marka w jednym miejscu',
+  },
+  bannerGridNode: {
+    label: 'Banner Preview', icon: '🖼', cat: NODE_CATEGORIES.OUTPUT,
+    ins: [
+      { id: 'headline', type: PORT_TYPES.HEADLINE, label: 'headline' },
+      { id: 'cta',      type: PORT_TYPES.CTA,      label: 'cta' },
+      { id: 'image',    type: PORT_TYPES.IMAGE,     label: 'image' },
+      { id: 'theme',    type: PORT_TYPES.THEME,     label: 'theme' },
+    ],
+    outs: [],
+    description: 'Podgląd banerów we wszystkich formatach',
+  },
 }
 
 // ── Palette sections (sidebar order) ─────────
