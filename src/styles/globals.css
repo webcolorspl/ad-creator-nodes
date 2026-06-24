@@ -94,8 +94,15 @@ html, body {
   fill: #C8D4F0;
 }
 .react-flow__edge-path {
-  stroke-width: 1.5;
-  opacity: 0.65;
+  stroke-width: 1;
+  opacity: 0.4;
+  transition: stroke-width .2s ease, opacity .2s ease, filter .2s ease;
+}
+.react-flow__edge:hover .react-flow__edge-path,
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke-width: 2;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 3px currentColor);
 }
 .react-flow__handle {
   width: 10px !important;
@@ -128,14 +135,13 @@ html, body {
   border-radius: 8px;
 }
 
-/* ── Edge animation ─────────────────────────── */
-@keyframes edge-flow {
-  from { stroke-dashoffset: 20; }
-  to   { stroke-dashoffset: 0;  }
+/* ── Edge hover label ───────────────────────── */
+.react-flow__edge-interaction {
+  cursor: pointer;
 }
-.react-flow__edge.animated .react-flow__edge-path {
-  stroke-dasharray: 4 6;
-  animation: edge-flow 1.2s linear infinite;
+.react-flow__edge .react-flow__edge-text {
+  font-family: var(--font-ui);
+  font-size: 10px;
 }
 
 /* ── Scrollbars ─────────────────────────────── */

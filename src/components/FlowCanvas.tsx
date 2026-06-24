@@ -77,8 +77,8 @@ const DEMO_NODES: Node[] = [
 
 const mke = (id: string, src: string, sh: string, tgt: string, th: string, type: string): Edge => ({
   id, source: src, sourceHandle: sh, target: tgt, targetHandle: th,
-  animated: true, type: 'smoothstep',
-  style: { stroke: PORT_COLORS[type] ?? '#C8D4F0', strokeWidth: 1.5, opacity: 0.7 },
+  animated: false, type: 'bezier',
+  style: { stroke: PORT_COLORS[type] ?? '#C8D4F0', strokeWidth: 1, opacity: 0.4 },
 })
 
 // ── Setup view: tylko CampaignNode (przed uruchomieniem kampanii) ───
@@ -253,7 +253,7 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     const port = def?.outs.find(p => p.id === params.sourceHandle)
     const color = port ? PORT_COLORS[port.type] : '#6B6B85'
     setEdges(eds => {
-      const next = addEdge({ ...params, animated: true, type: 'smoothstep', style: { stroke: color, strokeWidth: 1.5, opacity: 0.7 } }, eds)
+      const next = addEdge({ ...params, animated: false, type: 'bezier', style: { stroke: color, strokeWidth: 1, opacity: 0.4 } }, eds)
       syncEdges(next)
       return next
     })
