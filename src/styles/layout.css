@@ -302,3 +302,9 @@
   color: var(--color-text-muted);
   font-family: var(--font-mono);
 }
+
+/* Dark topbar */
+html.dark .topbar {
+  background: rgba(13,18,36,0.92);
+  border-bottom-color: rgba(30,50,100,0.5);
+}

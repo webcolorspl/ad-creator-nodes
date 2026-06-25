@@ -5,15 +5,17 @@
 
 // ── Port Types ────────────────────────────────
 export const PORT_TYPES = {
-  PROMPT:     'prompt',
-  HEADLINE:   'headline',
-  CTA:        'cta',
-  COPY_GROUP: 'copy_group',
-  STYLE:      'style',
-  IMAGE:      'image',
-  BACKGROUND: 'background',
-  BANNER:     'banner',
-  THEME:      'theme',
+  PROMPT:            'prompt',
+  HEADLINE:          'headline',
+  CTA:               'cta',
+  COPY_GROUP:        'copy_group',
+  STYLE:             'style',
+  IMAGE:             'image',
+  BACKGROUND:        'background',
+  BANNER:            'banner',
+  THEME:             'theme',
+  PROPOSALS:         'proposals',
+  SELECTED_VARIANTS: 'selected_variants',
 } as const
 
 export type PortType = typeof PORT_TYPES[keyof typeof PORT_TYPES]
@@ -67,6 +69,22 @@ export interface HeadlineCTAVariant {
   headlineSub: string
   ctaText: string
   ctaStyle: 'primary' | 'outline' | 'ghost' | 'text'
+  // Text styling
+  headlineAlign?: 'left' | 'center' | 'right'
+  headlineBold?: boolean
+  headlineItalic?: boolean
+  headlineUnderline?: boolean
+  headlineSize?: number
+  subAlign?: 'left' | 'center' | 'right'
+  subBold?: boolean
+  subItalic?: boolean
+  subUnderline?: boolean
+  // Theme override
+  themeOverride?: { bgColor?: string; accentColor?: string; fontFamily?: string }
+}
+
+export interface ProposalsData {
+  variants: HeadlineCTAVariant[]
 }
 
 export interface CopyGroupData {
@@ -110,15 +128,17 @@ export interface BannerData {
 
 // ── Node Output Map ───────────────────────────
 export interface NodeOutputs {
-  prompt?:     PromptData
-  headline?:   HeadlineData
-  cta?:        CTAData
-  copyGroup?:  CopyGroupData
-  style?:      StyleData
-  image?:      ImageData
-  background?: BackgroundData
-  banner?:     BannerData
-  theme?:      ThemeData
+  prompt?:           PromptData
+  headline?:         HeadlineData
+  cta?:              CTAData
+  copyGroup?:        CopyGroupData
+  style?:            StyleData
+  image?:            ImageData
+  background?:       BackgroundData
+  banner?:           BannerData
+  theme?:            ThemeData
+  proposals?:        ProposalsData
+  selectedVariants?: HeadlineCTAVariant[]
 }
 
 // ── Web Scrape Data ───────────────────────────

@@ -374,3 +374,60 @@
   border: 1px solid rgba(208,217,240,.7);
 }
 .canvas-wrap canvas { display: block; width: 100%; height: auto; }
+
+/* ── Dark Mode ───────────────────────────────── */
+html.dark .node-card {
+  background: var(--color-node-bg);
+  border-color: var(--color-node-border);
+}
+html.dark .node-card:hover {
+  border-color: rgba(255,255,255,0.14);
+}
+html.dark .node-header::after {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.06) 20%, rgba(255,255,255,.06) 80%, transparent);
+}
+html.dark .node-icon.cat-input   { background: rgba(107,149,255,.14); color: #6B95FF; }
+html.dark .node-icon.cat-process { background: rgba(167,139,250,.14); color: #A78BFA; }
+html.dark .node-icon.cat-gen     { background: rgba(52,211,153,.14);  color: #34D399; }
+html.dark .node-icon.cat-output  { background: rgba(251,146,60,.14);  color: #FB923C; }
+
+html.dark .node-error-banner {
+  background: rgba(220,38,38,.12);
+  border-color: rgba(220,38,38,.3);
+  color: #F87171;
+}
+html.dark .field-input,
+html.dark .field-textarea,
+html.dark .field-select {
+  background: var(--color-field-bg);
+  border-color: var(--color-field-border);
+  color: var(--color-text);
+}
+html.dark .field-input:focus,
+html.dark .field-textarea:focus,
+html.dark .field-select:focus {
+  background: rgba(255,255,255,.06);
+  border-color: rgba(107,149,255,.5);
+  box-shadow: 0 0 0 3px rgba(107,149,255,.1);
+}
+html.dark .field-select option { background: #18181B; color: var(--color-text); }
+html.dark .field-divider {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.08) 30%, rgba(255,255,255,.08) 70%, transparent);
+}
+html.dark .gen-placeholder { border-color: rgba(255,255,255,.1); }
+
+html.dark .port-disconnected { background: var(--color-field-bg); border-color: var(--color-field-border); }
+html.dark .variant-chip      { background: var(--color-field-bg); border-color: var(--color-field-border); }
+html.dark .variant-chip input { color: var(--color-text); }
+
+html.dark .status-idle  { background: var(--color-field-bg); border-color: var(--color-field-border); }
+html.dark .status-error { background: rgba(220,38,38,.1); border-color: rgba(220,38,38,.3); color: #F87171; }
+
+html.dark .format-btn { background: var(--color-field-bg); border-color: var(--color-field-border); }
+html.dark .format-btn:hover,
+html.dark .format-btn.active { background: rgba(91,132,245,.14); border-color: rgba(91,132,245,.4); }
+html.dark .format-rect { background: rgba(91,132,245,.25); }
+
+html.dark .gen-placeholder { background: var(--color-field-bg); border-color: rgba(50,80,180,.35); }
+html.dark .gen-spinner     { border-color: var(--color-field-border); border-top-color: var(--blue-400); }
+html.dark .canvas-wrap     { background: var(--color-field-bg); border-color: var(--color-field-border); }

@@ -6,7 +6,6 @@
 import { useState, useCallback } from 'react'
 import type { Node, Edge } from '@xyflow/react'
 import { FlowCanvas }        from './FlowCanvas'
-import { Sidebar }           from './Sidebar'
 import { Inspector }         from './Inspector'
 import { Topbar }            from './Topbar'
 import { FloatingPanel }     from './FloatingPanel'
@@ -34,14 +33,9 @@ export function AdCreatorApp() {
       <Topbar />
       <FlowCanvas onChange={handleChange} />
 
-      <FloatingPanel side="left" title="Paleta nodów" width={216}>
-        <Sidebar nodes={liveNodes} />
-      </FloatingPanel>
-
       <FloatingPanel side="right" title="Inspektor" width={300}>
         <Inspector nodes={liveNodes} edges={liveEdges} />
       </FloatingPanel>
-
 
       {showApiModal && <ApiKeyModal />}
       {showTests    && <TestsPanel />}

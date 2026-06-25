@@ -10,6 +10,8 @@ export interface CampaignConfig {
   type: 'brand' | 'performance' | 'leads' | 'launch' | 'seasonal' | 'remarketing'
   goals: string[]
   groups: ('prospecting' | 'remarketing' | 'upsell' | 'seasonal' | 'brand')[]
+  headline?: string
+  audience?: string
 }
 
 interface AppState {
@@ -46,6 +48,8 @@ interface AppState {
   setShowTests: (show: boolean) => void
   appMode: 'marketer' | 'agency'
   setAppMode: (mode: 'marketer' | 'agency') => void
+  darkMode: boolean
+  toggleDarkMode: () => void
 
   // Floating panels
   panels: {
@@ -140,6 +144,12 @@ export const useAppStore = create<AppState>((set) => ({
   setShowTests: (show) => set({ showTests: show }),
   appMode: 'marketer',
   setAppMode: (mode) => set({ appMode: mode }),
+  darkMode: typeof window !== 'undefined' ? localStorage.getItem('darkMode') === 'true' : false,
+  toggleDarkMode: () => set(s => {
+    const next = !s.darkMode
+    if (typeof window !== 'undefined') localStorage.setItem('darkMode', String(next))
+    return { darkMode: next }
+  }),
 
   // Floating panels
   panels: {

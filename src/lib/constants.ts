@@ -14,7 +14,9 @@ export const PORT_COLORS: Record<string, string> = {
   [PORT_TYPES.IMAGE]:      '#3DFFA0',
   [PORT_TYPES.BACKGROUND]: '#FFD700',
   [PORT_TYPES.BANNER]:     '#FF7C4A',
-  theme: '#A855F7',
+  theme:             '#A855F7',
+  proposals:         '#5BA4F5',
+  selected_variants: '#5BF5B4',
 }
 
 // ── Category colors (CSS vars) ────────────────
@@ -228,14 +230,27 @@ export const NODE_REGISTRY: Record<string, NodeDef> = {
   bannerGridNode: {
     label: 'Banner Preview', icon: '🖼', cat: NODE_CATEGORIES.OUTPUT,
     ins: [
-      { id: 'headline',   type: PORT_TYPES.HEADLINE,   label: 'headline' },
-      { id: 'cta',        type: PORT_TYPES.CTA,        label: 'cta' },
-      { id: 'image',      type: PORT_TYPES.IMAGE,      label: 'image' },
-      { id: 'background', type: PORT_TYPES.BACKGROUND, label: 'tło' },
-      { id: 'theme',      type: PORT_TYPES.THEME,      label: 'theme' },
+      { id: 'headline',        type: PORT_TYPES.HEADLINE,          label: 'headline' },
+      { id: 'cta',             type: PORT_TYPES.CTA,               label: 'cta' },
+      { id: 'image',           type: PORT_TYPES.IMAGE,             label: 'image' },
+      { id: 'background',      type: PORT_TYPES.BACKGROUND,        label: 'tło' },
+      { id: 'theme',           type: PORT_TYPES.THEME,             label: 'theme' },
+      { id: 'selectedVariants',type: PORT_TYPES.SELECTED_VARIANTS, label: 'selected variants' },
     ],
     outs: [],
     description: 'Podgląd banerów we wszystkich formatach',
+  },
+  briefNode: {
+    label: 'Brief', icon: '✍', cat: NODE_CATEGORIES.PROCESS,
+    ins: [],
+    outs: [{ id: 'proposals', type: 'proposals', label: 'proposals' }],
+    description: 'Brief kampanii — produkt, słowa kluczowe, targeting → AI generuje warianty',
+  },
+  headlineProposalsNode: {
+    label: 'Propozycje haseł', icon: '✦', cat: NODE_CATEGORIES.PROCESS,
+    ins: [{ id: 'proposals', type: 'proposals', label: 'proposals' }],
+    outs: [{ id: 'selectedVariants', type: 'selected_variants', label: 'selected variants' }],
+    description: 'Lista wariantów AI — wybierz, edytuj, stylizuj',
   },
 }
 

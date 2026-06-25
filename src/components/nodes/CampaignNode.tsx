@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useReactFlow } from '@xyflow/react'
 import { BaseNode } from './BaseNode'
 import { useAppStore } from '@/store/appStore'
@@ -26,11 +26,11 @@ const GOALS_BY_TYPE: Record<CampaignConfig['type'], { id: string; label: string 
 }
 
 const BANNER_GROUPS: { id: CampaignConfig['groups'][number]; label: string; Icon: LucideIcon; desc: string; color: string }[] = [
-  { id: 'prospecting', label: 'Prospecting', Icon: Users,         desc: 'Nowi klienci',        color: '#3A67F0' },
+  { id: 'prospecting', label: 'Prospecting', Icon: Users,         desc: 'Nowi klienci',          color: '#3A67F0' },
   { id: 'remarketing', label: 'Remarketing', Icon: RefreshCw,     desc: 'Odwiedzili, nie kupili', color: '#E54D6A' },
-  { id: 'upsell',      label: 'Upsell',      Icon: ArrowUpRight,  desc: 'Aktualni klienci',    color: '#0EA87A' },
-  { id: 'seasonal',    label: 'Sezonowy',    Icon: CalendarDays,  desc: 'Promocja czasowa',    color: '#E7A800' },
-  { id: 'brand',       label: 'Brand',       Icon: Heart,         desc: 'Wizerunek marki',     color: '#7C5CF5' },
+  { id: 'upsell',      label: 'Upsell',      Icon: ArrowUpRight,  desc: 'Aktualni klienci',      color: '#0EA87A' },
+  { id: 'seasonal',    label: 'Sezonowy',    Icon: CalendarDays,  desc: 'Promocja czasowa',      color: '#E7A800' },
+  { id: 'brand',       label: 'Brand',       Icon: Heart,         desc: 'Wizerunek marki',       color: '#7C5CF5' },
 ]
 
 const COL_W = 164
@@ -42,54 +42,66 @@ export function CampaignNode({ id }: NodeProps) {
 
   const { setNodes } = useReactFlow()
 
-  const [type,   setType]   = useState<CampaignConfig['type'] | null>(null)
-  const [goals,  setGoals]  = useState<string[]>([])
-  const [groups, setGroups] = useState<CampaignConfig['groups']>([])
-  const xShiftRef = useRef(0)
+  const [type,     setType]     = useState<CampaignConfig['type'] | null>(null)
+  const [goals,    setGoals]    = useState<string[]>([])
+  const [groups,   setGroups]   = useState<CampaignConfig['groups']>([])
+  const [headline, setHeadline] = useState('')
+  const [audience, setAudience] = useState('')
 
-  const showGoals  = !!type
-  const showGroups = goals.length > 0
+  const xShiftRef        = useRef(0)
+  const prevExtraColsRef = useRef(0)
 
-  // Shift node left by dx (positive = shift left) — creates symmetric expand effect
-  function shiftNode(dx: number) {
-    setNodes(nds => nds.map(n =>
-      n.id === id ? { ...n, position: { ...n.position, x: n.position.x - dx } } : n
-    ))
-    xShiftRef.current += dx
-  }
+  const showGoals   = !!type
+  const showGroups  = goals.length > 0
+  const showContent = groups.length > 0
+
+  const numExtraCols = (showGoals ? 1 : 0) + (showGroups ? 1 : 0) + (showContent ? 1 : 0)
+
+  // ── Symmetric expansion via position shift ────────────────────────
+  useEffect(() => {
+    const delta = numExtraCols - prevExtraColsRef.current
+    if (delta !== 0) {
+      const dx = delta * COL_W / 2
+      setNodes(nds => nds.map(n =>
+        n.id === id ? { ...n, position: { ...n.position, x: n.position.x - dx } } : n
+      ))
+      xShiftRef.current        += dx
+      prevExtraColsRef.current  = numExtraCols
+    }
+  }, [numExtraCols]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function restoreNode() {
     if (xShiftRef.current !== 0) {
-      shiftNode(-xShiftRef.current)
+      setNodes(nds => nds.map(n =>
+        n.id === id ? { ...n, position: { ...n.position, x: n.position.x + xShiftRef.current } } : n
+      ))
+      xShiftRef.current        = 0
+      prevExtraColsRef.current = 0
     }
   }
 
   function handleSelectType(t: CampaignConfig['type']) {
-    const isFirstExpand = !type
-    const hadGoals = goals.length > 0   // col3 visible before
-
     setType(t)
     setGoals([])
-
-    if (isFirstExpand) shiftNode(COL_W / 2)  // col2 appears → shift left
-    if (hadGoals)      shiftNode(-COL_W / 2) // col3 disappears (goals cleared) → shift right
+    setGroups([])
   }
 
   function toggleGoal(g: string) {
-    const wasEmpty     = goals.length === 0
-    const willBeEmpty  = goals.length === 1 && goals.includes(g)
-
     setGoals(p => p.includes(g) ? p.filter(x => x !== g) : [...p, g])
-
-    if (wasEmpty)    shiftNode(COL_W / 2)   // col3 appears → shift left
-    if (willBeEmpty) shiftNode(-COL_W / 2)  // col3 disappears → shift right
+    if (goals.includes(g) && goals.length === 1) setGroups([])
   }
+
   function toggleGroup(g: CampaignConfig['groups'][number]) {
     setGroups(p => p.includes(g) ? p.filter(x => x !== g) : [...p, g])
   }
+
   function handleLaunch() {
     if (!type || !goals.length || !groups.length) return
-    launchCampaign({ type, goals, groups })
+    launchCampaign({
+      type, goals, groups,
+      headline: headline.trim() || undefined,
+      audience: audience.trim() || undefined,
+    })
   }
 
   // ── Summary view ─────────────────────────────────────────────────
@@ -114,6 +126,18 @@ export function CampaignNode({ id }: NodeProps) {
               <div style={{ fontSize:10, color:'var(--color-text-muted)' }}>{campaign.goals.join(' · ')}</div>
             </div>
           </div>
+
+          {campaign.headline && (
+            <div style={{ fontSize:11, color:'var(--color-text)', fontStyle:'italic', padding:'4px 0' }}>
+              "{campaign.headline}"
+            </div>
+          )}
+          {campaign.audience && (
+            <div style={{ fontSize:10, color:'var(--color-text-muted)' }}>
+              Dla: {campaign.audience}
+            </div>
+          )}
+
           <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
             {campaign.groups.map(g => {
               const info = BANNER_GROUPS.find(x => x.id === g)
@@ -134,7 +158,17 @@ export function CampaignNode({ id }: NodeProps) {
           <button
             className="btn btn-ghost btn-sm"
             style={{ width:'100%', justifyContent:'center', fontSize:10 }}
-            onMouseDown={e => { e.stopPropagation(); restoreNode(); setCampaign(null); setType(null); setGoals([]); setGroups([]) }}
+            onMouseDown={e => {
+              e.stopPropagation()
+              restoreNode()
+              // Przywróć poprzednie wybory zamiast resetować
+              setType(campaign.type)
+              setGoals([...campaign.goals])
+              setGroups([...campaign.groups])
+              setHeadline(campaign.headline ?? '')
+              setAudience(campaign.audience ?? '')
+              setCampaign(null)
+            }}
           >
             ✎ Zmień konfigurację
           </button>
@@ -151,133 +185,211 @@ export function CampaignNode({ id }: NodeProps) {
     borderBottom: '1px solid var(--color-field-border)',
   }
 
+  const colBorder: React.CSSProperties = {
+    borderLeft: '1px solid var(--color-field-border)',
+    paddingLeft: 10, marginLeft: -10,
+  }
+
+  const canLaunch = !!(type && goals.length && groups.length)
+
   return (
     <BaseNode id={id} nodeType="campaignNode">
-      <div style={{ display:'flex', gap:0, alignItems:'flex-start', overflow:'hidden' }}>
+      <div style={{ display:'flex', flexDirection:'column', gap:0 }}>
 
-        {/* ── Col 1: Typ ── */}
-        <div style={{ width: COL_W, flexShrink: 0, display:'flex', flexDirection:'column', gap:2 }}>
-          <div style={colHeader}>Typ kampanii</div>
-          {CAMPAIGN_TYPES.map(t => (
-            <div
-              key={t.id}
-              onMouseDown={e => { e.stopPropagation(); handleSelectType(t.id) }}
-              style={{
-                display:'flex', alignItems:'center', gap:8,
-                padding:'6px 7px', borderRadius:8, cursor:'pointer',
-                background: type === t.id ? `${t.color}12` : 'transparent',
-                border: `1px solid ${type === t.id ? `${t.color}40` : 'transparent'}`,
-                transition: 'all .15s',
-              }}
-            >
-              <div style={{
-                width:24, height:24, borderRadius:6, flexShrink:0,
-                background: type === t.id ? `${t.color}18` : 'rgba(120,130,160,0.08)',
-                display:'flex', alignItems:'center', justifyContent:'center',
-                transition: 'background .15s',
-              }}>
-                <t.Icon size={13} strokeWidth={1.75} color={type === t.id ? t.color : 'var(--color-text-muted)'} />
-              </div>
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:11, fontWeight: type === t.id ? 600 : 400, color: type === t.id ? t.color : 'var(--color-text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.label}</div>
-                <div style={{ fontSize:9, color:'var(--color-text-muted)' }}>{t.desc}</div>
-              </div>
-              {type === t.id && <span style={{ color: t.color, fontSize:11, fontWeight:600 }}>›</span>}
-            </div>
-          ))}
-        </div>
+        {/* ── Columns row ── */}
+        <div style={{ display:'flex', gap:0, alignItems:'flex-start', overflow:'hidden' }}>
 
-        {/* ── Col 2: Cele — wsuwa się po wyborze typu ── */}
-        <div style={{
-          width: showGoals ? COL_W : 0,
-          opacity: showGoals ? 1 : 0,
-          overflow: 'hidden',
-          transition: 'width 0.28s cubic-bezier(.4,0,.2,1), opacity 0.22s ease',
-          flexShrink: 0,
-        }}>
-          <div style={{ width: COL_W, paddingLeft: 10, display:'flex', flexDirection:'column', gap:2 }}>
-            <div style={{ ...colHeader, borderLeft: '1px solid var(--color-field-border)', paddingLeft:10, marginLeft:-10 }}>
-              Cele {goals.length > 0 && <span style={{ color:'var(--color-gen)' }}>✓{goals.length}</span>}
-            </div>
-            {type && GOALS_BY_TYPE[type].map(g => (
-              <label
-                key={g.id}
-                onMouseDown={e => e.stopPropagation()}
-                style={{
-                  display:'flex', alignItems:'center', gap:6,
-                  padding:'5px 7px', borderRadius:5, cursor:'pointer',
-                  background: goals.includes(g.id) ? 'rgba(124,92,245,0.12)' : 'transparent',
-                  border: `1px solid ${goals.includes(g.id) ? 'var(--color-process)' : 'transparent'}`,
-                  transition: 'all .15s',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={goals.includes(g.id)}
-                  onChange={() => toggleGoal(g.id)}
-                  style={{ accentColor:'var(--color-process)', width:12, height:12, flexShrink:0 }}
-                />
-                <span style={{ fontSize:11, color:'var(--color-text)', fontWeight: goals.includes(g.id) ? 600 : 400 }}>
-                  {g.label}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Col 3: Grupy — wsuwa się po wyborze celu ── */}
-        <div style={{
-          width: showGroups ? COL_W : 0,
-          opacity: showGroups ? 1 : 0,
-          overflow: 'hidden',
-          transition: 'width 0.28s cubic-bezier(.4,0,.2,1), opacity 0.22s ease',
-          flexShrink: 0,
-        }}>
-          <div style={{ width: COL_W, paddingLeft: 10, display:'flex', flexDirection:'column', gap:2 }}>
-            <div style={{ ...colHeader, borderLeft: '1px solid var(--color-field-border)', paddingLeft:10, marginLeft:-10 }}>
-              Grupy {groups.length > 0 && <span style={{ color:'var(--color-gen)' }}>✓{groups.length}</span>}
-            </div>
-            {BANNER_GROUPS.map(g => (
-              <label
-                key={g.id}
-                onMouseDown={e => e.stopPropagation()}
+          {/* ── Col 1: Typ ── */}
+          <div style={{ width: COL_W, flexShrink: 0, display:'flex', flexDirection:'column', gap:2 }}>
+            <div style={colHeader}>Typ kampanii</div>
+            {CAMPAIGN_TYPES.map(t => (
+              <div
+                key={t.id}
+                onMouseDown={e => { e.stopPropagation(); handleSelectType(t.id) }}
                 style={{
                   display:'flex', alignItems:'center', gap:8,
                   padding:'6px 7px', borderRadius:8, cursor:'pointer',
-                  background: groups.includes(g.id) ? `${g.color}12` : 'transparent',
-                  border: `1px solid ${groups.includes(g.id) ? `${g.color}40` : 'transparent'}`,
+                  background: type === t.id ? `${t.color}12` : 'transparent',
+                  border: `1px solid ${type === t.id ? `${t.color}40` : 'transparent'}`,
                   transition: 'all .15s',
                 }}
               >
                 <div style={{
                   width:24, height:24, borderRadius:6, flexShrink:0,
-                  background: groups.includes(g.id) ? `${g.color}18` : 'rgba(120,130,160,0.08)',
+                  background: type === t.id ? `${t.color}18` : 'rgba(120,130,160,0.08)',
                   display:'flex', alignItems:'center', justifyContent:'center',
                   transition: 'background .15s',
                 }}>
-                  <g.Icon size={13} strokeWidth={1.75} color={groups.includes(g.id) ? g.color : 'var(--color-text-muted)'} />
+                  <t.Icon size={13} strokeWidth={1.75} color={type === t.id ? t.color : 'var(--color-text-muted)'} />
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:11, color: groups.includes(g.id) ? g.color : 'var(--color-text)', fontWeight: groups.includes(g.id) ? 600 : 400 }}>
+                  <div style={{ fontSize:11, fontWeight: type === t.id ? 600 : 400, color: type === t.id ? t.color : 'var(--color-text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.label}</div>
+                  <div style={{ fontSize:9, color:'var(--color-text-muted)' }}>{t.desc}</div>
+                </div>
+                {type === t.id && <span style={{ color: t.color, fontSize:11, fontWeight:600 }}>›</span>}
+              </div>
+            ))}
+          </div>
+
+          {/* ── Col 2: Cele ── */}
+          <div style={{
+            width: showGoals ? COL_W : 0,
+            opacity: showGoals ? 1 : 0,
+            overflow: 'hidden',
+            transition: 'width 0.28s cubic-bezier(.4,0,.2,1), opacity 0.22s ease',
+            flexShrink: 0,
+          }}>
+            <div style={{ width: COL_W, paddingLeft: 10, display:'flex', flexDirection:'column', gap:2 }}>
+              <div style={{ ...colHeader, ...colBorder }}>
+                Cele {goals.length > 0 && <span style={{ color:'var(--color-gen)' }}>✓{goals.length}</span>}
+              </div>
+              {type && GOALS_BY_TYPE[type].map(g => (
+                <label
+                  key={g.id}
+                  onMouseDown={e => e.stopPropagation()}
+                  style={{
+                    display:'flex', alignItems:'center', gap:6,
+                    padding:'5px 7px', borderRadius:5, cursor:'pointer',
+                    background: goals.includes(g.id) ? 'rgba(124,92,245,0.12)' : 'transparent',
+                    border: `1px solid ${goals.includes(g.id) ? 'var(--color-process)' : 'transparent'}`,
+                    transition: 'all .15s',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={goals.includes(g.id)}
+                    onChange={() => toggleGoal(g.id)}
+                    style={{ accentColor:'var(--color-process)', width:12, height:12, flexShrink:0 }}
+                  />
+                  <span style={{ fontSize:11, color:'var(--color-text)', fontWeight: goals.includes(g.id) ? 600 : 400 }}>
                     {g.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Col 3: Grupy ── */}
+          <div style={{
+            width: showGroups ? COL_W : 0,
+            opacity: showGroups ? 1 : 0,
+            overflow: 'hidden',
+            transition: 'width 0.28s cubic-bezier(.4,0,.2,1), opacity 0.22s ease',
+            flexShrink: 0,
+          }}>
+            <div style={{ width: COL_W, paddingLeft: 10, display:'flex', flexDirection:'column', gap:2 }}>
+              <div style={{ ...colHeader, ...colBorder }}>
+                Grupy {groups.length > 0 && <span style={{ color:'var(--color-gen)' }}>✓{groups.length}</span>}
+              </div>
+              {BANNER_GROUPS.map(g => (
+                <label
+                  key={g.id}
+                  onMouseDown={e => e.stopPropagation()}
+                  style={{
+                    display:'flex', alignItems:'center', gap:8,
+                    padding:'6px 7px', borderRadius:8, cursor:'pointer',
+                    background: groups.includes(g.id) ? `${g.color}12` : 'transparent',
+                    border: `1px solid ${groups.includes(g.id) ? `${g.color}40` : 'transparent'}`,
+                    transition: 'all .15s',
+                  }}
+                >
+                  <div style={{
+                    width:24, height:24, borderRadius:6, flexShrink:0,
+                    background: groups.includes(g.id) ? `${g.color}18` : 'rgba(120,130,160,0.08)',
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    transition: 'background .15s',
+                  }}>
+                    <g.Icon size={13} strokeWidth={1.75} color={groups.includes(g.id) ? g.color : 'var(--color-text-muted)'} />
                   </div>
-                  <div style={{ fontSize:9, color:'var(--color-text-muted)' }}>{g.desc}</div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:11, color: groups.includes(g.id) ? g.color : 'var(--color-text)', fontWeight: groups.includes(g.id) ? 600 : 400 }}>
+                      {g.label}
+                    </div>
+                    <div style={{ fontSize:9, color:'var(--color-text-muted)' }}>{g.desc}</div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={groups.includes(g.id)}
+                    onChange={() => toggleGroup(g.id)}
+                    style={{ accentColor: g.color, width:12, height:12, flexShrink:0 }}
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Col 4: Treść (Headline + Dla kogo) ── */}
+          <div style={{
+            width: showContent ? COL_W : 0,
+            opacity: showContent ? 1 : 0,
+            overflow: 'hidden',
+            transition: 'width 0.28s cubic-bezier(.4,0,.2,1), opacity 0.22s ease',
+            flexShrink: 0,
+          }}>
+            <div style={{ width: COL_W, paddingLeft: 10, display:'flex', flexDirection:'column', gap:8 }}>
+              <div style={{ ...colHeader, ...colBorder }}>Treść</div>
+
+              {/* Headline */}
+              <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
+                <div style={{ fontSize:9, fontWeight:600, color:'var(--color-text-muted)', textTransform:'uppercase', letterSpacing:'.06em' }}>
+                  Hasło kampanii
                 </div>
                 <input
-                  type="checkbox"
-                  checked={groups.includes(g.id)}
-                  onChange={() => toggleGroup(g.id)}
-                  style={{ accentColor: g.color, width:12, height:12, flexShrink:0 }}
+                  onMouseDown={e => e.stopPropagation()}
+                  value={headline}
+                  onChange={e => setHeadline(e.target.value)}
+                  placeholder="Np. Twoja marka. Twój sukces."
+                  style={{
+                    width:'100%', fontSize:11, padding:'6px 8px', borderRadius:7,
+                    border:'1px solid var(--color-field-border)',
+                    background:'var(--color-field-bg)',
+                    color:'var(--color-text)',
+                    fontFamily:'var(--font-ui)',
+                    outline:'none',
+                  }}
                 />
-              </label>
-            ))}
+              </div>
 
-            {/* Uruchom na dole col3 */}
+              {/* Audience */}
+              <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
+                <div style={{ fontSize:9, fontWeight:600, color:'var(--color-text-muted)', textTransform:'uppercase', letterSpacing:'.06em' }}>
+                  Dla kogo?
+                </div>
+                <textarea
+                  onMouseDown={e => e.stopPropagation()}
+                  value={audience}
+                  onChange={e => setAudience(e.target.value)}
+                  placeholder="Np. Kobiety 25–40, zainteresowane modą"
+                  rows={3}
+                  style={{
+                    width:'100%', fontSize:11, padding:'6px 8px', borderRadius:7,
+                    border:'1px solid var(--color-field-border)',
+                    background:'var(--color-field-bg)',
+                    color:'var(--color-text)',
+                    fontFamily:'var(--font-ui)',
+                    resize:'none', outline:'none',
+                    lineHeight:1.4,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+        </div>{/* end columns row */}
+
+        {/* ── Bottom: Uruchom button ── */}
+        <div style={{
+          height: canLaunch ? 44 : 0,
+          opacity: canLaunch ? 1 : 0,
+          overflow: 'hidden',
+          transition: 'height 0.28s cubic-bezier(.4,0,.2,1), opacity 0.22s ease',
+        }}>
+          <div style={{ paddingTop: 10 }}>
             <button
               className="btn btn-primary btn-sm"
-              disabled={!groups.length}
+              disabled={!canLaunch}
               onMouseDown={e => { e.stopPropagation(); handleLaunch() }}
-              style={{ width:'100%', justifyContent:'center', marginTop:8 }}
+              style={{ width:'100%', justifyContent:'center' }}
             >
               Uruchom →
             </button>

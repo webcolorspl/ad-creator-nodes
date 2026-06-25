@@ -1,6 +1,7 @@
 'use client'
+import { useEffect } from 'react'
 import { useAppStore } from '@/store/appStore'
-import { FlaskConical, KeyRound } from '@/lib/icons'
+import { FlaskConical, KeyRound, Moon, Sun } from '@/lib/icons'
 
 export function Topbar() {
   const apiKey              = useAppStore(s => s.apiKey)
@@ -11,7 +12,13 @@ export function Topbar() {
   const appMode             = useAppStore(s => s.appMode)
   const setAppMode          = useAppStore(s => s.setAppMode)
   const setShowResetConfirm = useAppStore(s => s.setShowResetConfirm)
+  const darkMode       = useAppStore(s => s.darkMode)
+  const toggleDarkMode = useAppStore(s => s.toggleDarkMode)
   const totalErrors = Object.values(nodeErrors).reduce((s, e) => s + e.length, 0)
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode)
+  }, [darkMode])
 
   return (
     <header className="topbar">
@@ -87,6 +94,17 @@ export function Topbar() {
 
       {/* Actions */}
       <div className="topbar-actions">
+        <button
+          className="btn btn-ghost btn-sm"
+          onClick={toggleDarkMode}
+          title={darkMode ? 'Tryb jasny' : 'Tryb ciemny'}
+          style={{ padding: '5px 8px' }}
+        >
+          {darkMode
+            ? <Sun  size={13} strokeWidth={1.75} />
+            : <Moon size={13} strokeWidth={1.75} />
+          }
+        </button>
         <button
           className="btn btn-ghost btn-sm"
           onClick={() => setShowResetConfirm(true)}

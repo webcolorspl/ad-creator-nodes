@@ -21,6 +21,8 @@ import {
   ThemeNode,
   CreativeNode,
   BannerGridNode,
+  BriefNode,
+  HeadlineProposalsNode,
 } from './nodes'
 import { HintNode } from './nodes/HintNode'
 import { CampaignNode } from './nodes/CampaignNode'
@@ -28,25 +30,27 @@ import { ChannelNode }  from './nodes/ChannelNode'
 
 // Node type map for React Flow
 const NODE_TYPES = {
-  webImportNode:      WebImportNode,
-  xToolsImportNode:   XToolsImportNode,
-  promptNode:         PromptNode,
-  headlineNode:       HeadlineNode,
-  ctaNode:            CTANode,
-  headlineCTANode:    HeadlineCTANode,
-  copyVariantsNode:   CopyVariantsNode,
-  copyGroupNode:      CopyGroupNode,
-  styleNode:          StyleNode,
-  imageGenNode:       ImageGenNode,
-  bgLibraryNode:      BGLibraryNode,
-  bannerComposerNode: BannerComposerNode,
-  batchExportNode:    BatchExportNode,
-  themeNode:          ThemeNode,
-  hintNode:           HintNode,
-  campaignNode:       CampaignNode,
-  channelNode:        ChannelNode,
-  creativeNode:       CreativeNode,
-  bannerGridNode:     BannerGridNode,
+  webImportNode:         WebImportNode,
+  xToolsImportNode:      XToolsImportNode,
+  promptNode:            PromptNode,
+  headlineNode:          HeadlineNode,
+  ctaNode:               CTANode,
+  headlineCTANode:       HeadlineCTANode,
+  copyVariantsNode:      CopyVariantsNode,
+  copyGroupNode:         CopyGroupNode,
+  styleNode:             StyleNode,
+  imageGenNode:          ImageGenNode,
+  bgLibraryNode:         BGLibraryNode,
+  bannerComposerNode:    BannerComposerNode,
+  batchExportNode:       BatchExportNode,
+  themeNode:             ThemeNode,
+  hintNode:              HintNode,
+  campaignNode:          CampaignNode,
+  channelNode:           ChannelNode,
+  creativeNode:          CreativeNode,
+  bannerGridNode:        BannerGridNode,
+  briefNode:             BriefNode,
+  headlineProposalsNode: HeadlineProposalsNode,
 }
 
 // Section bounds for navigation pills
@@ -175,6 +179,7 @@ interface FlowCanvasInnerProps extends FlowCanvasProps {
 function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInnerProps) {
   const syncEdges         = useAppStore(s => s.syncEdges)
   const deleteNode        = useAppStore(s => s.deleteNode)
+  const darkMode          = useAppStore(s => s.darkMode)
   const addToast          = useAppStore(s => s.addToast)
   const selectNode        = useAppStore(s => s.selectNode)
   const zoomToId          = useAppStore(s => s.zoomToId)
@@ -212,25 +217,28 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
   useEffect(() => {
     if (campaignLaunchKey === 0 || !campaign) return
 
-    // ── 6 nodów: Campaign | Brand | Copy | Image | Lib | Preview ────
-    //
-    //  [Campaign]   [HeadlineCTA]  [ImageGen]
-    //  [Theme    ]  [             [BGLibrary] → [BannerGrid]
-    //
+    // ── Layout:
+    // Row 1 (y=0):   Campaign → Brief → Proposals → BannerGrid
+    // Row 2 (y=520): Theme      ImageGen → BGLibrary ↗ (theme+bg → BannerGrid)
     const spawnNodes: Node[] = [
-      { id:'camp1',  type:'campaignNode',    position:{x:0,    y:0},   data:{} },
-      { id:'th1',    type:'themeNode',       position:{x:0,    y:340}, data:{} },
-      { id:'copy1',  type:'headlineCTANode', position:{x:480,  y:0},   data:{} },
-      { id:'img1',   type:'imageGenNode',    position:{x:480,  y:340}, data:{} },
-      { id:'lib1',   type:'bgLibraryNode',   position:{x:880,  y:340}, data:{} },
-      { id:'grid1',  type:'bannerGridNode',  position:{x:1320, y:0},   data:{} },
+      { id:'camp1',  type:'campaignNode',          position:{x:0,    y:0},   data:{} },
+      { id:'brief1', type:'briefNode',             position:{x:520,  y:0},   data:{} },
+      { id:'prop1',  type:'headlineProposalsNode', position:{x:1020, y:0},   data:{} },
+      { id:'grid1',  type:'bannerGridNode',        position:{x:1540, y:0},   data:{} },
+      { id:'th1',    type:'themeNode',             position:{x:0,    y:520}, data:{} },
+      { id:'img1',   type:'imageGenNode',          position:{x:520,  y:520}, data:{} },
+      { id:'lib1',   type:'bgLibraryNode',         position:{x:1020, y:520}, data:{} },
+      { id:'xt1',    type:'xToolsImportNode',      position:{x:1540, y:520}, data:{} },
     ]
     const spawnEdges: Edge[] = [
-      mke('e-hl',    'copy1', 'headline',   'grid1', 'headline',   'headline'),
-      mke('e-cta',   'copy1', 'cta',        'grid1', 'cta',        'cta'),
-      mke('e-theme', 'th1',   'theme',      'grid1', 'theme',      'theme'),
-      mke('e-img',   'img1',  'image',      'lib1',  'image',      'image'),
-      mke('e-bg',    'lib1',  'background', 'grid1', 'image',      'image'),
+      mke('e-prop',  'brief1','proposals',        'prop1','proposals',        'proposals'),
+      mke('e-sel',   'prop1', 'selectedVariants', 'grid1','selectedVariants', 'selected_variants'),
+      mke('e-img',   'img1',  'image',            'lib1', 'image',            'image'),
+      mke('e-bg',    'lib1',  'background',       'grid1','background',       'background'),
+      mke('e-theme', 'th1',   'theme',            'grid1','theme',            'theme'),
+      mke('e-xt-hl', 'xt1',  'headline',          'grid1','headline',         'headline'),
+      mke('e-xt-cta','xt1',  'cta',               'grid1','cta',              'cta'),
+      mke('e-xt-bg', 'xt1',  'background',        'grid1','background',       'background'),
     ]
     setNodes(spawnNodes)
     setEdges(spawnEdges)
@@ -377,12 +385,17 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
         deleteKeyCode="Delete"
         multiSelectionKeyCode="Shift"
       >
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#C8D4F0" />
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={20}
+          size={1}
+          color={darkMode ? '#2A2A32' : '#C8D4F0'}
+        />
         <Controls showInteractive={false} />
         <MiniMap
           nodeColor={n => { const d = NODE_REGISTRY[n.type!]; return d ? CAT_COLORS[d.cat] : '#7A8AB0' }}
-          maskColor="rgba(240,244,255,0.85)"
-          style={{ background: '#fff', border: '1px solid var(--color-border)', cursor: 'pointer' }}
+          maskColor={darkMode ? 'rgba(12,17,32,0.88)' : 'rgba(240,244,255,0.85)'}
+          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', cursor: 'pointer' }}
           zoomable
           pannable
           onNodeClick={(_, node) => {

@@ -14,9 +14,10 @@ export async function GET() {
   if (!res.ok) return NextResponse.json({ error: `HTTP ${res.status}` })
 
   const data = await res.json() as { models?: Array<{ name: string; supportedGenerationMethods?: string[] }> }
-  const imageModels = (data.models ?? [])
-    .filter(m => m.name.includes('image') || m.supportedGenerationMethods?.includes('generateContent'))
+  const all = data.models ?? []
+  const textModels = all
+    .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
     .map(m => m.name)
 
-  return NextResponse.json({ imageModels, total: data.models?.length })
+  return NextResponse.json({ textModels, total: all.length })
 }
