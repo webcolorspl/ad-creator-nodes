@@ -1,10 +1,12 @@
 // ═══════════════════════════════════════════════
 // AD CREATOR — API Route: /api/generate-image
-// Imagen 3 via Gemini API key
+// Gemini 2.0 Flash Experimental — image generation
+// Ten sam klucz GEMINI_API_KEY co do tekstu
 // ═══════════════════════════════════════════════
 import { NextRequest, NextResponse } from 'next/server'
 
-const MODEL = 'imagen-3.0-generate-002'
+// gemini-2.0-flash-exp obsługuje generowanie obrazów przez generateContent
+const MODEL = 'gemini-2.0-flash-exp-image-generation'
 
 export async function POST(req: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY
@@ -19,22 +21,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Nieprawidłowy JSON' }, { status: 400 })
   }
 
-  const { prompt, aspectRatio = '1:1' } = body
+  const { prompt } = body
   if (!prompt?.trim()) {
     return NextResponse.json({ error: 'Brak prompta' }, { status: 400 })
   }
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:predict?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          instances: [{ prompt: prompt.trim() }],
-          parameters: {
-            sampleCount: 1,
-            aspectRatio,
+          contents: [{
+            parts: [{ text: prompt.trim() }],
+          }],
+          generationConfig: {
+            responseModalities: ['IMAGE', 'TEXT'],
           },
         }),
         signal: AbortSignal.timeout(60_000),
@@ -44,29 +47,36 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       const err = await res.text()
       return NextResponse.json(
-        { error: `Imagen błąd: ${res.status} — ${err.slice(0, 300)}` },
+        { error: `Gemini Image błąd: ${res.status} — ${err.slice(0, 300)}` },
         { status: 502 }
       )
     }
 
     const data = await res.json() as {
-      predictions?: Array<{
-        bytesBase64Encoded?: string
-        mimeType?: string
+      candidates?: Array<{
+        content?: {
+          parts?: Array<{
+            text?: string
+            inlineData?: { data: string; mimeType: string }
+          }>
+        }
       }>
     }
 
-    const imageBase64 = data.predictions?.[0]?.bytesBase64Encoded
-    const mimeType    = data.predictions?.[0]?.mimeType ?? 'image/png'
+    const parts = data.candidates?.[0]?.content?.parts ?? []
+    const imagePart = parts.find(p => p.inlineData?.mimeType?.startsWith('image/'))
 
-    if (!imageBase64) {
+    if (!imagePart?.inlineData) {
       return NextResponse.json(
-        { error: 'Brak obrazu w odpowiedzi', raw: JSON.stringify(data).slice(0, 300) },
+        { error: 'Brak obrazu w odpowiedzi Gemini', raw: JSON.stringify(data).slice(0, 400) },
         { status: 502 }
       )
     }
 
-    return NextResponse.json({ imageBase64, mimeType })
+    return NextResponse.json({
+      imageBase64: imagePart.inlineData.data,
+      mimeType: imagePart.inlineData.mimeType,
+    })
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 })
   }
