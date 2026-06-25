@@ -187,16 +187,16 @@ export function BannerGridNode({ id }: NodeProps) {
 
   const [cards,     setCards]     = useState(() => DEFAULT_FORMATS.map((f, i) => ({ uid: `${f}-${i}`, formatId: f })))
   const [masterUid, setMasterUid] = useState<string | null>(null)
-  const [zoom,      setZoom]      = useState(0.5)
+  const [zoom,      setZoom]      = useState(0.25)
 
   // Resize state for width, height of scroll area
-  const [nodeW, startResizeW] = useResize(500, 280, 1400, 'x')
-  const [scrollH, startResizeH] = useResize(560, 200, 2000, 'y')
+  const [nodeW, startResizeW] = useResize(360, 280, 1400, 'x')
+  const [scrollH, startResizeH] = useResize(480, 200, 2000, 'y')
 
   // SE corner resize: both axes simultaneously
   const seData = useRef<{ sx: number; sy: number; sw: number; sh: number } | null>(null)
-  const [seW, setSeW] = useState(500)
-  const [seH, setSeH] = useState(560)
+  const [seW, setSeW] = useState(360)
+  const [seH, setSeH] = useState(480)
 
   // Sync seW/seH with nodeW/scrollH initially — use the max
   const effectiveW = Math.max(nodeW, seW)

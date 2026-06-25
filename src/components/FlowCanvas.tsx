@@ -219,16 +219,17 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
 
     // ── Layout:
     // Row 1 (y=0):   Campaign → Brief → Proposals → BannerGrid
-    // Row 2 (y=520): Theme      ImageGen → BGLibrary ↗ (theme+bg → BannerGrid)
+    // Row 2 (y=480): Theme → ImageGen → BGLibrary     XTools ↗
+    // Kolumny co 380px żeby zmieścić się w typowym viewport 1440-1920px
     const spawnNodes: Node[] = [
       { id:'camp1',  type:'campaignNode',          position:{x:0,    y:0},   data:{} },
-      { id:'brief1', type:'briefNode',             position:{x:520,  y:0},   data:{} },
-      { id:'prop1',  type:'headlineProposalsNode', position:{x:1020, y:0},   data:{} },
-      { id:'grid1',  type:'bannerGridNode',        position:{x:1540, y:0},   data:{} },
-      { id:'th1',    type:'themeNode',             position:{x:0,    y:520}, data:{} },
-      { id:'img1',   type:'imageGenNode',          position:{x:520,  y:520}, data:{} },
-      { id:'lib1',   type:'bgLibraryNode',         position:{x:1020, y:520}, data:{} },
-      { id:'xt1',    type:'xToolsImportNode',      position:{x:1540, y:520}, data:{} },
+      { id:'brief1', type:'briefNode',             position:{x:380,  y:0},   data:{} },
+      { id:'prop1',  type:'headlineProposalsNode', position:{x:760,  y:0},   data:{} },
+      { id:'grid1',  type:'bannerGridNode',        position:{x:1140, y:0},   data:{} },
+      { id:'th1',    type:'themeNode',             position:{x:0,    y:480}, data:{} },
+      { id:'img1',   type:'imageGenNode',          position:{x:380,  y:480}, data:{} },
+      { id:'lib1',   type:'bgLibraryNode',         position:{x:760,  y:480}, data:{} },
+      { id:'xt1',    type:'xToolsImportNode',      position:{x:1140, y:480}, data:{} },
     ]
     const spawnEdges: Edge[] = [
       mke('e-prop',  'brief1','proposals',        'prop1','proposals',        'proposals'),
@@ -243,7 +244,7 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     setNodes(spawnNodes)
     setEdges(spawnEdges)
     syncEdges(spawnEdges)
-    setTimeout(() => fitView({ padding: 0.15, duration: 600 }), 150)
+    setTimeout(() => fitView({ padding: 0.12, duration: 600 }), 400)
   }, [campaignLaunchKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Reset canvas
