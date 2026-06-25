@@ -136,6 +136,7 @@ export interface NodeOutputs {
   image?:            ImageData
   background?:       BackgroundData
   banner?:           BannerData
+  banners?:          BannerData[]
   theme?:            ThemeData
   proposals?:        ProposalsData
   selectedVariants?: HeadlineCTAVariant[]
@@ -174,4 +175,26 @@ export interface GenHistoryItem {
   url: string
   prompt: string
   ts: string
+}
+
+// ── Banner layout & per-card overrides ────────
+export type VerticalPosition = 'top' | 'center' | 'bottom'
+
+export interface BannerLayoutOptions {
+  textPosition: VerticalPosition
+  ctaVisible:   boolean
+}
+
+export interface BannerCardOverrides {
+  textPosition?: VerticalPosition
+  ctaVisible?:   boolean
+  bgColor?:      string
+  mainColor?:    string
+  subColor?:     string
+}
+
+export interface BannerCard {
+  uid:       string
+  formatId:  string
+  overrides: BannerCardOverrides
 }

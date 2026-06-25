@@ -21,6 +21,7 @@ import {
   ThemeNode,
   CreativeNode,
   BannerGridNode,
+  BannerPreviewAllNode,
   BriefNode,
   HeadlineProposalsNode,
 } from './nodes'
@@ -49,6 +50,7 @@ const NODE_TYPES = {
   channelNode:           ChannelNode,
   creativeNode:          CreativeNode,
   bannerGridNode:        BannerGridNode,
+  bannerPreviewAllNode:  BannerPreviewAllNode,
   briefNode:             BriefNode,
   headlineProposalsNode: HeadlineProposalsNode,
 }

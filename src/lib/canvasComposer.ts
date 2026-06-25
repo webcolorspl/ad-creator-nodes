@@ -1,18 +1,19 @@
 // ═══════════════════════════════════════════════
 // AD CREATOR — Canvas Composer
 // Renderuje banner na HTML Canvas
-// Bottom-up layout: CTA → sub → headline
+// Layout: center (domyślny) | top | bottom
 // ═══════════════════════════════════════════════
 import { AD_FORMATS } from './constants'
-import type { CopyGroupData, StyleData, ThemeData } from '@/types'
+import type { CopyGroupData, StyleData, ThemeData, BannerLayoutOptions } from '@/types'
 
 interface ComposeOptions {
-  copy?: CopyGroupData | null
+  copy?:       CopyGroupData | null
   background?: string | null
-  bgColor?: string | null
-  image?: string | null
-  style?: StyleData | null
-  theme?: ThemeData | null
+  bgColor?:    string | null
+  image?:      string | null
+  style?:      StyleData | null
+  theme?:      ThemeData | null
+  layout?:     BannerLayoutOptions | null
 }
 
 function isColorDark(hex: string): boolean {
@@ -34,7 +35,6 @@ async function loadImage(url: string): Promise<HTMLImageElement> {
   })
 }
 
-// Word-wrap helper — returns lines fitting within maxWidth
 function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
   const words = text.split(' ')
   const lines: string[] = []
@@ -53,7 +53,7 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
 
 export async function composeBanner(
   canvas: HTMLCanvasElement,
-  { copy, background, bgColor, image, style, theme }: ComposeOptions
+  { copy, background, bgColor, image, style, theme, layout }: ComposeOptions
 ): Promise<void> {
   const fmt = AD_FORMATS.find(f => f.id === (style?.format ?? '')) ?? AD_FORMATS[0]
   canvas.width  = Math.min(fmt.w, 2000)
@@ -63,11 +63,13 @@ export async function composeBanner(
   const H = canvas.height
   const ctx = canvas.getContext('2d')!
 
-  // Scale relative to the SHORTER dimension so text fits all aspect ratios
   const scale = Math.min(W, H) / 1080
   const px = (n: number) => Math.round(n * scale)
 
-  // ── 1. Background ─────────────────────────────────────────────────
+  const textPos   = layout?.textPosition ?? 'center'
+  const ctaVisible = layout?.ctaVisible !== false
+
+  // ── 1. Background ──────────────────────────────────────────────────
   const bgUrl = image ?? background
   if (bgUrl) {
     const img = await loadImage(bgUrl)
@@ -86,11 +88,21 @@ export async function composeBanner(
     drawFallbackBg(ctx, W, H)
   }
 
-  // ── 2. Gradient overlay (bottom 60%) ──────────────────────────────
-  const grad = ctx.createLinearGradient(0, H * 0.35, 0, H)
-  grad.addColorStop(0, 'rgba(0,0,0,0)')
-  grad.addColorStop(1, 'rgba(0,0,0,0.78)')
-  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H)
+  // ── 2. Overlay (adaptive per textPos) ─────────────────────────────
+  if (textPos === 'center') {
+    ctx.fillStyle = 'rgba(0,0,0,0.42)'
+    ctx.fillRect(0, 0, W, H)
+  } else if (textPos === 'top') {
+    const grad = ctx.createLinearGradient(0, 0, 0, H * 0.65)
+    grad.addColorStop(0, 'rgba(0,0,0,0.78)')
+    grad.addColorStop(1, 'rgba(0,0,0,0)')
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H)
+  } else { // bottom
+    const grad = ctx.createLinearGradient(0, H * 0.35, 0, H)
+    grad.addColorStop(0, 'rgba(0,0,0,0)')
+    grad.addColorStop(1, 'rgba(0,0,0,0.78)')
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H)
+  }
 
   // ── 3. Brand name (top-left) ───────────────────────────────────────
   if (theme?.brandName && theme.brandName !== 'Custom') {
@@ -104,20 +116,89 @@ export async function composeBanner(
 
   if (!copy) return
 
-  const centerX = W / 2
-  const bottomPad = Math.round(H * 0.055)   // ~5.5% from bottom
+  const centerX   = W / 2
+  const gap       = px(18)
+  const bottomPad = Math.round(H * 0.055)
 
-  // ── 4. CTA Button (positioned from bottom) ────────────────────────
-  let ctaTopY = H  // will be set if CTA present
+  // ── 4. Measure: headline ──────────────────────────────────────────
+  const hFont   = copy.headline?.mainFont   ?? theme?.fontFamily ?? 'Inter'
+  const hWeight = copy.headline?.mainWeight ?? 700
+  const hColor  = copy.headline?.mainColor  ?? '#FFFFFF'
 
-  if (copy.cta?.text) {
+  let hLines: string[] = []
+  let hFontSize = 0
+  let hLineH = 0
+
+  if (copy.headline?.main) {
+    const rawFs = copy.headline.main.length > 40 ? px(48) : copy.headline.main.length > 20 ? px(58) : px(68)
+    const maxFs = Math.floor(H * 0.20)
+    hFontSize = Math.min(rawFs, maxFs, px(72))
+    ctx.font = `${hWeight} ${hFontSize}px ${hFont}, system-ui, sans-serif`
+    hLines   = wrapText(ctx, copy.headline.main, W * 0.84)
+    hLineH   = Math.round(hFontSize * 1.22)
+  }
+
+  // ── 5. Measure: sub-headline ──────────────────────────────────────
+  const sFont   = copy.headline?.subFont   ?? copy.headline?.mainFont ?? theme?.fontFamily ?? 'Inter'
+  const sWeight = copy.headline?.subWeight ?? 400
+  const sColor  = copy.headline?.subColor  ?? 'rgba(255,255,255,0.82)'
+  const sFs     = px(26)
+  const sLineH  = Math.round(sFs * 1.3)
+  let sLines: string[] = []
+
+  if (copy.headline?.sub) {
+    ctx.font = `${sWeight} ${sFs}px ${sFont}, system-ui, sans-serif`
+    sLines   = wrapText(ctx, copy.headline.sub, W * 0.80)
+  }
+
+  // ── 6. Measure: CTA ──────────────────────────────────────────────
+  const hasCta  = !!(copy.cta?.text && ctaVisible)
+  const ctaBtnH = hasCta ? px(54) : 0
+  const ctaBtnW = hasCta ? Math.min(px(280), W * 0.6) : 0
+
+  const hBlockH = hLines.length * hLineH
+  const sBlockH = sLines.length * sLineH
+  const totalBlockH = hBlockH
+    + (sBlockH > 0 ? gap + sBlockH : 0)
+    + (ctaBtnH > 0 ? gap + ctaBtnH : 0)
+
+  // ── 7. Block position ─────────────────────────────────────────────
+  let blockTopY: number
+  if (textPos === 'center') {
+    blockTopY = Math.round((H - totalBlockH) / 2)
+  } else if (textPos === 'top') {
+    blockTopY = px(80)
+  } else { // bottom
+    blockTopY = H - bottomPad - ctaBtnH - (ctaBtnH > 0 ? gap : 0) - sBlockH - (sBlockH > 0 ? gap : 0) - hBlockH
+    blockTopY = Math.max(px(40), blockTopY)
+  }
+
+  // ── 8. Draw headline ──────────────────────────────────────────────
+  if (hLines.length > 0) {
+    ctx.font = `${hWeight} ${hFontSize}px ${hFont}, system-ui, sans-serif`
+    ctx.fillStyle = hColor; ctx.textAlign = 'center'
+    ctx.shadowColor = 'rgba(0,0,0,0.7)'; ctx.shadowBlur = px(14)
+    hLines.forEach((l, i) => ctx.fillText(l, centerX, blockTopY + i * hLineH + hFontSize))
     ctx.shadowBlur = 0
-    const btnH     = px(54)
-    const btnW     = Math.min(px(280), W * 0.6)
-    const btnX     = centerX - btnW / 2
-    const btnY     = H - bottomPad - btnH
-    ctaTopY        = btnY
-    const radius   = btnH / 2
+  }
+
+  // ── 9. Draw sub-headline ──────────────────────────────────────────
+  if (sLines.length > 0) {
+    const subStartY = blockTopY + hBlockH + (hBlockH > 0 ? gap : 0)
+    ctx.font = `${sWeight} ${sFs}px ${sFont}, system-ui, sans-serif`
+    ctx.fillStyle = sColor; ctx.textAlign = 'center'
+    ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = px(6)
+    sLines.forEach((l, i) => ctx.fillText(l, centerX, subStartY + i * sLineH + sFs))
+    ctx.shadowBlur = 0
+  }
+
+  // ── 10. Draw CTA button ───────────────────────────────────────────
+  if (hasCta && copy.cta?.text) {
+    ctx.shadowBlur = 0
+    const ctaStartY = blockTopY + hBlockH + (sBlockH > 0 ? gap + sBlockH : 0) + gap
+    const btnX      = centerX - ctaBtnW / 2
+    const btnY      = ctaStartY
+    const radius    = ctaBtnH / 2
 
     const ctaBg = copy.cta.bgColor ?? theme?.accentColor ?? '#3DFFA0'
     const ctaTc = copy.cta.textColor ?? (isColorDark(ctaBg) ? '#FFFFFF' : '#000000')
@@ -125,68 +206,16 @@ export async function composeBanner(
     ctx.fillStyle = ctaBg
     ctx.beginPath()
     ctx.moveTo(btnX + radius, btnY)
-    ctx.arcTo(btnX + btnW, btnY, btnX + btnW, btnY + btnH, radius)
-    ctx.arcTo(btnX + btnW, btnY + btnH, btnX, btnY + btnH, radius)
-    ctx.arcTo(btnX, btnY + btnH, btnX, btnY, radius)
-    ctx.arcTo(btnX, btnY, btnX + btnW, btnY, radius)
+    ctx.arcTo(btnX + ctaBtnW, btnY,          btnX + ctaBtnW, btnY + ctaBtnH, radius)
+    ctx.arcTo(btnX + ctaBtnW, btnY + ctaBtnH, btnX,          btnY + ctaBtnH, radius)
+    ctx.arcTo(btnX,           btnY + ctaBtnH, btnX,          btnY,           radius)
+    ctx.arcTo(btnX,           btnY,           btnX + ctaBtnW, btnY,          radius)
     ctx.closePath(); ctx.fill()
 
     const ctaFs = copy.cta.size ? px(Math.min(copy.cta.size, 26)) : px(24)
     ctx.font = `700 ${ctaFs}px ${theme?.fontFamily ?? 'Inter'}, system-ui, sans-serif`
     ctx.fillStyle = ctaTc; ctx.textAlign = 'center'
-    ctx.fillText(copy.cta.text, centerX, btnY + btnH * 0.66)
-  }
-
-  const gap = px(18)
-
-  // ── 5. Sub-headline (above CTA) ───────────────────────────────────
-  let subTopY = ctaTopY
-
-  if (copy.headline?.sub) {
-    const subFs   = px(26)
-    const subLineH = Math.round(subFs * 1.3)
-    const sFont   = copy.headline.subFont ?? copy.headline.mainFont ?? theme?.fontFamily ?? 'Inter'
-    const sWeight = copy.headline.subWeight ?? 400
-    const sColor  = copy.headline.subColor  ?? 'rgba(255,255,255,0.82)'
-
-    ctx.font = `${sWeight} ${subFs}px ${sFont}, system-ui, sans-serif`
-    const subLines = wrapText(ctx, copy.headline.sub, W * 0.80)
-    const subBlockH = subLines.length * subLineH
-
-    subTopY = ctaTopY - gap - subBlockH
-    ctx.fillStyle = sColor; ctx.textAlign = 'center'
-    ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = px(6)
-    subLines.forEach((l, i) => ctx.fillText(l, centerX, subTopY + i * subLineH + subFs))
-    ctx.shadowBlur = 0
-  }
-
-  // ── 6. Headline (above sub or CTA) ────────────────────────────────
-  if (copy.headline?.main) {
-    const hFont   = copy.headline.mainFont   ?? theme?.fontFamily ?? 'Inter'
-    const hWeight = copy.headline.mainWeight ?? 700
-    const hColor  = copy.headline.mainColor  ?? '#FFFFFF'
-
-    // Font size: base on text length and available height
-    const availableH = subTopY - gap
-    const rawFs = copy.headline.main.length > 40 ? px(48) : copy.headline.main.length > 20 ? px(58) : px(68)
-    const maxFsByHeight = Math.floor(availableH * 0.22)  // max ~22% of available space
-    const fontSize = Math.min(rawFs, maxFsByHeight, px(72))
-
-    ctx.font = `${hWeight} ${fontSize}px ${hFont}, system-ui, sans-serif`
-    ctx.fillStyle = hColor; ctx.textAlign = 'center'
-    ctx.shadowColor = 'rgba(0,0,0,0.7)'; ctx.shadowBlur = px(14)
-
-    const lines   = wrapText(ctx, copy.headline.main, W * 0.84)
-    const lineH   = Math.round(fontSize * 1.22)
-    const totalH  = lines.length * lineH
-
-    // Place block so its BOTTOM aligns just above subTopY
-    const blockTopY = subTopY - gap - totalH
-
-    // Clamp so we don't go off the top
-    const startY = Math.max(px(40), blockTopY)
-    lines.forEach((l, i) => ctx.fillText(l, centerX, startY + i * lineH + fontSize))
-    ctx.shadowBlur = 0
+    ctx.fillText(copy.cta.text, centerX, btnY + ctaBtnH * 0.66)
   }
 }
 

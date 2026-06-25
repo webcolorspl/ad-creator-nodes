@@ -238,7 +238,20 @@ export const NODE_REGISTRY: Record<string, NodeDef> = {
       { id: 'selectedVariants',type: PORT_TYPES.SELECTED_VARIANTS, label: 'selected variants' },
     ],
     outs: [],
-    description: 'Podgląd banerów we wszystkich formatach',
+    description: 'Podgląd banerów — master/slave z per-karta overrides',
+  },
+  bannerPreviewAllNode: {
+    label: 'Banner Preview All', icon: '🗂', cat: NODE_CATEGORIES.OUTPUT,
+    ins: [
+      { id: 'headline',        type: PORT_TYPES.HEADLINE,          label: 'headline' },
+      { id: 'cta',             type: PORT_TYPES.CTA,               label: 'cta' },
+      { id: 'image',           type: PORT_TYPES.IMAGE,             label: 'image' },
+      { id: 'background',      type: PORT_TYPES.BACKGROUND,        label: 'tło' },
+      { id: 'theme',           type: PORT_TYPES.THEME,             label: 'theme' },
+      { id: 'selectedVariants',type: PORT_TYPES.SELECTED_VARIANTS, label: 'selected variants' },
+    ],
+    outs: [],
+    description: 'Wszystkie formaty naraz — podgląd + export per-format',
   },
   briefNode: {
     label: 'Brief', icon: '✍', cat: NODE_CATEGORIES.PROCESS,
@@ -259,5 +272,5 @@ export const PALETTE_SECTIONS = [
   { label: 'Input',      items: ['themeNode', 'xToolsImportNode', 'webImportNode', 'promptNode', 'copyVariantsNode', 'headlineCTANode', 'headlineNode', 'ctaNode'] },
   { label: 'Processing', items: ['copyGroupNode', 'styleNode'] },
   { label: 'Generation', items: ['imageGenNode', 'bgLibraryNode'] },
-  { label: 'Output',     items: ['bannerComposerNode', 'batchExportNode'] },
+  { label: 'Output',     items: ['bannerComposerNode', 'batchExportNode', 'bannerGridNode', 'bannerPreviewAllNode'] },
 ]
