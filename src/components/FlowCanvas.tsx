@@ -231,7 +231,7 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
       { id:'camp1',  type:'campaignNode',          position:{x:0,    y:0},   data:{} },
       { id:'brief1', type:'briefNode',             position:{x:380,  y:0},   data:{} },
       { id:'prop1',  type:'headlineProposalsNode', position:{x:760,  y:0},   data:{} },
-      { id:'grid1',  type:'bannerGridNode',        position:{x:1140, y:0},   data:{} },
+      { id:'bm1',    type:'bannerMasterNode',      position:{x:1140, y:0},   data:{} },
       { id:'th1',    type:'themeNode',             position:{x:0,    y:480}, data:{} },
       { id:'img1',   type:'imageGenNode',          position:{x:380,  y:480}, data:{} },
       { id:'lib1',   type:'bgLibraryNode',         position:{x:760,  y:480}, data:{} },
@@ -239,13 +239,13 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     ]
     const spawnEdges: Edge[] = [
       mke('e-prop',  'brief1','proposals',        'prop1','proposals',        'proposals'),
-      mke('e-sel',   'prop1', 'selectedVariants', 'grid1','selectedVariants', 'selected_variants'),
+      mke('e-sel',   'prop1', 'selectedVariants', 'bm1',  'selectedVariants', 'selected_variants'),
       mke('e-img',   'img1',  'image',            'lib1', 'image',            'image'),
-      mke('e-bg',    'lib1',  'background',       'grid1','background',       'background'),
-      mke('e-theme', 'th1',   'theme',            'grid1','theme',            'theme'),
-      mke('e-xt-hl', 'xt1',  'headline',          'grid1','headline',         'headline'),
-      mke('e-xt-cta','xt1',  'cta',               'grid1','cta',              'cta'),
-      mke('e-xt-bg', 'xt1',  'background',        'grid1','background',       'background'),
+      mke('e-bg',    'lib1',  'background',       'bm1',  'background',       'background'),
+      mke('e-theme', 'th1',   'theme',            'bm1',  'theme',            'theme'),
+      mke('e-xt-hl', 'xt1',  'headline',          'bm1',  'headline',         'headline'),
+      mke('e-xt-cta','xt1',  'cta',               'bm1',  'cta',              'cta'),
+      mke('e-xt-bg', 'xt1',  'background',        'bm1',  'background',       'background'),
     ]
     setNodes(spawnNodes)
     setEdges(spawnEdges)
