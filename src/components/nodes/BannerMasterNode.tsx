@@ -8,6 +8,7 @@ import type { NodeProps } from '@xyflow/react'
 import { useReactFlow } from '@xyflow/react'
 import { AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from 'lucide-react'
 import { BaseNode } from './BaseNode'
+import { NodeFloatingPanel } from '@/components/ui/NodeFloatingPanel'
 import { useAppStore } from '@/store/appStore'
 import { resolveInput } from '@/lib/edgeResolver'
 import { composeBanner } from '@/lib/canvasComposer'
@@ -248,10 +249,10 @@ export function BannerMasterNode({ id }: NodeProps) {
 
   return (
     <BaseNode id={id} nodeType="bannerMasterNode">
-      <div style={{ width: nodeW, position: 'relative', paddingBottom: 20 }} onMouseDown={e => e.stopPropagation()}>
-        {showSlavePicker && (
-          <SlaveFormatPicker onSelect={spawnSlave} onClose={() => setShowSlavePicker(false)} />
-        )}
+      <NodeFloatingPanel nodeId={id} open={showSlavePicker} onClose={() => setShowSlavePicker(false)} placement="above" nodeWidth={nodeW}>
+        <SlaveFormatPicker onSelect={spawnSlave} onClose={() => setShowSlavePicker(false)} />
+      </NodeFloatingPanel>
+      <div style={{ width: nodeW, position: 'relative' }} onMouseDown={e => e.stopPropagation()}>
 
         {/* Header */}
         <div style={{
@@ -271,6 +272,18 @@ export function BannerMasterNode({ id }: NodeProps) {
               style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, lineHeight: 1, padding: '2px 4px', color: showOverride ? '#E7A800' : 'var(--color-text-muted)' }} title="Ustawienia">⚙</button>
             <button onMouseDown={e => { e.stopPropagation(); exportPng() }}
               style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: 12, lineHeight: 1, padding: '2px 4px' }} title="Export PNG">⬇</button>
+            <button
+              onMouseDown={e => { e.stopPropagation(); setShowSlavePicker(v => !v) }}
+              style={{
+                width: 22, height: 22, borderRadius: '50%', marginLeft: 2,
+                background: showSlavePicker ? '#FF9F4A' : 'rgba(255,159,74,0.12)',
+                border: `1.5px solid ${showSlavePicker ? '#FF9F4A' : 'rgba(255,159,74,0.4)'}`,
+                color: showSlavePicker ? '#000' : '#FF9F4A',
+                fontSize: 15, fontWeight: 400, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+                transition: 'all .15s',
+              }}
+              title="Dodaj slave baner">+</button>
           </div>
         </div>
 
@@ -309,24 +322,6 @@ export function BannerMasterNode({ id }: NodeProps) {
           )}
         </div>
 
-        {/* "+" button — spawns slave */}
-        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10 }}>
-          <button
-            onMouseDown={e => { e.stopPropagation(); setShowSlavePicker(v => !v) }}
-            style={{
-              width: 32, height: 32, borderRadius: '50%',
-              background: showSlavePicker ? '#FF9F4A' : 'var(--color-field-bg)',
-              border: `2px solid ${showSlavePicker ? '#FF9F4A' : 'var(--color-field-border)'}`,
-              color: showSlavePicker ? '#000' : 'var(--color-text-muted)',
-              fontSize: 20, fontWeight: 300, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
-              transition: 'all .15s',
-              boxShadow: showSlavePicker ? '0 0 0 3px rgba(255,159,74,0.25)' : 'none',
-            }}
-            title="Dodaj slave baner">
-            +
-          </button>
-        </div>
       </div>
     </BaseNode>
   )

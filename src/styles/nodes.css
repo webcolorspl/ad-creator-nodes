@@ -75,6 +75,9 @@
 .node-card.type-copyVariantsNode   { min-width: 260px; max-width: 300px; }
 .node-card.type-creativeNode       { min-width: 240px; max-width: 260px; }
 .node-card.type-bannerGridNode     { min-width: 300px; max-width: none; width: max-content; overflow: visible; }
+.node-card.type-bannerMasterNode   { min-width: 300px; max-width: none; width: max-content; overflow: visible; }
+.node-card.type-bannerSlaveNode    { min-width: 300px; max-width: none; width: max-content; overflow: visible; }
+.node-card.type-bannerPreviewAllNode { min-width: 300px; max-width: none; width: max-content; overflow: visible; }
 
 /* Step badge */
 .node-step-badge {
