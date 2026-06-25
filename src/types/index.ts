@@ -16,6 +16,7 @@ export const PORT_TYPES = {
   THEME:             'theme',
   PROPOSALS:         'proposals',
   SELECTED_VARIANTS: 'selected_variants',
+  BANNER_MASTER:     'banner_master',
 } as const
 
 export type PortType = typeof PORT_TYPES[keyof typeof PORT_TYPES]
@@ -140,6 +141,7 @@ export interface NodeOutputs {
   theme?:            ThemeData
   proposals?:        ProposalsData
   selectedVariants?: HeadlineCTAVariant[]
+  masterData?:       BannerMasterData
 }
 
 // ── Web Scrape Data ───────────────────────────
@@ -196,5 +198,14 @@ export interface BannerCardOverrides {
 export interface BannerCard {
   uid:       string
   formatId:  string
+  overrides: BannerCardOverrides
+}
+
+export interface BannerMasterData {
+  headline:  HeadlineData | null
+  cta:       CTAData | null
+  imageUrl:  string | null
+  bgColor:   string | null
+  theme:     ThemeData | null
   overrides: BannerCardOverrides
 }

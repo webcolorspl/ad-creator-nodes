@@ -17,6 +17,7 @@ export const PORT_COLORS: Record<string, string> = {
   theme:             '#A855F7',
   proposals:         '#5BA4F5',
   selected_variants: '#5BF5B4',
+  banner_master:     '#FF9F4A',
 }
 
 // ── Category colors (CSS vars) ────────────────
@@ -253,6 +254,25 @@ export const NODE_REGISTRY: Record<string, NodeDef> = {
     outs: [],
     description: 'Wszystkie formaty naraz — podgląd + export per-format',
   },
+  bannerMasterNode: {
+    label: 'Banner Master', icon: '★', cat: NODE_CATEGORIES.OUTPUT,
+    ins: [
+      { id: 'headline',         type: PORT_TYPES.HEADLINE,          label: 'headline' },
+      { id: 'cta',              type: PORT_TYPES.CTA,               label: 'cta' },
+      { id: 'image',            type: PORT_TYPES.IMAGE,             label: 'image' },
+      { id: 'background',       type: PORT_TYPES.BACKGROUND,        label: 'tło' },
+      { id: 'theme',            type: PORT_TYPES.THEME,             label: 'theme' },
+      { id: 'selectedVariants', type: PORT_TYPES.SELECTED_VARIANTS, label: 'selected variants' },
+    ],
+    outs: [{ id: 'masterData', type: PORT_TYPES.BANNER_MASTER, label: 'master data' }],
+    description: 'Master banner — ustawienia dziedziczone przez slave bannery',
+  },
+  bannerSlaveNode: {
+    label: 'Banner Slave', icon: '◈', cat: NODE_CATEGORIES.OUTPUT,
+    ins: [{ id: 'masterData', type: PORT_TYPES.BANNER_MASTER, label: 'master data' }],
+    outs: [],
+    description: 'Slave banner — dziedziczy z mastera, własny format i overrides',
+  },
   briefNode: {
     label: 'Brief', icon: '✍', cat: NODE_CATEGORIES.PROCESS,
     ins: [],
@@ -272,5 +292,5 @@ export const PALETTE_SECTIONS = [
   { label: 'Input',      items: ['themeNode', 'xToolsImportNode', 'webImportNode', 'promptNode', 'copyVariantsNode', 'headlineCTANode', 'headlineNode', 'ctaNode'] },
   { label: 'Processing', items: ['copyGroupNode', 'styleNode'] },
   { label: 'Generation', items: ['imageGenNode', 'bgLibraryNode'] },
-  { label: 'Output',     items: ['bannerComposerNode', 'batchExportNode', 'bannerGridNode', 'bannerPreviewAllNode'] },
+  { label: 'Output',     items: ['bannerComposerNode', 'batchExportNode', 'bannerGridNode', 'bannerPreviewAllNode', 'bannerMasterNode'] },
 ]

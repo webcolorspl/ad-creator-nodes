@@ -24,6 +24,8 @@ import {
   BannerPreviewAllNode,
   BriefNode,
   HeadlineProposalsNode,
+  BannerMasterNode,
+  BannerSlaveNode,
 } from './nodes'
 import { HintNode } from './nodes/HintNode'
 import { CampaignNode } from './nodes/CampaignNode'
@@ -53,6 +55,8 @@ const NODE_TYPES = {
   bannerPreviewAllNode:  BannerPreviewAllNode,
   briefNode:             BriefNode,
   headlineProposalsNode: HeadlineProposalsNode,
+  bannerMasterNode:      BannerMasterNode,
+  bannerSlaveNode:       BannerSlaveNode,
 }
 
 // Section bounds for navigation pills
