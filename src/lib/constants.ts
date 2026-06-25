@@ -273,6 +273,11 @@ export const NODE_REGISTRY: Record<string, NodeDef> = {
     outs: [],
     description: 'Slave banner — dziedziczy z mastera, własny format i overrides',
   },
+  bannerGroupNode: {
+    label: 'Banner Group', icon: '▣', cat: NODE_CATEGORIES.OUTPUT,
+    ins: [], outs: [],
+    description: 'Wizualny kontener — grupuje banery slave na canvasie',
+  },
   briefNode: {
     label: 'Brief', icon: '✍', cat: NODE_CATEGORIES.PROCESS,
     ins: [],
@@ -292,5 +297,5 @@ export const PALETTE_SECTIONS = [
   { label: 'Input',      items: ['themeNode', 'xToolsImportNode', 'webImportNode', 'promptNode', 'copyVariantsNode', 'headlineCTANode', 'headlineNode', 'ctaNode'] },
   { label: 'Processing', items: ['copyGroupNode', 'styleNode'] },
   { label: 'Generation', items: ['imageGenNode', 'bgLibraryNode'] },
-  { label: 'Output',     items: ['bannerComposerNode', 'batchExportNode', 'bannerGridNode', 'bannerPreviewAllNode', 'bannerMasterNode'] },
+  { label: 'Output',     items: ['bannerComposerNode', 'batchExportNode', 'bannerGridNode', 'bannerPreviewAllNode', 'bannerMasterNode', 'bannerGroupNode'] },
 ]

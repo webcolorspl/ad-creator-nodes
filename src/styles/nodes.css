@@ -79,6 +79,29 @@
 .node-card.type-bannerSlaveNode    { min-width: 300px; max-width: none; width: max-content; overflow: visible; }
 .node-card.type-bannerPreviewAllNode { min-width: 300px; max-width: none; width: max-content; overflow: visible; }
 
+/* Banner Group — pure visual frame, no card styling */
+.node-card.type-bannerGroupNode {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  min-width: 300px;
+  max-width: none;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  z-index: -1 !important;
+}
+.node-card.type-bannerGroupNode:hover {
+  box-shadow: none;
+  transform: none;
+  border-color: transparent;
+}
+.node-card.type-bannerGroupNode::before,
+.node-card.type-bannerGroupNode::after {
+  display: none;
+}
+
 /* Step badge */
 .node-step-badge {
   display: inline-flex;

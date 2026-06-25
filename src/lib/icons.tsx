@@ -30,6 +30,7 @@ import {
   GalleryHorizontalEnd,
   Star,
   Copy,
+  Group,
   // Campaign type icons
   Eye,
   TrendingUp,
@@ -78,6 +79,7 @@ export const NODE_ICONS: Record<string, LucideIcon> = {
   bannerPreviewAllNode:  GalleryHorizontalEnd,
   bannerMasterNode:      Star,
   bannerSlaveNode:       Copy,
+  bannerGroupNode:       Group,
   briefNode:             FileText,
   headlineProposalsNode: ListChecks,
 }

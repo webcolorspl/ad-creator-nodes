@@ -223,15 +223,29 @@ export function BannerMasterNode({ id }: NodeProps) {
       })
   }, [canvasKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { addNodes, addEdges, getNode, getEdges } = useReactFlow()
+  const { addNodes, addEdges, getNode, getEdges, getNodes } = useReactFlow()
 
   function spawnSlave(fmtId: string) {
     const masterNode = getNode(id); if (!masterNode) return
-    const slaveCount = getEdges().filter(e => e.source === id && e.sourceHandle === 'masterData').length
+    const masterW = (masterNode as { measured?: { width?: number } }).measured?.width ?? nodeW
+    const slaveEdges = getEdges().filter(e => e.source === id && e.sourceHandle === 'masterData')
+
+    // Find lowest Y among existing slave nodes to stack below the last one
+    let nextY = masterNode.position.y
+    if (slaveEdges.length > 0) {
+      const allNodes = getNodes()
+      for (const e of slaveEdges) {
+        const sn = allNodes.find(n => n.id === e.target)
+        if (!sn) continue
+        const snH = (sn as { measured?: { height?: number } }).measured?.height ?? 300
+        nextY = Math.max(nextY, sn.position.y + snH + 20)
+      }
+    }
+
     const newId = `slave-${Date.now()}`
     addNodes([{ id: newId, type: 'bannerSlaveNode', position: {
-      x: masterNode.position.x + nodeW + 60,
-      y: masterNode.position.y + slaveCount * 360,
+      x: masterNode.position.x + masterW + 60,
+      y: nextY,
     }, data: { formatId: fmtId } }])
     addEdges([{
       id: `${id}-${newId}`, source: id, sourceHandle: 'masterData',

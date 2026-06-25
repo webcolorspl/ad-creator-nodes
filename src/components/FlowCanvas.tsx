@@ -26,6 +26,7 @@ import {
   HeadlineProposalsNode,
   BannerMasterNode,
   BannerSlaveNode,
+  BannerGroupNode,
 } from './nodes'
 import { HintNode } from './nodes/HintNode'
 import { CampaignNode } from './nodes/CampaignNode'
@@ -57,6 +58,7 @@ const NODE_TYPES = {
   headlineProposalsNode: HeadlineProposalsNode,
   bannerMasterNode:      BannerMasterNode,
   bannerSlaveNode:       BannerSlaveNode,
+  bannerGroupNode:       BannerGroupNode,
 }
 
 // Section bounds for navigation pills
@@ -235,7 +237,7 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
       { id:'th1',    type:'themeNode',             position:{x:0,    y:480}, data:{} },
       { id:'img1',   type:'imageGenNode',          position:{x:380,  y:480}, data:{} },
       { id:'lib1',   type:'bgLibraryNode',         position:{x:760,  y:480}, data:{} },
-      { id:'xt1',    type:'xToolsImportNode',      position:{x:1140, y:480}, data:{} },
+      { id:'xt1',    type:'xToolsImportNode',      position:{x:-460, y:0},   data:{} },
     ]
     const spawnEdges: Edge[] = [
       mke('e-prop',  'brief1','proposals',        'prop1','proposals',        'proposals'),
@@ -285,7 +287,11 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     if (!nodeType || !NODE_REGISTRY[nodeType]) return
     const bounds = wrapperRef.current!.getBoundingClientRect()
     const position = rfInstance!.screenToFlowPosition({ x: e.clientX - bounds.left, y: e.clientY - bounds.top })
-    const newNode: Node = { id: `n${++idRef.current}`, type: nodeType, position, data: {} }
+    const isGroup = nodeType === 'bannerGroupNode'
+    const newNode: Node = {
+      id: `n${++idRef.current}`, type: nodeType, position, data: {},
+      ...(isGroup ? { width: 800, height: 500, style: { width: 800, height: 500 } } : {}),
+    }
     setNodes(nds => [...nds, newNode])
     addToast({ type: 'success', message: `+ ${NODE_REGISTRY[nodeType].label}` })
   }, [rfInstance, setNodes, addToast])
