@@ -82,7 +82,6 @@ Zasady:
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
-            responseMimeType: 'application/json',
             temperature: 0.9,
           },
         }),
@@ -99,7 +98,9 @@ Zasady:
       candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+    // Strip markdown code fences if present (```json ... ```)
+    const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim()
     let parsed: { variants: Array<{ headlineMain: string; headlineSub: string; ctaText: string; ctaStyle: string }> }
 
     try {
