@@ -57,14 +57,12 @@ function FormatCard({ uid, formatId, nodeId, headline, cta, imageUrl, bgColor, t
       cta: cta ?? { text: '', style: 'primary' },
     } : null
     const effectiveBgColor = theme?.bgColor ?? bgColor ?? '#1a1a2e'
-    document.fonts.ready.then(() => {
-      composeBanner(canvas, { copy, background: null, bgColor: effectiveBgColor, image: imageUrl || undefined, style, theme: theme ?? null })
-        .catch(() => {
-          canvas.width = Math.min(fmt.w, 1080); canvas.height = Math.min(fmt.h, 1080)
-          const ctx = canvas.getContext('2d')
-          if (ctx) { ctx.fillStyle = theme?.bgColor ?? '#1a1a2e'; ctx.fillRect(0, 0, canvas.width, canvas.height) }
-        })
-    })
+    composeBanner(canvas, { copy, background: null, bgColor: effectiveBgColor, image: imageUrl || undefined, style, theme: theme ?? null })
+      .catch(() => {
+        canvas.width = Math.min(fmt.w, 1080); canvas.height = Math.min(fmt.h, 1080)
+        const ctx = canvas.getContext('2d')
+        if (ctx) { ctx.fillStyle = theme?.bgColor ?? '#1a1a2e'; ctx.fillRect(0, 0, canvas.width, canvas.height) }
+      })
   }, [inputKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!fmt) return null
