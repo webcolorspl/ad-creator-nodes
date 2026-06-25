@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // gemini-2.0-flash-exp obsługuje generowanie obrazów przez generateContent
-const MODEL = 'gemini-2.0-flash-exp-image-generation'
+const MODEL = 'gemini-2.0-flash-exp'
 
 export async function POST(req: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY
