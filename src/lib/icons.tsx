@@ -27,6 +27,9 @@ import {
   Radio,
   Pencil,
   Grid2x2,
+  GalleryHorizontalEnd,
+  Star,
+  Copy,
   // Campaign type icons
   Eye,
   TrendingUp,
@@ -72,6 +75,9 @@ export const NODE_ICONS: Record<string, LucideIcon> = {
   themeNode:             Palette,
   creativeNode:          Pencil,
   bannerGridNode:        Grid2x2,
+  bannerPreviewAllNode:  GalleryHorizontalEnd,
+  bannerMasterNode:      Star,
+  bannerSlaveNode:       Copy,
   briefNode:             FileText,
   headlineProposalsNode: ListChecks,
 }
