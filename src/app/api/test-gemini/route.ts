@@ -13,11 +13,17 @@ export async function GET() {
   if (!('json' in res)) return NextResponse.json({ error: (res as { error: string }).error })
   if (!res.ok) return NextResponse.json({ error: `HTTP ${res.status}` })
 
-  const data = await res.json() as { models?: Array<{ name: string; supportedGenerationMethods?: string[] }> }
+  const data = await res.json() as { models?: Array<{ name: string; supportedGenerationMethods?: string[]; description?: string }> }
   const all = data.models ?? []
+
   const textModels = all
     .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
     .map(m => m.name)
 
-  return NextResponse.json({ textModels, total: all.length })
+  // Szukaj modeli mogących generować obrazy (po nazwie)
+  const imageModels = all
+    .filter(m => m.name.toLowerCase().includes('image') || m.name.toLowerCase().includes('imagen'))
+    .map(m => ({ name: m.name, methods: m.supportedGenerationMethods }))
+
+  return NextResponse.json({ textModels, imageModels, allNames: all.map(m => m.name), total: all.length })
 }
