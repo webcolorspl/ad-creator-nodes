@@ -1,7 +1,7 @@
 'use client'
 // ═══════════════════════════════════════════════
 // HEADLINE PROPOSALS NODE — lista wariantów AI
-// Wybierz, edytuj, stylizuj → selectedVariants
+// Radio-select: jeden na raz → selectedVariants[0]
 // ═══════════════════════════════════════════════
 import { useState, useEffect } from 'react'
 import { BaseNode } from './BaseNode'
@@ -14,6 +14,13 @@ import type { HeadlineCTAVariant, ProposalsData } from '@/types'
 
 const CTA_STYLES = ['primary', 'outline', 'ghost', 'text'] as const
 
+const CTA_LABELS: Record<string, string> = {
+  primary: 'Wypełniony',
+  outline: 'Ramka',
+  ghost:   'Ghost',
+  text:    'Tekst',
+}
+
 function AlignBtn({ current, value, onClick }: { current: string | undefined; value: string; onClick: () => void }) {
   const Icon = value === 'left' ? AlignLeft : value === 'center' ? AlignCenter : AlignRight
   const active = (current ?? 'left') === value
@@ -23,9 +30,9 @@ function AlignBtn({ current, value, onClick }: { current: string | undefined; va
       onClick={onClick}
       title={value}
       style={{
-        width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center',
         border: `1px solid ${active ? 'var(--color-input)' : 'var(--color-field-border)'}`,
-        borderRadius: 5, background: active ? 'rgba(58,103,240,0.1)' : 'transparent',
+        borderRadius: 6, background: active ? 'rgba(58,103,240,0.12)' : 'transparent',
         color: active ? 'var(--color-input)' : 'var(--color-text-muted)',
         cursor: 'pointer',
       }}
@@ -41,15 +48,34 @@ function StyleToggle({ active, label, onClick }: { active: boolean; label: strin
       onMouseDown={e => e.stopPropagation()}
       onClick={onClick}
       style={{
-        width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center',
         border: `1px solid ${active ? 'var(--color-input)' : 'var(--color-field-border)'}`,
-        borderRadius: 5, background: active ? 'rgba(58,103,240,0.1)' : 'transparent',
+        borderRadius: 6, background: active ? 'rgba(58,103,240,0.12)' : 'transparent',
         color: active ? 'var(--color-input)' : 'var(--color-text-muted)',
         cursor: 'pointer', fontSize: 11, fontWeight: 700,
       }}
     >
       {label}
     </button>
+  )
+}
+
+// Radio-style check circle
+function CheckCircle({ checked }: { checked: boolean }) {
+  return (
+    <div style={{
+      width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
+      border: `2px solid ${checked ? 'var(--color-input)' : 'var(--color-field-border)'}`,
+      background: checked ? 'var(--color-input)' : 'transparent',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      transition: 'border-color .15s, background .15s',
+    }}>
+      {checked && (
+        <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+          <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
+    </div>
   )
 }
 
@@ -61,10 +87,10 @@ export function HeadlineProposalsNode({ id }: NodeProps) {
 
   const proposals = resolveInput<ProposalsData>(id, 'proposals', edges, nodeOutputs)
 
-  const [variants,  setVariants]  = useState<HeadlineCTAVariant[]>([])
-  const [selected,  setSelected]  = useState<Set<string>>(new Set())
-  const [expanded,  setExpanded]  = useState<string | null>(null)
-  const [styling,   setStyling]   = useState<string | null>(null)
+  const [variants,    setVariants]    = useState<HeadlineCTAVariant[]>([])
+  const [selectedId,  setSelectedId]  = useState<string | null>(null)
+  const [expanded,    setExpanded]    = useState<string | null>(null)
+  const [styling,     setStyling]     = useState<string | null>(null)
 
   // Sync incoming proposals → local variants (merge, don't replace)
   useEffect(() => {
@@ -76,19 +102,14 @@ export function HeadlineProposalsNode({ id }: NodeProps) {
     })
   }, [JSON.stringify(proposals?.variants?.map(v => v.id))]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync selected variants to output
+  // Sync single selected variant to output
   useEffect(() => {
-    const sel = variants.filter(v => selected.has(v.id))
-    setNodeOutput(id, { selectedVariants: sel.length ? sel : undefined })
-  }, [selected, variants, id, setNodeOutput])
+    const sel = variants.find(v => v.id === selectedId)
+    setNodeOutput(id, { selectedVariants: sel ? [sel] : undefined })
+  }, [selectedId, variants, id, setNodeOutput])
 
-  function toggleSelect(vid: string) {
-    setSelected(prev => {
-      const next = new Set(prev)
-      if (next.has(vid)) next.delete(vid)
-      else next.add(vid)
-      return next
-    })
+  function selectVariant(vid: string) {
+    setSelectedId(prev => prev === vid ? null : vid)
   }
 
   function updateVariant(vid: string, patch: Partial<HeadlineCTAVariant>) {
@@ -97,33 +118,31 @@ export function HeadlineProposalsNode({ id }: NodeProps) {
 
   function removeVariant(vid: string) {
     setVariants(prev => prev.filter(v => v.id !== vid))
-    setSelected(prev => { const n = new Set(prev); n.delete(vid); return n })
+    if (selectedId === vid) setSelectedId(null)
+    if (expanded === vid) setExpanded(null)
+    if (styling === vid) setStyling(null)
   }
 
   function addToLibrary() {
-    const sel = variants.filter(v => selected.has(v.id))
-    if (!sel.length) { addToast({ type: 'warn', message: 'Zaznacz warianty' }); return }
-    sel.forEach(v => {
-      // Use store directly to add and immediately update
-      useAppStore.getState().addCopyVariant()
-      const freshVariants = useAppStore.getState().copyVariants
-      useAppStore.getState().setCopyVariant(freshVariants.length - 1, {
-        id: v.id,
-        headlineMain: v.headlineMain,
-        headlineSub: v.headlineSub,
-        ctaText: v.ctaText,
-        ctaStyle: v.ctaStyle,
-      })
+    const sel = variants.find(v => v.id === selectedId)
+    if (!sel) { addToast({ type: 'warn', message: 'Zaznacz wariant' }); return }
+    useAppStore.getState().addCopyVariant()
+    const freshVariants = useAppStore.getState().copyVariants
+    useAppStore.getState().setCopyVariant(freshVariants.length - 1, {
+      id: sel.id,
+      headlineMain: sel.headlineMain,
+      headlineSub: sel.headlineSub,
+      ctaText: sel.ctaText,
+      ctaStyle: sel.ctaStyle,
     })
-    addToast({ type: 'success', message: `Dodano ${sel.length} wariantów do biblioteki` })
+    addToast({ type: 'success', message: 'Dodano do biblioteki' })
   }
-
-  const selCount = selected.size
 
   const inputSt: React.CSSProperties = {
     width: '100%', fontSize: 11, padding: '5px 7px', borderRadius: 6,
     border: '1px solid var(--color-field-border)', background: 'var(--color-field-bg)',
     color: 'var(--color-text)', fontFamily: 'var(--font-ui)', outline: 'none',
+    boxSizing: 'border-box',
   }
   const labelSt: React.CSSProperties = {
     fontSize: 9, fontWeight: 700, letterSpacing: '.06em',
@@ -133,96 +152,136 @@ export function HeadlineProposalsNode({ id }: NodeProps) {
 
   return (
     <BaseNode id={id} nodeType="headlineProposalsNode">
-      <div style={{ width: 300, display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ width: 320, display: 'flex', flexDirection: 'column', gap: 5 }}>
 
         {!variants.length && (
           <div style={{
-            padding: '20px 0', textAlign: 'center',
+            padding: '24px 0', textAlign: 'center',
             color: 'var(--color-text-muted)', fontSize: 11,
           }}>
             Podłącz BriefNode i kliknij „Generuj propozycje"
           </div>
         )}
 
-        {/* Variant cards */}
         {variants.map((v, idx) => {
-          const isSelected = selected.has(v.id)
+          const isSelected = selectedId === v.id
           const isExpanded = expanded === v.id
           const isStyling  = styling === v.id
 
           return (
             <div key={v.id} style={{
-              border: `1.5px solid ${isSelected ? 'var(--blue-400)' : 'var(--color-field-border)'}`,
+              border: `1.5px solid ${isSelected ? 'var(--color-input)' : 'var(--color-field-border)'}`,
               borderRadius: 10, overflow: 'hidden',
-              background: isSelected ? 'var(--blue-50)' : 'var(--color-field-bg)',
+              background: isSelected ? 'rgba(58,103,240,0.05)' : 'var(--color-field-bg)',
               transition: 'border-color .15s, background .15s',
+              boxShadow: isSelected ? '0 0 0 3px rgba(58,103,240,0.12)' : 'none',
             }}>
-              {/* Header */}
-              <div style={{ display: 'flex', alignItems: 'center', padding: '7px 10px', gap: 7 }}>
-                {/* Select checkbox */}
-                <input
-                  type="checkbox"
-                  checked={isSelected}
-                  onChange={() => toggleSelect(v.id)}
-                  onMouseDown={e => e.stopPropagation()}
-                  style={{ accentColor: 'var(--blue-500)', width: 13, height: 13, flexShrink: 0, cursor: 'pointer' }}
-                />
-                {/* Label + preview */}
-                <div
-                  style={{ flex: 1, cursor: 'pointer', minWidth: 0 }}
-                  onClick={() => setExpanded(isExpanded ? null : v.id)}
-                >
-                  <div style={{ fontSize: 10, fontWeight: 600, color: isSelected ? 'var(--blue-600)' : 'var(--color-text-subtle)' }}>
-                    Wariant {idx + 1}
+
+              {/* ── Header row ── */}
+              <div
+                style={{ display: 'flex', alignItems: 'flex-start', padding: '9px 10px', gap: 8, cursor: 'pointer' }}
+                onClick={() => selectVariant(v.id)}
+                onMouseDown={e => e.stopPropagation()}
+              >
+                {/* Radio circle */}
+                <div style={{ paddingTop: 1, flexShrink: 0 }}>
+                  <CheckCircle checked={isSelected} />
+                </div>
+
+                {/* Main text */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontSize: 10, fontWeight: 700, lineHeight: 1.3,
+                    color: isSelected ? 'var(--color-text)' : 'var(--color-text-subtle)',
+                    wordBreak: 'break-word',
+                  }}>
+                    {v.headlineMain || <span style={{ fontStyle: 'italic', opacity: .5 }}>brak hasła</span>}
                   </div>
-                  {v.headlineMain && (
-                    <div style={{ fontSize: 10, color: 'var(--color-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {v.headlineMain.slice(0, 36)}{v.headlineMain.length > 36 ? '…' : ''}
+                  {v.headlineSub && (
+                    <div style={{
+                      fontSize: 9, color: 'var(--color-text-muted)', marginTop: 2,
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                    }}>
+                      {v.headlineSub}
+                    </div>
+                  )}
+                  {v.ctaText && (
+                    <div style={{ marginTop: 5 }}>
+                      <span style={{
+                        fontSize: 9, padding: '2px 8px', borderRadius: 20,
+                        background: isSelected ? 'rgba(58,103,240,0.15)' : 'rgba(0,0,0,0.06)',
+                        color: isSelected ? 'var(--color-input)' : 'var(--color-text-muted)',
+                        fontWeight: 600, letterSpacing: '.03em',
+                      }}>
+                        {v.ctaText}
+                      </span>
                     </div>
                   )}
                 </div>
-                {/* Style toggle */}
-                <button
-                  onMouseDown={e => e.stopPropagation()}
-                  onClick={() => setStyling(isStyling ? null : v.id)}
-                  title="Stylizacja"
-                  style={{
-                    fontSize: 9, padding: '2px 5px', borderRadius: 4, cursor: 'pointer',
-                    border: `1px solid ${isStyling ? 'var(--color-process)' : 'var(--color-field-border)'}`,
-                    background: isStyling ? 'rgba(124,92,245,0.1)' : 'transparent',
-                    color: isStyling ? 'var(--color-process)' : 'var(--color-text-muted)',
-                  }}
+
+                {/* Action buttons — right side */}
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}
+                  onClick={e => e.stopPropagation()}
                 >
-                  Aa
-                </button>
-                {/* Edit toggle */}
-                <button
-                  onMouseDown={e => e.stopPropagation()}
-                  onClick={() => setExpanded(isExpanded ? null : v.id)}
-                  title="Edytuj"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', fontSize: 11, padding: '2px 3px' }}
-                >
-                  ✎
-                </button>
-                {/* Remove */}
-                <button
-                  onMouseDown={e => e.stopPropagation()}
-                  onClick={() => removeVariant(v.id)}
-                  title="Usuń"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', fontSize: 12, padding: '2px 3px' }}
-                >
-                  ×
-                </button>
+                  <span style={{
+                    fontSize: 8, fontWeight: 700, padding: '1px 5px',
+                    background: 'var(--color-border)', borderRadius: 10,
+                    color: 'var(--color-text-muted)', letterSpacing: '.04em',
+                  }}>
+                    {idx + 1}
+                  </span>
+                  <button
+                    onMouseDown={e => e.stopPropagation()}
+                    onClick={() => setStyling(isStyling ? null : v.id)}
+                    title="Stylizacja"
+                    style={{
+                      fontSize: 9, padding: '2px 6px', borderRadius: 4, cursor: 'pointer',
+                      border: `1px solid ${isStyling ? 'var(--color-process)' : 'var(--color-field-border)'}`,
+                      background: isStyling ? 'rgba(124,92,245,0.1)' : 'transparent',
+                      color: isStyling ? 'var(--color-process)' : 'var(--color-text-muted)',
+                    }}
+                  >
+                    Aa
+                  </button>
+                  <button
+                    onMouseDown={e => e.stopPropagation()}
+                    onClick={() => setExpanded(isExpanded ? null : v.id)}
+                    title="Edytuj"
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      color: isExpanded ? 'var(--color-input)' : 'var(--color-text-muted)',
+                      fontSize: 12, padding: '2px 4px', lineHeight: 1,
+                    }}
+                  >
+                    ✎
+                  </button>
+                  <button
+                    onMouseDown={e => e.stopPropagation()}
+                    onClick={() => removeVariant(v.id)}
+                    title="Usuń"
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      color: 'var(--color-text-muted)', fontSize: 14, padding: '2px 4px', lineHeight: 1,
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
 
-              {/* Edit panel */}
+              {/* ── Edit panel ── */}
               {isExpanded && (
-                <div style={{ padding: '8px 10px 10px', borderTop: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                <div style={{
+                  padding: '8px 10px 10px', borderTop: '1px solid var(--color-border)',
+                  display: 'flex', flexDirection: 'column', gap: 7,
+                  background: 'rgba(0,0,0,0.025)',
+                }}>
                   <div>
                     <label style={labelSt}>Hasło główne</label>
-                    <input
+                    <textarea
                       onMouseDown={e => e.stopPropagation()}
-                      style={inputSt}
+                      style={{ ...inputSt, resize: 'vertical', minHeight: 48 }}
                       value={v.headlineMain}
                       onChange={e => updateVariant(v.id, { headlineMain: e.target.value })}
                       placeholder="Hasło główne…"
@@ -252,7 +311,7 @@ export function HeadlineProposalsNode({ id }: NodeProps) {
                         placeholder="Kup teraz"
                       />
                     </div>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ width: 100 }}>
                       <label style={labelSt}>Styl CTA</label>
                       <select
                         onMouseDown={e => e.stopPropagation()}
@@ -260,19 +319,22 @@ export function HeadlineProposalsNode({ id }: NodeProps) {
                         value={v.ctaStyle}
                         onChange={e => updateVariant(v.id, { ctaStyle: e.target.value as HeadlineCTAVariant['ctaStyle'] })}
                       >
-                        {CTA_STYLES.map(s => <option key={s} value={s}>{s}</option>)}
+                        {CTA_STYLES.map(s => <option key={s} value={s}>{CTA_LABELS[s]}</option>)}
                       </select>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Styling panel */}
+              {/* ── Styling panel ── */}
               {isStyling && (
-                <div style={{ padding: '8px 10px 10px', borderTop: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {/* Headline styling */}
+                <div style={{
+                  padding: '8px 10px 10px', borderTop: '1px solid var(--color-border)',
+                  display: 'flex', flexDirection: 'column', gap: 8,
+                  background: 'rgba(124,92,245,0.03)',
+                }}>
                   <div>
-                    <div style={{ ...labelSt, marginBottom: 4 }}>Hasło — styl</div>
+                    <div style={{ ...labelSt, marginBottom: 5 }}>Hasło główne — styl</div>
                     <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
                       <AlignBtn current={v.headlineAlign} value="left"   onClick={() => updateVariant(v.id, { headlineAlign: 'left' })} />
                       <AlignBtn current={v.headlineAlign} value="center" onClick={() => updateVariant(v.id, { headlineAlign: 'center' })} />
@@ -283,8 +345,7 @@ export function HeadlineProposalsNode({ id }: NodeProps) {
                       <StyleToggle active={!!v.headlineUnderline} label="U" onClick={() => updateVariant(v.id, { headlineUnderline: !v.headlineUnderline })} />
                       <div style={{ width: 1, height: 18, background: 'var(--color-border)', margin: '0 2px' }} />
                       <input
-                        type="number"
-                        min={8} max={120}
+                        type="number" min={8} max={120}
                         value={v.headlineSize ?? 36}
                         onChange={e => updateVariant(v.id, { headlineSize: Number(e.target.value) })}
                         onMouseDown={e => e.stopPropagation()}
@@ -295,9 +356,8 @@ export function HeadlineProposalsNode({ id }: NodeProps) {
                     </div>
                   </div>
 
-                  {/* Sub-headline styling */}
                   <div>
-                    <div style={{ ...labelSt, marginBottom: 4 }}>Pod-hasło — styl</div>
+                    <div style={{ ...labelSt, marginBottom: 5 }}>Pod-hasło — styl</div>
                     <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                       <AlignBtn current={v.subAlign} value="left"   onClick={() => updateVariant(v.id, { subAlign: 'left' })} />
                       <AlignBtn current={v.subAlign} value="center" onClick={() => updateVariant(v.id, { subAlign: 'center' })} />
@@ -309,10 +369,9 @@ export function HeadlineProposalsNode({ id }: NodeProps) {
                     </div>
                   </div>
 
-                  {/* Theme override */}
                   <div>
-                    <div style={{ ...labelSt, marginBottom: 4 }}>Kolor tła / akcentu</div>
-                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <div style={{ ...labelSt, marginBottom: 5 }}>Kolory</div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ fontSize: 9, color: 'var(--color-text-muted)' }}>Tło</span>
                         <input
@@ -342,28 +401,24 @@ export function HeadlineProposalsNode({ id }: NodeProps) {
         })}
 
         {/* Actions */}
-        {variants.length > 0 && (
-          <div style={{ display: 'flex', gap: 6, marginTop: 2 }}>
-            {selCount > 0 && (
-              <button
-                className="btn btn-ghost btn-sm"
-                onMouseDown={e => e.stopPropagation()}
-                onClick={addToLibrary}
-                style={{ flex: 1, justifyContent: 'center', fontSize: 10 }}
-              >
-                + Dodaj do biblioteki ({selCount})
-              </button>
-            )}
-          </div>
+        {variants.length > 0 && selectedId && (
+          <button
+            className="btn btn-ghost btn-sm"
+            onMouseDown={e => e.stopPropagation()}
+            onClick={addToLibrary}
+            style={{ justifyContent: 'center', fontSize: 10, marginTop: 2 }}
+          >
+            + Dodaj wybrany do biblioteki
+          </button>
         )}
-
       </div>
+
       <StatusBar
-        status={variants.length ? (selCount > 0 ? 'done' : 'idle') : 'idle'}
+        status={variants.length ? (selectedId ? 'done' : 'idle') : 'idle'}
         message={
           variants.length === 0 ? 'Brak wariantów — podłącz BriefNode' :
-          selCount > 0          ? `${selCount} wybranych → BannerGrid` :
-                                  `${variants.length} wariantów — zaznacz które wysłać`
+          selectedId             ? 'Wybrany wariant → BannerGrid' :
+                                   `${variants.length} wariantów — wybierz jeden`
         }
       />
     </BaseNode>

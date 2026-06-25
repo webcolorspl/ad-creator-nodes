@@ -114,18 +114,14 @@ function FormatCard({ uid, formatId, nodeId, headline, cta, imageUrl, theme, onR
       overflow: 'hidden',
       position: 'relative',
     }}>
-      {/* Header */}
-      <div style={{ display:'flex', alignItems:'center', gap:6, padding:'6px 8px', borderBottom:'1px solid var(--color-field-border)' }}>
-        <span style={{ fontSize:9, fontWeight:700, padding:'1px 5px', borderRadius:3, background:'var(--color-process)', color:'#fff' }}>
+      {/* Header — compact single row */}
+      <div style={{ display:'flex', alignItems:'center', gap:5, padding:'5px 8px', borderBottom:'1px solid var(--color-field-border)' }}>
+        <span style={{ fontSize:8, fontWeight:700, padding:'1px 4px', borderRadius:3, background:'var(--color-process)', color:'#fff', flexShrink:0 }}>
           {platformBadge(fmt.id)}
         </span>
-        <span style={{ fontSize:11, fontWeight:600, color:'var(--color-text)', flex:1 }}>{fmt.label}</span>
-        {variantLabel && (
-          <span style={{ fontSize: 9, color: 'var(--color-process)', fontWeight: 600, background: 'rgba(124,92,245,0.1)', borderRadius: 3, padding: '1px 5px' }}>
-            {variantLabel}
-          </span>
-        )}
-        <span style={{ fontSize:9, color:'var(--color-text-muted)', fontFamily:'monospace' }}>{fmt.w}×{fmt.h}</span>
+        <span style={{ fontSize:10, fontWeight:600, color:'var(--color-text)' }}>{fmt.label}</span>
+        <span style={{ fontSize:9, color:'var(--color-text-muted)' }}>· {fmt.w}×{fmt.h}</span>
+        <div style={{ marginLeft:'auto', display:'flex', gap:2, alignItems:'center' }}>
         {/* Master toggle */}
         {onSetMaster && (
           <button
@@ -161,6 +157,7 @@ function FormatCard({ uid, formatId, nodeId, headline, cta, imageUrl, theme, onR
           style={{ background:'none', border:'none', color:'var(--color-text-muted)', cursor:'pointer', fontSize:12, padding:'2px 4px', lineHeight:1 }}
           title="Usuń"
         >×</button>
+        </div>
       </div>
 
       {/* Format picker dropdown */}
@@ -309,8 +306,11 @@ export function BannerGridNode({ id }: NodeProps) {
           ))}
         </select>
 
-        {/* Cards — 1 column */}
-        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+        {/* Cards — 1 column, scrollable */}
+        <div
+          onWheel={e => e.stopPropagation()}
+          style={{ display:'flex', flexDirection:'column', gap:8, maxHeight:560, overflowY:'auto' }}
+        >
           {cards.length === 0 ? (
             <div style={{ height:60, display:'flex', alignItems:'center', justifyContent:'center', border:'1px dashed var(--color-field-border)', borderRadius:6, color:'var(--color-text-muted)', fontSize:10 }}>
               Dodaj format powyżej
