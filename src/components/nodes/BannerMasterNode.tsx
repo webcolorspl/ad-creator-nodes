@@ -6,6 +6,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { NodeProps } from '@xyflow/react'
 import { useReactFlow } from '@xyflow/react'
+import { AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from 'lucide-react'
 import { BaseNode } from './BaseNode'
 import { useAppStore } from '@/store/appStore'
 import { resolveInput } from '@/lib/edgeResolver'
@@ -16,8 +17,6 @@ import type {
   CopyGroupData, StyleData, HeadlineCTAVariant, NodeOutputs,
   BannerCardOverrides, BannerLayoutOptions, VerticalPosition, BannerMasterData,
 } from '@/types'
-
-const MAX_CANVAS = 300
 
 const PLATFORM_LABEL: Record<string, string> = {
   fb: 'Facebook', ig: 'Instagram', li: 'LinkedIn',
@@ -36,10 +35,12 @@ function scanOutputs<T>(nodeOutputs: Record<string, NodeOutputs>, key: keyof Nod
   return null
 }
 
-function thumbSize(fmt: { w: number; h: number }, maxSide = MAX_CANVAS) {
-  const ratio = fmt.w / fmt.h
-  const w = ratio >= 1 ? maxSide : Math.round(maxSide * ratio)
-  const h = ratio < 1 ? maxSide : Math.round(maxSide / ratio)
+function thumbSize(fmt: { w: number; h: number }) {
+  let w = Math.round(fmt.w * 0.5)
+  let h = Math.round(fmt.h * 0.5)
+  const MAX_W = 400, MAX_H = 560
+  if (w > MAX_W) { const r = MAX_W / w; w = MAX_W; h = Math.round(h * r) }
+  if (h > MAX_H) { const r = MAX_H / h; h = MAX_H; w = Math.round(w * r) }
   return { w, h }
 }
 
@@ -48,12 +49,15 @@ function OverridePanel({ overrides, onChange }: {
   overrides: BannerCardOverrides
   onChange: (p: Partial<BannerCardOverrides>) => void
 }) {
-  const pos: { val: VerticalPosition; icon: string }[] = [
-    { val: 'top', icon: '↑' }, { val: 'center', icon: '⊡' }, { val: 'bottom', icon: '↓' },
+  const pos: { val: VerticalPosition; Icon: typeof AlignVerticalJustifyStart }[] = [
+    { val: 'top',    Icon: AlignVerticalJustifyStart  },
+    { val: 'center', Icon: AlignVerticalJustifyCenter },
+    { val: 'bottom', Icon: AlignVerticalJustifyEnd    },
   ]
   const cur = overrides.textPosition ?? 'center'
   const seg = (active: boolean): React.CSSProperties => ({
-    flex: 1, padding: '4px 0', fontSize: 13, cursor: 'pointer', borderRadius: 4, textAlign: 'center',
+    flex: 1, padding: '5px 0', cursor: 'pointer', borderRadius: 4, textAlign: 'center',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
     border: `1px solid ${active ? '#E7A800' : 'var(--color-field-border)'}`,
     background: active ? 'rgba(231,168,0,0.15)' : 'transparent',
     color: active ? '#E7A800' : 'var(--color-text-muted)',
@@ -68,9 +72,11 @@ function OverridePanel({ overrides, onChange }: {
       <div>
         <div style={lbl}>Pozycja tekstu</div>
         <div style={{ display: 'flex', gap: 4 }}>
-          {pos.map(o => (
-            <button key={o.val} onClick={() => onChange({ textPosition: o.val })}
-              onMouseDown={e => e.stopPropagation()} style={seg(cur === o.val)}>{o.icon}</button>
+          {pos.map(({ val, Icon }) => (
+            <button key={val} onClick={() => onChange({ textPosition: val })}
+              onMouseDown={e => e.stopPropagation()} style={seg(cur === val)}>
+              <Icon size={16} />
+            </button>
           ))}
         </div>
       </div>
@@ -108,7 +114,7 @@ function SlaveFormatPicker({ onSelect, onClose }: {
 }) {
   return (
     <div style={{
-      position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: 'translateX(-50%)',
+      position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
       zIndex: 50, background: 'var(--color-surface)',
       border: '1px solid #FF9F4A', borderRadius: 10,
       padding: 10, minWidth: 220, maxHeight: 360, overflowY: 'auto',
@@ -243,6 +249,9 @@ export function BannerMasterNode({ id }: NodeProps) {
   return (
     <BaseNode id={id} nodeType="bannerMasterNode">
       <div style={{ width: nodeW, position: 'relative', paddingBottom: 20 }} onMouseDown={e => e.stopPropagation()}>
+        {showSlavePicker && (
+          <SlaveFormatPicker onSelect={spawnSlave} onClose={() => setShowSlavePicker(false)} />
+        )}
 
         {/* Header */}
         <div style={{
@@ -301,7 +310,7 @@ export function BannerMasterNode({ id }: NodeProps) {
         </div>
 
         {/* "+" button — spawns slave */}
-        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10, position: 'relative' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10 }}>
           <button
             onMouseDown={e => { e.stopPropagation(); setShowSlavePicker(v => !v) }}
             style={{
@@ -317,9 +326,6 @@ export function BannerMasterNode({ id }: NodeProps) {
             title="Dodaj slave baner">
             +
           </button>
-          {showSlavePicker && (
-            <SlaveFormatPicker onSelect={spawnSlave} onClose={() => setShowSlavePicker(false)} />
-          )}
         </div>
       </div>
     </BaseNode>

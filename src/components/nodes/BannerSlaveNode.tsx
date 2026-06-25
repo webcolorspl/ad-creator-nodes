@@ -5,6 +5,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import type { NodeProps } from '@xyflow/react'
+import { AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from 'lucide-react'
 import { BaseNode } from './BaseNode'
 import { useAppStore } from '@/store/appStore'
 import { resolveInput } from '@/lib/edgeResolver'
@@ -15,8 +16,6 @@ import type {
   BannerMasterData, HeadlineData, VerticalPosition,
 } from '@/types'
 
-const MAX_CANVAS = 280
-
 const PLATFORM_LABEL: Record<string, string> = {
   fb: 'Facebook', ig: 'Instagram', li: 'LinkedIn',
   tt: 'TikTok', x: 'X / Twitter', yt: 'YouTube', pn: 'Pinterest',
@@ -26,10 +25,12 @@ function platformLabel(id: string) {
   return PLATFORM_LABEL[prefix] ?? prefix.toUpperCase()
 }
 
-function thumbSize(fmt: { w: number; h: number }, maxSide = MAX_CANVAS) {
-  const ratio = fmt.w / fmt.h
-  const w = ratio >= 1 ? maxSide : Math.round(maxSide * ratio)
-  const h = ratio < 1 ? maxSide : Math.round(maxSide / ratio)
+function thumbSize(fmt: { w: number; h: number }) {
+  let w = Math.round(fmt.w * 0.5)
+  let h = Math.round(fmt.h * 0.5)
+  const MAX_W = 400, MAX_H = 560
+  if (w > MAX_W) { const r = MAX_W / w; w = MAX_W; h = Math.round(h * r) }
+  if (h > MAX_H) { const r = MAX_H / h; h = MAX_H; w = Math.round(w * r) }
   return { w, h }
 }
 
@@ -90,12 +91,15 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
     a.download = `banner-${fmt.id}.png`; a.click()
   }
 
-  const posOpts: { val: VerticalPosition; icon: string }[] = [
-    { val: 'top', icon: '↑' }, { val: 'center', icon: '⊡' }, { val: 'bottom', icon: '↓' },
+  const posOpts: { val: VerticalPosition; Icon: typeof AlignVerticalJustifyStart }[] = [
+    { val: 'top',    Icon: AlignVerticalJustifyStart  },
+    { val: 'center', Icon: AlignVerticalJustifyCenter },
+    { val: 'bottom', Icon: AlignVerticalJustifyEnd    },
   ]
   const lbl: React.CSSProperties = { fontSize: 8, color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }
   const seg = (active: boolean): React.CSSProperties => ({
-    flex: 1, padding: '3px 0', fontSize: 12, cursor: 'pointer', borderRadius: 4, textAlign: 'center',
+    flex: 1, padding: '5px 0', cursor: 'pointer', borderRadius: 4, textAlign: 'center',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
     border: `1px solid ${active ? 'var(--color-process)' : 'var(--color-field-border)'}`,
     background: active ? 'rgba(124,92,245,0.15)' : 'transparent',
     color: active ? 'var(--color-process)' : 'var(--color-text-muted)',
@@ -168,11 +172,13 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
             <div>
               <div style={lbl}>Pozycja tekstu</div>
               <div style={{ display: 'flex', gap: 4 }}>
-                {posOpts.map(o => (
-                  <button key={o.val}
+                {posOpts.map(({ val, Icon }) => (
+                  <button key={val}
                     onMouseDown={e => e.stopPropagation()}
-                    onClick={() => setOverrides(prev => ({ ...prev, textPosition: o.val }))}
-                    style={seg(layout.textPosition === o.val)}>{o.icon}</button>
+                    onClick={() => setOverrides(prev => ({ ...prev, textPosition: val }))}
+                    style={seg(layout.textPosition === val)}>
+                    <Icon size={16} />
+                  </button>
                 ))}
               </div>
               {!overrides.textPosition && (
