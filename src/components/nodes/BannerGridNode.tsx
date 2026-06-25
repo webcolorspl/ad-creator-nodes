@@ -10,7 +10,7 @@ import { useAppStore } from '@/store/appStore'
 import { resolveInput } from '@/lib/edgeResolver'
 import { composeBanner } from '@/lib/canvasComposer'
 import { AD_FORMATS } from '@/lib/constants'
-import type { HeadlineData, CTAData, ImageData, BackgroundData, ThemeData, CopyGroupData, StyleData, HeadlineCTAVariant } from '@/types'
+import type { HeadlineData, CTAData, ImageData, BackgroundData, ThemeData, CopyGroupData, StyleData, HeadlineCTAVariant, NodeOutputs } from '@/types'
 
 const DEFAULT_FORMATS = ['ig-square', 'fb-feed', 'tt-video']
 const ZOOM_OPTIONS = [
@@ -35,17 +35,17 @@ function AspectSwatch({ w, h, size = 24 }: { w: number; h: number; size?: number
 interface FormatCardProps {
   uid: string; formatId: string; nodeId: string
   headline: HeadlineData | null; cta: CTAData | null
-  imageUrl: string | null; theme: ThemeData | null
+  imageUrl: string | null; bgColor?: string | null; theme: ThemeData | null
   thumbW: number
   isMaster?: boolean; onSetMaster?: () => void
   onRemove: () => void; onDuplicate: () => void; onChangeFormat: (id: string) => void
 }
 
-function FormatCard({ uid, formatId, nodeId, headline, cta, imageUrl, theme, thumbW, isMaster, onSetMaster, onRemove, onDuplicate, onChangeFormat }: FormatCardProps) {
+function FormatCard({ uid, formatId, nodeId, headline, cta, imageUrl, bgColor, theme, thumbW, isMaster, onSetMaster, onRemove, onDuplicate, onChangeFormat }: FormatCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
   const fmt = AD_FORMATS.find(f => f.id === formatId)
-  const inputKey = JSON.stringify({ formatId, headline, cta, imageUrl, theme })
+  const inputKey = JSON.stringify({ formatId, headline, cta, imageUrl, bgColor, theme })
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -56,8 +56,9 @@ function FormatCard({ uid, formatId, nodeId, headline, cta, imageUrl, theme, thu
       headline: headline ?? { main: '' },
       cta: cta ?? { text: '', style: 'primary' },
     } : null
+    const effectiveBgColor = theme?.bgColor ?? bgColor ?? '#1a1a2e'
     document.fonts.ready.then(() => {
-      composeBanner(canvas, { copy, background: null, bgColor: theme?.bgColor ?? '#1a1a2e', image: imageUrl, style, theme: theme ?? null })
+      composeBanner(canvas, { copy, background: null, bgColor: effectiveBgColor, image: imageUrl || undefined, style, theme: theme ?? null })
         .catch(() => {
           canvas.width = Math.min(fmt.w, 1080); canvas.height = Math.min(fmt.h, 1080)
           const ctx = canvas.getContext('2d')
@@ -153,19 +154,36 @@ function useResize(
   return [size, onMouseDown]
 }
 
+// ── Fallback: scan ALL nodeOutputs for a given key when edge-resolution yields null ─
+function scanOutputs<T>(nodeOutputs: Record<string, NodeOutputs>, key: keyof NodeOutputs): T | null {
+  for (const out of Object.values(nodeOutputs)) {
+    const val = out?.[key]
+    if (val !== undefined && val !== null) return val as T
+  }
+  return null
+}
+
 // ── BannerGridNode ─────────────────────────────────────────────────────
 export function BannerGridNode({ id }: NodeProps) {
   const edges        = useAppStore(s => s.edges)
   const nodeOutputs  = useAppStore(s => s.nodeOutputs)
 
+  // Edge-based resolution first; fall back to scanning ALL nodeOutputs
   const headline         = resolveInput<HeadlineData>(id,         'headline',         edges, nodeOutputs)
+                        ?? scanOutputs<HeadlineData>(nodeOutputs, 'headline')
   const cta              = resolveInput<CTAData>(id,              'cta',              edges, nodeOutputs)
+                        ?? scanOutputs<CTAData>(nodeOutputs, 'cta')
   const image            = resolveInput<ImageData>(id,            'image',            edges, nodeOutputs)
+                        ?? scanOutputs<ImageData>(nodeOutputs, 'image')
   const background       = resolveInput<BackgroundData>(id,       'background',       edges, nodeOutputs)
+                        ?? scanOutputs<BackgroundData>(nodeOutputs, 'background')
   const theme            = resolveInput<ThemeData>(id,            'theme',            edges, nodeOutputs)
+                        ?? scanOutputs<ThemeData>(nodeOutputs, 'theme')
   const selectedVariants = resolveInput<HeadlineCTAVariant[]>(id, 'selectedVariants', edges, nodeOutputs)
+                        ?? scanOutputs<HeadlineCTAVariant[]>(nodeOutputs, 'selectedVariants')
 
-  const imageUrl = image?.url ?? background?.url ?? null
+  const imageUrl = image?.url || background?.url || null   // || not ?? to skip empty strings
+  const bgColor  = background?.color ?? null
 
   const [cards,     setCards]     = useState(() => DEFAULT_FORMATS.map((f, i) => ({ uid: `${f}-${i}`, formatId: f })))
   const [masterUid, setMasterUid] = useState<string | null>(null)
@@ -264,7 +282,7 @@ export function BannerGridNode({ id }: NodeProps) {
             return (
               <FormatCard
                 key={card.uid} uid={card.uid} formatId={card.formatId} nodeId={id}
-                headline={cardHeadline} cta={cardCta} imageUrl={imageUrl} theme={theme}
+                headline={cardHeadline} cta={cardCta} imageUrl={imageUrl} bgColor={bgColor} theme={theme}
                 thumbW={thumbW}
                 isMaster={masterUid === card.uid}
                 onSetMaster={() => setMasterUid(prev => prev === card.uid ? null : card.uid)}
@@ -282,6 +300,7 @@ export function BannerGridNode({ id }: NodeProps) {
             ⬇ Export wszystko ({cards.length})
           </button>
         )}
+
 
         {/* ── Resize handles ── */}
         {/* Right edge */}

@@ -30,6 +30,9 @@ interface XToolsProject {
   name?: string
   masterElems?: AdElement[]
   bg?: BgSettings
+  // Legacy v2.0 JSX format: bgColor/bgImg at top level
+  bgColor?: string
+  bgImg?: string | null
   selFmts?: string[]
   trans?: Record<string, Record<string, string>>
 }
@@ -86,10 +89,12 @@ function parseProject(json: unknown): Parsed {
     size:      ctaElems[0].size,
   } : null
 
-  // Background: prefer image URL, fallback to solid color
+  // Background: support both nested `bg` (new TS format) and top-level (legacy v2.0 JSX)
   const bgSettings = p.bg ?? {}
-  const background: BackgroundData | null = (bgSettings.bgImg || bgSettings.bgColor)
-    ? { url: bgSettings.bgImg ?? '', color: bgSettings.bgColor }
+  const resolvedBgColor = bgSettings.bgColor ?? p.bgColor
+  const resolvedBgImg   = bgSettings.bgImg !== undefined ? bgSettings.bgImg : p.bgImg
+  const background: BackgroundData | null = (resolvedBgImg || resolvedBgColor)
+    ? { url: resolvedBgImg ?? '', color: resolvedBgColor }
     : null
 
   const fmtId = p.selFmts?.[0] ?? ''
@@ -185,9 +190,12 @@ export function XToolsImportNode({ id }: NodeProps) {
     const { headline, cta, background, style, variants, projectName, elements } = parseProject(json)
 
     if (!headline && !cta) {
-      setNodeErrors(id, ['Nie znaleziono elementów tekstowych'])
+      const p = json as XToolsProject
+      const totalElems = p.masterElems?.length ?? 0
+      const textCount  = p.masterElems?.filter(e => e.type === 'text').length ?? 0
+      setNodeErrors(id, [`Brak elementów text/cta (znaleziono ${totalElems} elementów, text: ${textCount})`])
       setStatus('error')
-      addToast({ type: 'error', message: 'XTools: brak elementów text/cta' })
+      addToast({ type: 'error', message: `XTools: brak elementów text/cta (total: ${totalElems})` })
       return
     }
 
