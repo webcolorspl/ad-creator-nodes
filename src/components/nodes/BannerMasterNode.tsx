@@ -6,7 +6,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { NodeProps } from '@xyflow/react'
 import { useReactFlow } from '@xyflow/react'
-import { AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from 'lucide-react'
+import { AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd, RectangleHorizontal } from 'lucide-react'
 import { BaseNode } from './BaseNode'
 import { NodeFloatingPanel } from '@/components/ui/NodeFloatingPanel'
 import { useAppStore } from '@/store/appStore'
@@ -109,106 +109,169 @@ function OverridePanel({ overrides, onChange }: {
 }
 
 // ── SlaveFormatPicker ────────────────────────────────────────────────────
-function FormatThumb({ w, h, color }: { w: number; h: number; color: string }) {
-  const BOX = 36
+function FormatThumb({ w, h, color, selected }: { w: number; h: number; color: string; selected: boolean }) {
+  const BOX = 32
   const ratio = w / h
   const tw = ratio >= 1 ? BOX : Math.round(BOX * ratio)
   const th = ratio < 1  ? BOX : Math.round(BOX / ratio)
   return (
-    <div style={{
-      width: BOX, height: BOX, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-    }}>
+    <div style={{ width: BOX, height: BOX, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
       <div style={{
         width: tw, height: th, borderRadius: 3,
-        background: `${color}22`,
-        border: `1.5px solid ${color}88`,
+        background: selected ? `${color}44` : `${color}18`,
+        border: `1.5px solid ${selected ? color : `${color}66`}`,
+        transition: 'all .12s',
       }} />
     </div>
   )
 }
 
 function SlaveFormatPicker({ onSelect, onClose }: {
-  onSelect: (fmtId: string) => void
+  onSelect: (fmtIds: string[]) => void
   onClose: () => void
 }) {
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+
+  function toggle(fmtId: string) {
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(fmtId)) next.delete(fmtId); else next.add(fmtId)
+      return next
+    })
+  }
+
+  function toggleGroup(ids: string[]) {
+    setSelected(prev => {
+      const allOn = ids.every(id => prev.has(id))
+      const next = new Set(prev)
+      if (allOn) ids.forEach(id => next.delete(id))
+      else       ids.forEach(id => next.add(id))
+      return next
+    })
+  }
+
+  function confirm() {
+    if (selected.size === 0) return
+    onSelect([...selected])
+  }
+
   return (
     <div style={{
       background: 'var(--color-surface)',
       border: '1.5px solid #FF9F4A',
       borderRadius: 12,
-      width: 320,
-      maxHeight: 520,
-      overflowY: 'auto',
-      boxShadow: '0 12px 48px rgba(0,0,0,0.6)',
+      width: 340,
+      maxHeight: 540,
+      display: 'flex', flexDirection: 'column',
+      boxShadow: '0 12px 48px rgba(0,0,0,0.65)',
     }} onMouseDown={e => e.stopPropagation()}>
+
       {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '10px 14px 8px',
         borderBottom: '1px solid rgba(255,159,74,0.2)',
+        flexShrink: 0,
       }}>
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#FF9F4A' }}>Dodaj baner</div>
-          <div style={{ fontSize: 9, color: 'var(--color-text-muted)', marginTop: 1 }}>Wybierz format i rozmiar</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#FF9F4A' }}>Dodaj banery</div>
+          <div style={{ fontSize: 9, color: 'var(--color-text-muted)', marginTop: 1 }}>Zaznacz formaty i kliknij Dodaj</div>
         </div>
-        <button onClick={onClose} style={{
-          background: 'none', border: 'none', color: 'var(--color-text-muted)',
-          cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: '0 2px',
-        }}>×</button>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
       </div>
 
-      {/* Platform sections */}
-      <div style={{ padding: '8px 10px' }}>
-        {PLATFORM_GROUPS.map(group => (
-          <div key={group.label} style={{ marginBottom: 14 }}>
-            {/* Platform header */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '3px 4px 6px',
-              borderBottom: `1px solid ${group.color}33`,
-              marginBottom: 6,
-            }}>
-              <span style={{
-                fontSize: 9, fontWeight: 800, color: group.color,
-                letterSpacing: '0.06em', textTransform: 'uppercase',
-              }}>{group.label}</span>
-            </div>
+      {/* Scrollable format list */}
+      <div style={{ overflowY: 'auto', padding: '8px 10px', flex: 1 }}>
+        {PLATFORM_GROUPS.map(group => {
+          const groupSelected = group.ids.every(id => selected.has(id))
+          const groupPartial  = !groupSelected && group.ids.some(id => selected.has(id))
+          return (
+            <div key={group.label} style={{ marginBottom: 14 }}>
+              {/* Platform header + select all */}
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '3px 4px 6px',
+                borderBottom: `1px solid ${group.color}33`,
+                marginBottom: 6,
+              }}>
+                <span style={{ fontSize: 9, fontWeight: 800, color: group.color, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                  {group.label}
+                </span>
+                <button
+                  onClick={() => toggleGroup(group.ids)}
+                  style={{
+                    fontSize: 8, padding: '2px 7px', borderRadius: 4, cursor: 'pointer',
+                    border: `1px solid ${group.color}55`,
+                    background: groupSelected ? `${group.color}22` : 'transparent',
+                    color: group.color, fontWeight: 600,
+                  }}>
+                  {groupSelected ? 'Odznacz' : groupPartial ? 'Zaznacz rest.' : 'Zaznacz wszystkie'}
+                </button>
+              </div>
 
-            {/* Format grid — 2 columns */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
-              {group.ids.map(fmtId => {
-                const f = AD_FORMATS.find(af => af.id === fmtId)
-                if (!f) return null
-                return (
-                  <div key={f.id}
-                    onMouseDown={e => { e.stopPropagation(); onSelect(f.id) }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      padding: '7px 8px', borderRadius: 7, cursor: 'pointer',
-                      border: '1px solid transparent',
-                      transition: 'background .12s, border-color .12s',
-                    }}
-                    onMouseEnter={e => {
-                      const el = e.currentTarget as HTMLElement
-                      el.style.background = `${group.color}12`
-                      el.style.borderColor = `${group.color}44`
-                    }}
-                    onMouseLeave={e => {
-                      const el = e.currentTarget as HTMLElement
-                      el.style.background = 'transparent'
-                      el.style.borderColor = 'transparent'
-                    }}>
-                    <FormatThumb w={f.w} h={f.h} color={group.color} />
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.2 }}>{f.label}</div>
-                      <div style={{ fontSize: 8, color: 'var(--color-text-muted)', fontFamily: 'monospace', marginTop: 2 }}>{f.w}×{f.h}</div>
+              {/* Format grid — 2 columns */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
+                {group.ids.map(fmtId => {
+                  const f = AD_FORMATS.find(af => af.id === fmtId)
+                  if (!f) return null
+                  const isSelected = selected.has(f.id)
+                  return (
+                    <div key={f.id}
+                      onMouseDown={e => { e.stopPropagation(); toggle(f.id) }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        padding: '6px 8px', borderRadius: 7, cursor: 'pointer',
+                        border: `1.5px solid ${isSelected ? group.color : 'transparent'}`,
+                        background: isSelected ? `${group.color}10` : 'transparent',
+                        transition: 'all .1s',
+                      }}
+                      onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = `${group.color}08` }}
+                      onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+                      {/* Checkbox */}
+                      <div style={{
+                        width: 14, height: 14, borderRadius: 3, flexShrink: 0,
+                        border: `1.5px solid ${isSelected ? group.color : 'var(--color-field-border)'}`,
+                        background: isSelected ? group.color : 'transparent',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all .1s',
+                      }}>
+                        {isSelected && <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3l2 2 4-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                      </div>
+                      <FormatThumb w={f.w} h={f.h} color={group.color} selected={isSelected} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 10, fontWeight: isSelected ? 700 : 600, color: isSelected ? 'var(--color-text)' : 'var(--color-text)', lineHeight: 1.2 }}>{f.label}</div>
+                        <div style={{ fontSize: 8, color: 'var(--color-text-muted)', fontFamily: 'monospace', marginTop: 1 }}>{f.w}×{f.h}</div>
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
+      </div>
+
+      {/* Footer — confirm button */}
+      <div style={{
+        padding: '10px 14px',
+        borderTop: '1px solid rgba(255,159,74,0.2)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexShrink: 0,
+      }}>
+        <span style={{ fontSize: 9, color: 'var(--color-text-muted)' }}>
+          {selected.size === 0 ? 'Nic nie zaznaczono' : `Zaznaczono: ${selected.size} format${selected.size > 1 ? 'y' : ''}`}
+        </span>
+        <button
+          onClick={confirm}
+          disabled={selected.size === 0}
+          style={{
+            padding: '6px 16px', borderRadius: 6, cursor: selected.size === 0 ? 'default' : 'pointer',
+            background: selected.size === 0 ? 'rgba(255,159,74,0.2)' : '#FF9F4A',
+            border: 'none', color: selected.size === 0 ? 'rgba(255,159,74,0.5)' : '#000',
+            fontSize: 11, fontWeight: 700, transition: 'all .12s',
+          }}>
+          Dodaj {selected.size > 0 ? `(${selected.size})` : ''}
+        </button>
       </div>
     </div>
   )
@@ -277,12 +340,12 @@ export function BannerMasterNode({ id }: NodeProps) {
 
   const { addNodes, addEdges, getNode, getEdges, getNodes } = useReactFlow()
 
-  function spawnSlave(fmtId: string) {
+  function spawnSlaves(fmtIds: string[]) {
     const masterNode = getNode(id); if (!masterNode) return
     const masterW = (masterNode as { measured?: { width?: number } }).measured?.width ?? nodeW
     const slaveEdges = getEdges().filter(e => e.source === id && e.sourceHandle === 'masterData')
 
-    // Find lowest Y among existing slave nodes to stack below the last one
+    // Find bottom-most Y among existing slaves
     let nextY = masterNode.position.y
     if (slaveEdges.length > 0) {
       const allNodes = getNodes()
@@ -294,16 +357,26 @@ export function BannerMasterNode({ id }: NodeProps) {
       }
     }
 
-    const newId = `slave-${Date.now()}`
-    addNodes([{ id: newId, type: 'bannerSlaveNode', position: {
-      x: masterNode.position.x + masterW + 60,
-      y: nextY,
-    }, data: { formatId: fmtId } }])
-    addEdges([{
-      id: `${id}-${newId}`, source: id, sourceHandle: 'masterData',
-      target: newId, targetHandle: 'masterData', type: 'bezier', animated: false,
-      style: { stroke: PORT_COLORS['banner_master'] ?? '#FF9F4A', strokeWidth: 1.5, opacity: 0.7 },
-    }])
+    const newNodes: Parameters<typeof addNodes>[0] = []
+    const newEdges: Parameters<typeof addEdges>[0] = []
+    const slaveX = masterNode.position.x + masterW + 60
+
+    for (const fmtId of fmtIds) {
+      const newId = `slave-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+      // Estimate height so next slave doesn't overlap (based on 50% scale)
+      const f = AD_FORMATS.find(af => af.id === fmtId)
+      const estH = f ? Math.round(Math.min(f.h * 0.5, 560) * (f.w > f.h ? 1 : 1)) + 60 : 320
+      newNodes.push({ id: newId, type: 'bannerSlaveNode', position: { x: slaveX, y: nextY }, data: { formatId: fmtId } })
+      newEdges.push({
+        id: `${id}-${newId}`, source: id, sourceHandle: 'masterData',
+        target: newId, targetHandle: 'masterData', type: 'bezier', animated: false,
+        style: { stroke: PORT_COLORS['banner_master'] ?? '#FF9F4A', strokeWidth: 1.5, opacity: 0.7 },
+      })
+      nextY += estH + 20
+    }
+
+    addNodes(newNodes)
+    addEdges(newEdges)
     setShowSlavePicker(false)
   }
 
@@ -316,7 +389,7 @@ export function BannerMasterNode({ id }: NodeProps) {
   return (
     <BaseNode id={id} nodeType="bannerMasterNode">
       <NodeFloatingPanel nodeId={id} open={showSlavePicker} onClose={() => setShowSlavePicker(false)} placement="right" nodeWidth={nodeW}>
-        <SlaveFormatPicker onSelect={spawnSlave} onClose={() => setShowSlavePicker(false)} />
+        <SlaveFormatPicker onSelect={spawnSlaves} onClose={() => setShowSlavePicker(false)} />
       </NodeFloatingPanel>
       {/* "+" button — floats on right edge, vertically centered */}
       <button
@@ -352,7 +425,9 @@ export function BannerMasterNode({ id }: NodeProps) {
           </div>
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
             <button onMouseDown={e => { e.stopPropagation(); setShowFmtPicker(v => !v) }}
-              style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: 12, lineHeight: 1, padding: '2px 4px' }} title="Zmień format">⋯</button>
+              style={{ background: showFmtPicker ? 'rgba(231,168,0,0.12)' : 'none', border: 'none', color: showFmtPicker ? '#E7A800' : 'var(--color-text-muted)', cursor: 'pointer', borderRadius: 4, padding: '3px', display: 'flex', alignItems: 'center' }} title="Zmień format">
+              <RectangleHorizontal size={14} />
+            </button>
             <button onMouseDown={e => { e.stopPropagation(); setShowOverride(v => !v) }}
               style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, lineHeight: 1, padding: '2px 4px', color: showOverride ? '#E7A800' : 'var(--color-text-muted)' }} title="Ustawienia">⚙</button>
             <button onMouseDown={e => { e.stopPropagation(); exportPng() }}
