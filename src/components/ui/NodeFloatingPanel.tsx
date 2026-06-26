@@ -51,9 +51,10 @@ function computeCoords(
   const measuredW = (node as { measured?: { width?: number }  }).measured?.width  ?? nodeWidth
 
   switch (placement) {
-    case 'above': return { left: nx + measuredW / 2, top: ny }
-    case 'below': return { left: nx + measuredW / 2, top: ny + measuredH * zoom }
-    case 'right': return { left: nx + measuredW * zoom + 8, top: ny }
+    case 'above': return { left: nx + (measuredW * zoom) / 2, top: ny }
+    case 'below': return { left: nx + (measuredW * zoom) / 2, top: ny + measuredH * zoom }
+    // right: anchors to the mid-height of the node, just past the right edge + 40px button
+    case 'right': return { left: nx + measuredW * zoom + 28, top: ny + (measuredH * zoom) / 2 }
   }
 }
 
@@ -93,14 +94,10 @@ export function NodeFloatingPanel({
 
   if (!open || !coords) return null
 
-  const aboveStyle: React.CSSProperties = placement === 'above' ? {
-    transform: 'translate(-50%, calc(-100% - 10px))',
-  } : placement === 'below' ? {
-    transform: 'translateX(-50%)',
-    marginTop: 10,
-  } : {
-    // right — no horizontal centering
-  }
+  const aboveStyle: React.CSSProperties =
+    placement === 'above' ? { transform: 'translate(-50%, calc(-100% - 10px))' } :
+    placement === 'below' ? { transform: 'translateX(-50%)', marginTop: 10 } :
+    /* right */             { transform: 'translateY(-50%)' }
 
   return createPortal(
     <div

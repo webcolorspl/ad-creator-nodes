@@ -109,55 +109,107 @@ function OverridePanel({ overrides, onChange }: {
 }
 
 // ── SlaveFormatPicker ────────────────────────────────────────────────────
+function FormatThumb({ w, h, color }: { w: number; h: number; color: string }) {
+  const BOX = 36
+  const ratio = w / h
+  const tw = ratio >= 1 ? BOX : Math.round(BOX * ratio)
+  const th = ratio < 1  ? BOX : Math.round(BOX / ratio)
+  return (
+    <div style={{
+      width: BOX, height: BOX, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+    }}>
+      <div style={{
+        width: tw, height: th, borderRadius: 3,
+        background: `${color}22`,
+        border: `1.5px solid ${color}88`,
+      }} />
+    </div>
+  )
+}
+
 function SlaveFormatPicker({ onSelect, onClose }: {
   onSelect: (fmtId: string) => void
   onClose: () => void
 }) {
   return (
     <div style={{
-      position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
-      zIndex: 50, background: 'var(--color-surface)',
-      border: '1px solid #FF9F4A', borderRadius: 10,
-      padding: 10, minWidth: 220, maxHeight: 360, overflowY: 'auto',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+      background: 'var(--color-surface)',
+      border: '1.5px solid #FF9F4A',
+      borderRadius: 12,
+      width: 320,
+      maxHeight: 520,
+      overflowY: 'auto',
+      boxShadow: '0 12px 48px rgba(0,0,0,0.6)',
     }} onMouseDown={e => e.stopPropagation()}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span style={{ fontSize: 10, color: '#FF9F4A', fontWeight: 700 }}>Wybierz format slave</span>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: 14, lineHeight: 1 }}>×</button>
-      </div>
-      {PLATFORM_GROUPS.map(group => (
-        <div key={group.label} style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 8, color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '2px 4px', marginBottom: 2 }}>
-            {group.label}
-          </div>
-          {group.ids.map(fmtId => {
-            const f = AD_FORMATS.find(af => af.id === fmtId)
-            if (!f) return null
-            return (
-              <div key={f.id}
-                onMouseDown={e => { e.stopPropagation(); onSelect(f.id) }}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 6px', borderRadius: 5, cursor: 'pointer' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,159,74,0.12)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
-                <div style={{
-                  width: 24, height: 24,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <div style={{
-                    width: f.w >= f.h ? 20 : Math.round(20 * f.w / f.h),
-                    height: f.h >= f.w ? 20 : Math.round(20 * f.h / f.w),
-                    background: 'var(--color-border)', borderRadius: 2,
-                  }} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-text)' }}>{f.label}</div>
-                  <div style={{ fontSize: 8, color: 'var(--color-text-muted)', fontFamily: 'monospace' }}>{f.w}×{f.h}</div>
-                </div>
-              </div>
-            )
-          })}
+      {/* Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 14px 8px',
+        borderBottom: '1px solid rgba(255,159,74,0.2)',
+      }}>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#FF9F4A' }}>Dodaj baner</div>
+          <div style={{ fontSize: 9, color: 'var(--color-text-muted)', marginTop: 1 }}>Wybierz format i rozmiar</div>
         </div>
-      ))}
+        <button onClick={onClose} style={{
+          background: 'none', border: 'none', color: 'var(--color-text-muted)',
+          cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: '0 2px',
+        }}>×</button>
+      </div>
+
+      {/* Platform sections */}
+      <div style={{ padding: '8px 10px' }}>
+        {PLATFORM_GROUPS.map(group => (
+          <div key={group.label} style={{ marginBottom: 14 }}>
+            {/* Platform header */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '3px 4px 6px',
+              borderBottom: `1px solid ${group.color}33`,
+              marginBottom: 6,
+            }}>
+              <span style={{
+                fontSize: 9, fontWeight: 800, color: group.color,
+                letterSpacing: '0.06em', textTransform: 'uppercase',
+              }}>{group.label}</span>
+            </div>
+
+            {/* Format grid — 2 columns */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
+              {group.ids.map(fmtId => {
+                const f = AD_FORMATS.find(af => af.id === fmtId)
+                if (!f) return null
+                return (
+                  <div key={f.id}
+                    onMouseDown={e => { e.stopPropagation(); onSelect(f.id) }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      padding: '7px 8px', borderRadius: 7, cursor: 'pointer',
+                      border: '1px solid transparent',
+                      transition: 'background .12s, border-color .12s',
+                    }}
+                    onMouseEnter={e => {
+                      const el = e.currentTarget as HTMLElement
+                      el.style.background = `${group.color}12`
+                      el.style.borderColor = `${group.color}44`
+                    }}
+                    onMouseLeave={e => {
+                      const el = e.currentTarget as HTMLElement
+                      el.style.background = 'transparent'
+                      el.style.borderColor = 'transparent'
+                    }}>
+                    <FormatThumb w={f.w} h={f.h} color={group.color} />
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.2 }}>{f.label}</div>
+                      <div style={{ fontSize: 8, color: 'var(--color-text-muted)', fontFamily: 'monospace', marginTop: 2 }}>{f.w}×{f.h}</div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -263,9 +315,28 @@ export function BannerMasterNode({ id }: NodeProps) {
 
   return (
     <BaseNode id={id} nodeType="bannerMasterNode">
-      <NodeFloatingPanel nodeId={id} open={showSlavePicker} onClose={() => setShowSlavePicker(false)} placement="above" nodeWidth={nodeW}>
+      <NodeFloatingPanel nodeId={id} open={showSlavePicker} onClose={() => setShowSlavePicker(false)} placement="right" nodeWidth={nodeW}>
         <SlaveFormatPicker onSelect={spawnSlave} onClose={() => setShowSlavePicker(false)} />
       </NodeFloatingPanel>
+      {/* "+" button — floats on right edge, vertically centered */}
+      <button
+        className="nodrag"
+        onMouseDown={e => { e.stopPropagation(); setShowSlavePicker(v => !v) }}
+        style={{
+          position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)',
+          width: 40, height: 40, borderRadius: '50%', zIndex: 10,
+          background: showSlavePicker ? '#FF7A00' : '#FF9F4A',
+          border: '3px solid var(--color-surface)',
+          color: '#fff', fontSize: 22, fontWeight: 300, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+          boxShadow: showSlavePicker
+            ? '0 0 0 3px rgba(255,159,74,0.35), 0 4px 16px rgba(255,159,74,0.5)'
+            : '0 2px 10px rgba(255,159,74,0.35)',
+          transition: 'all .15s',
+        }}
+        title="Dodaj baner slave"
+      >+</button>
+
       <div style={{ width: nodeW, position: 'relative' }} onMouseDown={e => e.stopPropagation()}>
 
         {/* Header */}
@@ -286,18 +357,6 @@ export function BannerMasterNode({ id }: NodeProps) {
               style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, lineHeight: 1, padding: '2px 4px', color: showOverride ? '#E7A800' : 'var(--color-text-muted)' }} title="Ustawienia">⚙</button>
             <button onMouseDown={e => { e.stopPropagation(); exportPng() }}
               style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: 12, lineHeight: 1, padding: '2px 4px' }} title="Export PNG">⬇</button>
-            <button
-              onMouseDown={e => { e.stopPropagation(); setShowSlavePicker(v => !v) }}
-              style={{
-                width: 22, height: 22, borderRadius: '50%', marginLeft: 2,
-                background: showSlavePicker ? '#FF9F4A' : 'rgba(255,159,74,0.12)',
-                border: `1.5px solid ${showSlavePicker ? '#FF9F4A' : 'rgba(255,159,74,0.4)'}`,
-                color: showSlavePicker ? '#000' : '#FF9F4A',
-                fontSize: 15, fontWeight: 400, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
-                transition: 'all .15s',
-              }}
-              title="Dodaj slave baner">+</button>
           </div>
         </div>
 
