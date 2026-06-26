@@ -6,7 +6,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { NodeProps } from '@xyflow/react'
 import { useReactFlow } from '@xyflow/react'
-import { AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd, RectangleHorizontal } from 'lucide-react'
+import { AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd, RectangleHorizontal, MousePointer2 } from 'lucide-react'
 import { BaseNode } from './BaseNode'
 import { NodeFloatingPanel } from '@/components/ui/NodeFloatingPanel'
 import { useAppStore } from '@/store/appStore'
@@ -338,7 +338,28 @@ export function BannerMasterNode({ id }: NodeProps) {
       })
   }, [canvasKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { addNodes, addEdges, getNode, getEdges, getNodes } = useReactFlow()
+  const { addNodes, addEdges, getNode, getEdges, getNodes, setNodes } = useReactFlow()
+
+  // Platform preset colors matching PRESETS in BannerGroupNode
+  const PLATFORM_PRESET: Record<string, number> = {
+    fb: 3, ig: 4, li: 3, tt: 0, x: 0, yt: 4, pn: 4,
+  }
+
+  function slaveEstH(fmtId: string) {
+    const f = AD_FORMATS.find(af => af.id === fmtId)
+    if (!f) return 320
+    let h = Math.round(f.h * 0.5)
+    if (h > 560) h = Math.round(560 * (f.w / f.h < 1 ? 1 : f.h / f.w))
+    return h + 60
+  }
+
+  function slaveEstW(fmtId: string) {
+    const f = AD_FORMATS.find(af => af.id === fmtId)
+    if (!f) return 244
+    let w = Math.round(f.w * 0.5)
+    if (w > 400) w = 400
+    return Math.max(220, w + 24)
+  }
 
   function spawnSlaves(fmtIds: string[]) {
     const masterNode = getNode(id); if (!masterNode) return
@@ -357,27 +378,74 @@ export function BannerMasterNode({ id }: NodeProps) {
       }
     }
 
+    const slaveX = masterNode.position.x + masterW + 60
     const newNodes: Parameters<typeof addNodes>[0] = []
     const newEdges: Parameters<typeof addEdges>[0] = []
-    const slaveX = masterNode.position.x + masterW + 60
 
+    // Group fmtIds by platform prefix, preserving PLATFORM_GROUPS order
+    const platformOrder = PLATFORM_GROUPS.map(g => g.ids[0].split('-')[0])
+    const byPlatform = new Map<string, string[]>()
     for (const fmtId of fmtIds) {
-      const newId = `slave-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
-      // Estimate height so next slave doesn't overlap (based on 50% scale)
-      const f = AD_FORMATS.find(af => af.id === fmtId)
-      const estH = f ? Math.round(Math.min(f.h * 0.5, 560) * (f.w > f.h ? 1 : 1)) + 60 : 320
-      newNodes.push({ id: newId, type: 'bannerSlaveNode', position: { x: slaveX, y: nextY }, data: { formatId: fmtId } })
-      newEdges.push({
-        id: `${id}-${newId}`, source: id, sourceHandle: 'masterData',
-        target: newId, targetHandle: 'masterData', type: 'bezier', animated: false,
-        style: { stroke: PORT_COLORS['banner_master'] ?? '#FF9F4A', strokeWidth: 1.5, opacity: 0.7 },
-      })
-      nextY += estH + 20
+      const prefix = fmtId.split('-')[0]
+      if (!byPlatform.has(prefix)) byPlatform.set(prefix, [])
+      byPlatform.get(prefix)!.push(fmtId)
+    }
+    // Sort by platform order
+    const sortedPlatforms = [...byPlatform.entries()].sort(
+      ([a], [b]) => platformOrder.indexOf(a) - platformOrder.indexOf(b)
+    )
+
+    let isFirst = true
+    for (const [prefix, ids] of sortedPlatforms) {
+      if (!isFirst) nextY += 60  // gap between platform groups
+      const platformStartY = nextY
+      const platformInfo = PLATFORM_GROUPS.find(g => g.ids.some(fid => fid.startsWith(prefix + '-')))
+      let maxEstW = 0
+
+      for (const fmtId of ids) {
+        const newId = `slave-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+        const estH = slaveEstH(fmtId)
+        const estW = slaveEstW(fmtId)
+        maxEstW = Math.max(maxEstW, estW)
+        newNodes.push({ id: newId, type: 'bannerSlaveNode', position: { x: slaveX, y: nextY }, data: { formatId: fmtId } })
+        newEdges.push({
+          id: `${id}-${newId}`, source: id, sourceHandle: 'masterData',
+          target: newId, targetHandle: 'masterData', type: 'bezier', animated: false,
+          style: { stroke: PORT_COLORS['banner_master'] ?? '#FF9F4A', strokeWidth: 1.5, opacity: 0.7 },
+        })
+        nextY += estH + 16
+      }
+
+      // Auto-create BannerGroupNode frame for this platform
+      if (platformInfo) {
+        const groupH = nextY - platformStartY + 44
+        const groupW = maxEstW + 32
+        const groupId = `group-${prefix}-${Date.now()}`
+        newNodes.unshift({  // unshift so group renders behind slaves
+          id: groupId, type: 'bannerGroupNode',
+          position: { x: slaveX - 16, y: platformStartY - 40 },
+          width: groupW, height: groupH,
+          style: { width: groupW, height: groupH },
+          zIndex: -1,
+          data: { title: platformInfo.label, presetIndex: PLATFORM_PRESET[prefix] ?? 0 },
+        })
+      }
+      isFirst = false
     }
 
     addNodes(newNodes)
     addEdges(newEdges)
     setShowSlavePicker(false)
+  }
+
+  // Programmatically select master + all connected slaves
+  function selectGroup() {
+    const slaveIds = new Set(
+      getEdges()
+        .filter(e => e.source === id && e.sourceHandle === 'masterData')
+        .map(e => e.target)
+    )
+    setNodes(nds => nds.map(n => ({ ...n, selected: n.id === id || slaveIds.has(n.id) })))
   }
 
   function exportPng() {
@@ -432,6 +500,14 @@ export function BannerMasterNode({ id }: NodeProps) {
               style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, lineHeight: 1, padding: '2px 4px', color: showOverride ? '#E7A800' : 'var(--color-text-muted)' }} title="Ustawienia">⚙</button>
             <button onMouseDown={e => { e.stopPropagation(); exportPng() }}
               style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: 12, lineHeight: 1, padding: '2px 4px' }} title="Export PNG">⬇</button>
+            <button
+              onMouseDown={e => { e.stopPropagation(); selectGroup() }}
+              style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', borderRadius: 4, padding: '3px', display: 'flex', alignItems: 'center', transition: 'color .12s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#E7A800' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)' }}
+              title="Zaznacz master + wszystkie slave (potem przeciągnij razem)">
+              <MousePointer2 size={13} />
+            </button>
           </div>
         </div>
 

@@ -19,7 +19,7 @@ const PRESETS = [
 export function BannerGroupNode({ data }: NodeProps) {
   const [title,       setTitle]       = useState((data as { title?: string }).title ?? 'Grupa banerów')
   const [editingTitle, setEditingTitle] = useState(false)
-  const [preset,      setPreset]      = useState(0)
+  const [preset,      setPreset]      = useState((data as { presetIndex?: number }).presetIndex ?? 0)
 
   const { border, bg } = PRESETS[preset]
 
