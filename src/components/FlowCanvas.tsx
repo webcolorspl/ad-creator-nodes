@@ -195,7 +195,7 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
   const campaignLaunchKey = useAppStore(s => s.campaignLaunchKey)
   const campaign          = useAppStore(s => s.campaign)
   const canvasResetKey    = useAppStore(s => s.canvasResetKey)
-  const { setCenter, getNode, fitBounds, fitView } = useReactFlow()
+  const { setCenter, getNode, fitBounds, fitView, getNodes } = useReactFlow()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [rfInstance, setRfInstance] = useState<{ screenToFlowPosition: (p: {x:number,y:number}) => {x:number,y:number} } | null>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
@@ -296,6 +296,58 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     addToast({ type: 'success', message: `+ ${NODE_REGISTRY[nodeType].label}` })
   }, [rfInstance, setNodes, addToast])
 
+  // ── Group drop-in/out ─────────────────────────────────────────────────
+  // When a bannerSlaveNode is dropped inside a bannerGroupNode → set parentId
+  // (position becomes relative to group). When dragged out → remove parentId.
+  const onNodeDragStop = useCallback((_: unknown, draggedNode: Node) => {
+    if (draggedNode.type !== 'bannerSlaveNode') return
+
+    const allNodes = getNodes()
+    const groups   = allNodes.filter(n => n.type === 'bannerGroupNode')
+
+    // Current absolute position of the dragged node
+    const currentParent = draggedNode.parentId
+      ? allNodes.find(n => n.id === draggedNode.parentId)
+      : null
+    const absPos = currentParent
+      ? { x: currentParent.position.x + draggedNode.position.x, y: currentParent.position.y + draggedNode.position.y }
+      : { x: draggedNode.position.x, y: draggedNode.position.y }
+
+    // Find group that contains this absolute position
+    const targetGroup = groups.find(g => {
+      const gw = (g as { width?: number }).width  ?? (g as { measured?: { width?: number } }).measured?.width  ?? 600
+      const gh = (g as { height?: number }).height ?? (g as { measured?: { height?: number } }).measured?.height ?? 400
+      return absPos.x >= g.position.x && absPos.x <= g.position.x + gw
+          && absPos.y >= g.position.y && absPos.y <= g.position.y + gh
+    })
+
+    if (targetGroup) {
+      if (draggedNode.parentId === targetGroup.id) return // already in this group
+      // Drop into group: convert to relative position, auto-place in grid
+      const gw = (targetGroup as { width?: number }).width ?? 600
+      const siblings = allNodes.filter(n => n.parentId === targetGroup.id && n.id !== draggedNode.id)
+      const col  = siblings.length % 2
+      const row  = Math.floor(siblings.length / 2)
+      const PAD  = 16, GAP = 12, HEADER = 32
+      const cellW = Math.floor((gw - PAD * 2 - GAP) / 2)
+      setNodes(nds => nds.map(n => n.id !== draggedNode.id ? n : {
+        ...n,
+        parentId: targetGroup.id,
+        position: { x: PAD + col * (cellW + GAP), y: HEADER + PAD + row * 340 },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        extent: undefined as any,   // allow dragging within group
+      }))
+    } else if (draggedNode.parentId) {
+      // Dragged OUT of group: remove parentId, restore absolute position
+      setNodes(nds => nds.map(n => {
+        if (n.id !== draggedNode.id) return n
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { parentId: _pid, extent: _ext, ...rest } = n as Node & { parentId?: string; extent?: unknown }
+        return { ...rest, position: absPos }
+      }))
+    }
+  }, [getNodes, setNodes])
+
   const save = () => {
     const blob = new Blob([JSON.stringify({ nodes, edges }, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
@@ -387,6 +439,7 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
           setEdges(eds => { syncEdges(eds); return eds })
         }}
         onConnect={onConnect}
+        onNodeDragStop={onNodeDragStop}
         onInit={inst => setRfInstance(inst as typeof rfInstance)}
         onDrop={onDrop}
         onDragOver={onDragOver}
