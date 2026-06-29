@@ -61,6 +61,7 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
   const masterData = resolveInput<BannerMasterData>(id, 'masterData', edges, nodeOutputs)
 
   const [formatId,  setFormatId]  = useState((data as { formatId?: string }).formatId ?? 'ig-square')
+  const version = (data as { version?: number }).version ?? 1
   const [overrides, setOverrides] = useState<BannerCardOverrides>({})
   const [showFmtPicker,     setShowFmtPicker]     = useState(false)
   const [showOverridePanel, setShowOverridePanel] = useState(false)
@@ -176,12 +177,21 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
           background: noMaster ? 'transparent' : 'rgba(255,159,74,0.04)',
         }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: noMaster ? 'var(--color-text-muted)' : 'var(--color-text)', lineHeight: 1 }}>
-              {platformLabel(fmt.id)}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 5, lineHeight: 1 }}>
+              <span style={{ fontSize: 13, fontWeight: 800, fontFamily: 'monospace', color: noMaster ? 'var(--color-text-muted)' : 'var(--color-text)', letterSpacing: '-0.02em' }}>
+                {fmt.w}×{fmt.h}
+              </span>
+              {version > 1 && (
+                <span style={{
+                  fontSize: 8, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
+                  background: 'rgba(124,92,245,0.2)', color: 'var(--color-process)',
+                  border: '1px solid rgba(124,92,245,0.35)', letterSpacing: '0.02em',
+                }}>v{version}</span>
+              )}
+              {hasOwn(overrides) && <span style={{ fontSize: 8, color: 'var(--color-process)' }}>≠</span>}
             </div>
-            <div style={{ fontSize: 8, color: 'var(--color-text-muted)', marginTop: 1 }}>
-              {fmt.label} · {fmt.w}×{fmt.h}
-              {hasOwn(overrides) && <span style={{ color: 'var(--color-process)', marginLeft: 4 }}>≠</span>}
+            <div style={{ fontSize: 8, color: 'var(--color-text-muted)', marginTop: 2 }}>
+              {platformLabel(fmt.id)} · {fmt.label}
             </div>
           </div>
           <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>

@@ -364,25 +364,19 @@ export function BannerMasterNode({ id }: NodeProps) {
   function spawnSlaves(fmtIds: string[]) {
     const masterNode = getNode(id); if (!masterNode) return
     const masterW = (masterNode as { measured?: { width?: number } }).measured?.width ?? nodeW
+    const allNodes = getNodes()
     const slaveEdges = getEdges().filter(e => e.source === id && e.sourceHandle === 'masterData')
 
-    // Find bottom-most Y among existing slaves
-    let nextY = masterNode.position.y
-    if (slaveEdges.length > 0) {
-      const allNodes = getNodes()
-      for (const e of slaveEdges) {
-        const sn = allNodes.find(n => n.id === e.target)
-        if (!sn) continue
-        const snH = (sn as { measured?: { height?: number } }).measured?.height ?? 300
-        nextY = Math.max(nextY, sn.position.y + snH + 20)
-      }
+    // Count existing slaves by formatId for versioning
+    const existingByFormat = new Map<string, number>()
+    for (const e of slaveEdges) {
+      const sn = allNodes.find(n => n.id === e.target)
+      if (!sn) continue
+      const fid = (sn.data as { formatId?: string }).formatId ?? ''
+      existingByFormat.set(fid, (existingByFormat.get(fid) ?? 0) + 1)
     }
 
-    const slaveX = masterNode.position.x + masterW + 60
-    const newNodes: Parameters<typeof addNodes>[0] = []
-    const newEdges: Parameters<typeof addEdges>[0] = []
-
-    // Group fmtIds by platform prefix, preserving PLATFORM_GROUPS order
+    // Group new fmtIds by platform, preserving PLATFORM_GROUPS order
     const platformOrder = PLATFORM_GROUPS.map(g => g.ids[0].split('-')[0])
     const byPlatform = new Map<string, string[]>()
     for (const fmtId of fmtIds) {
@@ -390,47 +384,141 @@ export function BannerMasterNode({ id }: NodeProps) {
       if (!byPlatform.has(prefix)) byPlatform.set(prefix, [])
       byPlatform.get(prefix)!.push(fmtId)
     }
-    // Sort by platform order
     const sortedPlatforms = [...byPlatform.entries()].sort(
       ([a], [b]) => platformOrder.indexOf(a) - platformOrder.indexOf(b)
     )
 
+    const slaveX = masterNode.position.x + masterW + 60
+    const PAD = 20, TOP = 44, GAP = 16
+
+    // Find bottom-most Y of existing groups tied to this master
+    const slaveIds = new Set(slaveEdges.map(e => e.target))
+    let nextAbsY = masterNode.position.y
+    for (const n of allNodes) {
+      if (n.type === 'bannerGroupNode') {
+        const mIds = (n.data as { memberIds?: string[] }).memberIds ?? []
+        if (mIds.some(mid => slaveIds.has(mid))) {
+          const gh = (n as { height?: number }).height ?? (n as { measured?: { height?: number } }).measured?.height ?? 400
+          nextAbsY = Math.max(nextAbsY, n.position.y + gh + 40)
+        }
+      } else if (slaveIds.has(n.id)) {
+        const nh = (n as { measured?: { height?: number } }).measured?.height ?? 300
+        nextAbsY = Math.max(nextAbsY, n.position.y + nh + 20)
+      }
+    }
+
+    const newNodes: Parameters<typeof addNodes>[0] = []
+    const newEdges: Parameters<typeof addEdges>[0] = []
+    const groupUpdates: { id: string; memberIds: string[]; width: number; height: number }[] = []
+
     let isFirst = true
     for (const [prefix, ids] of sortedPlatforms) {
-      if (!isFirst) nextY += 60  // gap between platform groups
-      const platformStartY = nextY
+      if (!isFirst) nextAbsY += 40
       const platformInfo = PLATFORM_GROUPS.find(g => g.ids.some(fid => fid.startsWith(prefix + '-')))
-      let maxEstW = 0
 
-      for (const fmtId of ids) {
-        const newId = `slave-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
-        const estH = slaveEstH(fmtId)
-        const estW = slaveEstW(fmtId)
-        maxEstW = Math.max(maxEstW, estW)
-        newNodes.push({ id: newId, type: 'bannerSlaveNode', position: { x: slaveX, y: nextY }, data: { formatId: fmtId } })
-        newEdges.push({
-          id: `${id}-${newId}`, source: id, sourceHandle: 'masterData',
-          target: newId, targetHandle: 'masterData', type: 'bezier', animated: false,
-          style: { stroke: PORT_COLORS['banner_master'] ?? '#FF9F4A', strokeWidth: 1.5, opacity: 0.7 },
-        })
-        nextY += estH + 16
-      }
+      // Assign versions
+      const slaveBatch = ids.map(fmtId => {
+        const count = existingByFormat.get(fmtId) ?? 0
+        existingByFormat.set(fmtId, count + 1)
+        return { fmtId, version: count + 1, estH: slaveEstH(fmtId), estW: slaveEstW(fmtId) }
+      })
+      const maxEstW = Math.max(...slaveBatch.map(s => s.estW))
 
-      // Auto-create BannerGroupNode frame for this platform
-      if (platformInfo) {
-        const groupH = nextY - platformStartY + 44
-        const groupW = maxEstW + 32
+      // Check if a group for this platform already exists
+      const existingGroup = allNodes.find(n =>
+        n.type === 'bannerGroupNode' && (n.data as { platform?: string }).platform === prefix
+      )
+
+      if (existingGroup) {
+        // Find existing members' bottom
+        const existingMemberIds = (existingGroup.data as { memberIds?: string[] }).memberIds ?? []
+        const existingMembers = allNodes.filter(n => existingMemberIds.includes(n.id))
+
+        let nextSlaveY = existingGroup.position.y + TOP + PAD
+        for (const m of existingMembers) {
+          const mH = (m as { measured?: { height?: number } }).measured?.height ?? slaveEstH((m.data as { formatId?: string }).formatId ?? '')
+          nextSlaveY = Math.max(nextSlaveY, m.position.y + mH + GAP)
+        }
+
+        const newSlaveIds: string[] = []
+        for (const { fmtId, version, estH, estW: _estW } of slaveBatch) {
+          const newId = `slave-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+          newNodes.push({
+            id: newId, type: 'bannerSlaveNode',
+            position: { x: existingGroup.position.x + PAD, y: nextSlaveY },
+            data: { formatId: fmtId, version },
+          })
+          newEdges.push({
+            id: `${id}-${newId}`, source: id, sourceHandle: 'masterData',
+            target: newId, targetHandle: 'masterData', type: 'bezier', animated: false,
+            style: { stroke: PORT_COLORS['banner_master'] ?? '#FF9F4A', strokeWidth: 1.5, opacity: 0.7 },
+          })
+          newSlaveIds.push(newId)
+          nextSlaveY += estH + GAP
+        }
+
+        // Expand group
+        const allMemberIds = [...existingMemberIds, ...newSlaveIds]
+        const newGW = Math.max((existingGroup as { width?: number }).width ?? 0, maxEstW + PAD * 2)
+        const newGH = nextSlaveY - existingGroup.position.y + PAD
+        groupUpdates.push({ id: existingGroup.id, memberIds: allMemberIds, width: newGW, height: newGH })
+
+      } else {
+        // New group — slaves stacked vertically, absolute positions
         const groupId = `group-${prefix}-${Date.now()}`
-        newNodes.unshift({  // unshift so group renders behind slaves
+        const groupX = slaveX - PAD
+        const groupY = nextAbsY
+        const groupW = maxEstW + PAD * 2
+
+        const newSlaveIds: string[] = []
+        let slaveAbsY = groupY + TOP + PAD
+        for (const { fmtId, version, estH } of slaveBatch) {
+          const newId = `slave-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+          newNodes.push({
+            id: newId, type: 'bannerSlaveNode',
+            position: { x: groupX + PAD, y: slaveAbsY },
+            data: { formatId: fmtId, version },
+          })
+          newEdges.push({
+            id: `${id}-${newId}`, source: id, sourceHandle: 'masterData',
+            target: newId, targetHandle: 'masterData', type: 'bezier', animated: false,
+            style: { stroke: PORT_COLORS['banner_master'] ?? '#FF9F4A', strokeWidth: 1.5, opacity: 0.7 },
+          })
+          newSlaveIds.push(newId)
+          slaveAbsY += estH + GAP
+        }
+
+        const groupH = slaveAbsY - groupY + PAD
+        newNodes.unshift({
           id: groupId, type: 'bannerGroupNode',
-          position: { x: slaveX - 16, y: platformStartY - 40 },
+          position: { x: groupX, y: groupY },
           width: groupW, height: groupH,
           style: { width: groupW, height: groupH },
           zIndex: -1,
-          data: { title: platformInfo.label, presetIndex: PLATFORM_PRESET[prefix] ?? 0 },
+          data: {
+            title: platformInfo?.label ?? prefix.toUpperCase(),
+            platform: prefix,
+            memberIds: newSlaveIds,
+            presetIndex: PLATFORM_PRESET[prefix] ?? 0,
+          },
         })
+        nextAbsY += groupH + 40
       }
       isFirst = false
+    }
+
+    // Update existing groups (expand size + add memberIds)
+    if (groupUpdates.length > 0) {
+      setNodes(nds => nds.map(n => {
+        const u = groupUpdates.find(x => x.id === n.id)
+        if (!u) return n
+        return {
+          ...n,
+          width: u.width, height: u.height,
+          style: { ...((n as { style?: object }).style ?? {}), width: u.width, height: u.height },
+          data: { ...(n.data as object), memberIds: u.memberIds },
+        }
+      }))
     }
 
     addNodes(newNodes)

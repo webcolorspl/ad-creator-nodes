@@ -195,8 +195,9 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
   const campaignLaunchKey = useAppStore(s => s.campaignLaunchKey)
   const campaign          = useAppStore(s => s.campaign)
   const canvasResetKey    = useAppStore(s => s.canvasResetKey)
-  const { setCenter, getNode, fitBounds, fitView, getNodes } = useReactFlow()
+  const { setCenter, getNode, fitBounds, fitView, getNodes, setNodes: setNodesRF } = useReactFlow()
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const groupDragOrigins = useRef<Map<string, { x: number; y: number }>>(new Map())
   const [rfInstance, setRfInstance] = useState<{ screenToFlowPosition: (p: {x:number,y:number}) => {x:number,y:number} } | null>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
@@ -296,56 +297,73 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     addToast({ type: 'success', message: `+ ${NODE_REGISTRY[nodeType].label}` })
   }, [rfInstance, setNodes, addToast])
 
-  // ── Group drop-in/out ─────────────────────────────────────────────────
-  // When a bannerSlaveNode is dropped inside a bannerGroupNode → set parentId
-  // (position becomes relative to group). When dragged out → remove parentId.
-  const onNodeDragStop = useCallback((_: unknown, draggedNode: Node) => {
-    if (draggedNode.type !== 'bannerSlaveNode') return
-
+  // When dragging a group: record start positions of group + all members
+  const onNodeDragStart = useCallback((_: unknown, node: Node) => {
+    if (node.type !== 'bannerGroupNode') return
+    const memberIds = (node.data as { memberIds?: string[] }).memberIds ?? []
     const allNodes = getNodes()
-    const groups   = allNodes.filter(n => n.type === 'bannerGroupNode')
-
-    // Current absolute position of the dragged node
-    const currentParent = draggedNode.parentId
-      ? allNodes.find(n => n.id === draggedNode.parentId)
-      : null
-    const absPos = currentParent
-      ? { x: currentParent.position.x + draggedNode.position.x, y: currentParent.position.y + draggedNode.position.y }
-      : { x: draggedNode.position.x, y: draggedNode.position.y }
-
-    // Find group that contains this absolute position
-    const targetGroup = groups.find(g => {
-      const gw = (g as { width?: number }).width  ?? (g as { measured?: { width?: number } }).measured?.width  ?? 600
-      const gh = (g as { height?: number }).height ?? (g as { measured?: { height?: number } }).measured?.height ?? 400
-      return absPos.x >= g.position.x && absPos.x <= g.position.x + gw
-          && absPos.y >= g.position.y && absPos.y <= g.position.y + gh
-    })
-
-    if (targetGroup) {
-      if (draggedNode.parentId === targetGroup.id) return // already in this group
-      // Drop into group: convert to relative position, auto-place in grid
-      const gw = (targetGroup as { width?: number }).width ?? 600
-      const siblings = allNodes.filter(n => n.parentId === targetGroup.id && n.id !== draggedNode.id)
-      const col  = siblings.length % 2
-      const row  = Math.floor(siblings.length / 2)
-      const PAD  = 16, GAP = 12, HEADER = 32
-      const cellW = Math.floor((gw - PAD * 2 - GAP) / 2)
-      setNodes(nds => nds.map(n => n.id !== draggedNode.id ? n : {
-        ...n,
-        parentId: targetGroup.id,
-        position: { x: PAD + col * (cellW + GAP), y: HEADER + PAD + row * 340 },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        extent: undefined as any,   // allow dragging within group
-      }))
-    } else if (draggedNode.parentId) {
-      // Dragged OUT of group: remove parentId, restore absolute position
-      setNodes(nds => nds.map(n => {
-        if (n.id !== draggedNode.id) return n
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { parentId: _pid, extent: _ext, ...rest } = n as Node & { parentId?: string; extent?: unknown }
-        return { ...rest, position: absPos }
-      }))
+    const map = new Map<string, { x: number; y: number }>()
+    map.set(node.id, { x: node.position.x, y: node.position.y })
+    for (const mid of memberIds) {
+      const m = allNodes.find(n => n.id === mid)
+      if (m) map.set(mid, { x: m.position.x, y: m.position.y })
     }
+    groupDragOrigins.current = map
+  }, [getNodes])
+
+  // While dragging a group: move all members by the same delta
+  const onNodeDrag = useCallback((_: unknown, node: Node) => {
+    if (node.type !== 'bannerGroupNode') return
+    const memberIds = (node.data as { memberIds?: string[] }).memberIds ?? []
+    if (!memberIds.length) return
+    const origin = groupDragOrigins.current.get(node.id)
+    if (!origin) return
+    const dx = node.position.x - origin.x
+    const dy = node.position.y - origin.y
+    setNodesRF(nds => nds.map(n => {
+      if (!memberIds.includes(n.id)) return n
+      const o = groupDragOrigins.current.get(n.id)
+      if (!o) return n
+      return { ...n, position: { x: o.x + dx, y: o.y + dy } }
+    }))
+  }, [setNodesRF])
+
+  // When a slave stops dragging: auto-resize its group to bounding box of all members
+  const onNodeDragStop = useCallback((_: unknown, node: Node) => {
+    if (node.type !== 'bannerSlaveNode') return
+    const allNodes = getNodes()
+    const group = allNodes.find(n =>
+      n.type === 'bannerGroupNode' &&
+      ((n.data as { memberIds?: string[] }).memberIds ?? []).includes(node.id)
+    )
+    if (!group) return
+
+    const memberIds = (group.data as { memberIds?: string[] }).memberIds ?? []
+    const members = allNodes.filter(n => memberIds.includes(n.id))
+    const PAD = 20, TOP = 44
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    for (const m of members) {
+      const mW = (m as { measured?: { width?: number } }).measured?.width ?? 300
+      const mH = (m as { measured?: { height?: number } }).measured?.height ?? 300
+      minX = Math.min(minX, m.position.x)
+      minY = Math.min(minY, m.position.y)
+      maxX = Math.max(maxX, m.position.x + mW)
+      maxY = Math.max(maxY, m.position.y + mH)
+    }
+
+    const newX = minX - PAD
+    const newY = minY - TOP
+    const newW = maxX - minX + PAD * 2
+    const newH = maxY - minY + PAD + TOP
+
+    setNodes(nds => nds.map(n =>
+      n.id !== group.id ? n : {
+        ...n,
+        position: { x: newX, y: newY },
+        width: newW, height: newH,
+        style: { ...((n as { style?: object }).style ?? {}), width: newW, height: newH },
+      }
+    ))
   }, [getNodes, setNodes])
 
   const save = () => {
@@ -439,6 +457,8 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
           setEdges(eds => { syncEdges(eds); return eds })
         }}
         onConnect={onConnect}
+        onNodeDragStart={onNodeDragStart}
+        onNodeDrag={onNodeDrag}
         onNodeDragStop={onNodeDragStop}
         onInit={inst => setRfInstance(inst as typeof rfInstance)}
         onDrop={onDrop}
