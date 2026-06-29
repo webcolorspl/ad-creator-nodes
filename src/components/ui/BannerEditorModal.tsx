@@ -631,6 +631,18 @@ export function BannerEditorModal({
                     value={local.subColor ?? masterData?.headline?.subColor ?? 'rgba(255,255,255,0.82)'}
                     onChange={v => patchLocal({ subColor: v })}
                   />
+                  <Slider
+                    label="Rozmiar nagłówka"
+                    value={localHeadline?.mainSize ?? 68}
+                    min={16} max={120}
+                    onChange={v => setLocalHeadline(prev => ({ ...(prev ?? masterData?.headline ?? { main: '' }), mainSize: v }))}
+                  />
+                  <Slider
+                    label="Rozmiar sub-nagłówka"
+                    value={localHeadline?.subSize ?? 26}
+                    min={10} max={60}
+                    onChange={v => setLocalHeadline(prev => ({ ...(prev ?? masterData?.headline ?? { main: '' }), subSize: v }))}
+                  />
                   <SectionLabel>Treść nagłówka</SectionLabel>
                   <input
                     type="text"

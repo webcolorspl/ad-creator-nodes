@@ -143,9 +143,13 @@ export async function composeBanner(
   let hLineH = 0
 
   if (copy.headline?.main) {
-    const rawFs = copy.headline.main.length > 40 ? px(48) : copy.headline.main.length > 20 ? px(58) : px(68)
     const maxFs = Math.floor(H * 0.20)
-    hFontSize = Math.min(rawFs, maxFs, px(72))
+    if (copy.headline.mainSize) {
+      hFontSize = Math.min(px(copy.headline.mainSize), maxFs)
+    } else {
+      const rawFs = copy.headline.main.length > 40 ? px(48) : copy.headline.main.length > 20 ? px(58) : px(68)
+      hFontSize = Math.min(rawFs, maxFs, px(72))
+    }
     ctx.font = `${hWeight} ${hFontSize}px ${hFont}, system-ui, sans-serif`
     hLines   = wrapText(ctx, copy.headline.main, W * 0.84)
     hLineH   = Math.round(hFontSize * 1.22)
@@ -155,7 +159,7 @@ export async function composeBanner(
   const sFont   = copy.headline?.subFont   ?? copy.headline?.mainFont ?? theme?.fontFamily ?? 'Inter'
   const sWeight = copy.headline?.subWeight ?? 400
   const sColor  = copy.headline?.subColor  ?? 'rgba(255,255,255,0.82)'
-  const sFs     = px(26)
+  const sFs     = copy.headline?.subSize ? Math.min(px(copy.headline.subSize), Math.floor(H * 0.12)) : px(26)
   const sLineH  = Math.round(sFs * 1.3)
   let sLines: string[] = []
 
