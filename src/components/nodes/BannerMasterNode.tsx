@@ -13,6 +13,7 @@ import { useAppStore } from '@/store/appStore'
 import { resolveInput } from '@/lib/edgeResolver'
 import { composeBanner } from '@/lib/canvasComposer'
 import { AD_FORMATS, PLATFORM_GROUPS, PORT_COLORS } from '@/lib/constants'
+import { computeGridLayout } from '@/lib/groupLayout'
 import type {
   HeadlineData, CTAData, ImageData, BackgroundData, ThemeData,
   CopyGroupData, StyleData, HeadlineCTAVariant, NodeOutputs,
@@ -536,7 +537,7 @@ export function BannerMasterNode({ id }: NodeProps) {
     setNodes(nds => nds.map(n => ({ ...n, selected: n.id === id || slaveIds.has(n.id) })))
   }
 
-  // Create one BannerGroupNode wrapping master + all slaves (no parentId — uses memberIds)
+  // Create one BannerGroupNode wrapping master + all slaves (no parentId — uses memberIds + grid)
   function createGroup() {
     const masterNode = getNode(id); if (!masterNode) return
     const slaveEdges = getEdges().filter(e => e.source === id && e.sourceHandle === 'masterData')
@@ -546,7 +547,7 @@ export function BannerMasterNode({ id }: NodeProps) {
     // Skip if master is already in a group
     if (allNodes.some(n => n.type === 'bannerGroupNode' && ((n.data as { memberIds?: string[] }).memberIds ?? []).includes(id))) return
 
-    const PAD = 28, TOP = 44
+    const PAD = 20
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
     for (const n of members) {
       const w = (n as { measured?: { width?: number } }).measured?.width  ?? 300
@@ -555,20 +556,26 @@ export function BannerMasterNode({ id }: NodeProps) {
       maxX = Math.max(maxX, n.position.x + w); maxY = Math.max(maxY, n.position.y + h)
     }
 
-    const gw = maxX - minX + PAD * 2
-    const gh = maxY - minY + PAD + TOP
     const groupId = `group-${Date.now()}`
+    const gPos = { x: minX - PAD, y: minY - 44 }
+    const gW = maxX - minX + PAD * 2
+
+    // Apply grid layout immediately
+    const { positions, groupH } = computeGridLayout(members, gPos, gW)
 
     setNodes(nds => [
       {
         id: groupId, type: 'bannerGroupNode',
-        position: { x: minX - PAD, y: minY - TOP },
-        width: gw, height: gh,
-        style: { width: gw, height: gh },
+        position: gPos,
+        width: gW, height: groupH,
+        style: { width: gW, height: groupH },
         zIndex: -1,
         data: { title: 'Kampania', memberIds: members.map(m => m.id) },
       },
-      ...nds,
+      ...nds.map(n => {
+        const pos = positions.get(n.id)
+        return pos ? { ...n, position: pos } : n
+      }),
     ])
   }
 

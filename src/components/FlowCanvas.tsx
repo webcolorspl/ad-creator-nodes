@@ -9,6 +9,7 @@ import {
   addEdge, useNodesState, useEdgesState, useReactFlow,
   type Node, type Edge, type OnConnect, type Rect,
 } from '@xyflow/react'
+import { computeGridLayout } from '@/lib/groupLayout'
 import { Palette, FolderInput, Sparkles, PackageOpen } from 'lucide-react'
 import { useAppStore }   from '@/store/appStore'
 import { NODE_REGISTRY, PORT_COLORS, CAT_COLORS } from '@/lib/constants'
@@ -383,31 +384,33 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
         return n
       }) : nds
 
-      // Pass 2: resize affected groups to bounding box of their (now-updated) members
-      const PAD = 20, TOP = 44
-      return pass1.map(n => {
-        if (n.type !== 'bannerGroupNode' || !groupsToResize.has(n.id)) return n
-        const mIds = (n.data as { memberIds?: string[] }).memberIds ?? []
-        const members = pass1.filter(m => mIds.includes(m.id))
-        if (!members.length) return n
+      // Pass 2: apply grid layout to all affected groups
+      let result = pass1
+      for (const gid of groupsToResize) {
+        const group = result.find(n => n.id === gid)
+        if (!group) continue
+        const mIds = (group.data as { memberIds?: string[] }).memberIds ?? []
+        const members = result.filter(n => mIds.includes(n.id))
+        if (!members.length) continue
 
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
-        for (const m of members) {
-          // Use latest position for the dragged node itself
-          const pos = m.id === node.id ? node.position : m.position
-          const mW = (m as { measured?: { width?: number } }).measured?.width ?? 300
-          const mH = (m as { measured?: { height?: number } }).measured?.height ?? 300
-          minX = Math.min(minX, pos.x);  minY = Math.min(minY, pos.y)
-          maxX = Math.max(maxX, pos.x + mW); maxY = Math.max(maxY, pos.y + mH)
-        }
-        const nW = maxX - minX + PAD * 2, nH = maxY - minY + PAD + TOP
-        return {
-          ...n,
-          position: { x: minX - PAD, y: minY - TOP },
-          width: nW, height: nH,
-          style: { ...((n as { style?: object }).style ?? {}), width: nW, height: nH },
-        }
-      })
+        // Use the dragged node's final position for sorting/layout
+        const membersWithFinalPos = members.map(m =>
+          m.id === node.id ? { ...m, position: node.position } : m
+        )
+        const groupW = (group as { width?: number }).width
+          ?? (group as { measured?: { width?: number } }).measured?.width
+          ?? 600
+        const { positions, groupH } = computeGridLayout(membersWithFinalPos, group.position, groupW)
+
+        result = result.map(n => {
+          if (n.id === gid) {
+            return { ...n, height: groupH, style: { ...((n as { style?: object }).style ?? {}), height: groupH } }
+          }
+          const pos = positions.get(n.id)
+          return pos ? { ...n, position: pos } : n
+        })
+      }
+      return result
     })
   }, [getNodes, setNodes])
 

@@ -6,8 +6,9 @@
 'use client'
 import { useState } from 'react'
 import type { NodeProps } from '@xyflow/react'
-import { NodeResizer } from '@xyflow/react'
+import { NodeResizer, useReactFlow } from '@xyflow/react'
 import { PLATFORM_GROUPS } from '@/lib/constants'
+import { computeGridLayout, minGroupWidth, GRID_PAD, GRID_TOP } from '@/lib/groupLayout'
 
 // Map platform prefix → brand color
 const PLATFORM_COLOR: Record<string, string> = {}
@@ -22,9 +23,10 @@ for (const g of PLATFORM_GROUPS) {
   PLATFORM_COLOR[prefix] = lum < 40 ? '#9090AA' : g.color
 }
 
-export function BannerGroupNode({ data }: NodeProps) {
+export function BannerGroupNode({ id, data }: NodeProps) {
   const [title, setTitle] = useState((data as { title?: string }).title ?? 'Grupa')
   const [editing, setEditing] = useState(false)
+  const { getNodes, setNodes } = useReactFlow()
 
   const platform = (data as { platform?: string }).platform ?? ''
   const color = PLATFORM_COLOR[platform] ?? 'rgba(140,140,175,0.9)'
@@ -32,13 +34,34 @@ export function BannerGroupNode({ data }: NodeProps) {
   const bgColor = `${color}0A`
   const titleColor = `${color}CC`
 
+  // When user resizes the group → recompute COLS from new width, relayout members
+  function onResizeEnd(_: unknown, { width }: { width: number; height: number }) {
+    const allNodes = getNodes()
+    const group = allNodes.find(n => n.id === id)
+    if (!group) return
+    const memberIds = (data as { memberIds?: string[] }).memberIds ?? []
+    const members = allNodes.filter(n => memberIds.includes(n.id))
+    if (!members.length) return
+
+    const { positions, groupH } = computeGridLayout(members, group.position, width)
+    setNodes(nds => nds.map(n => {
+      if (n.id === id) return { ...n, height: groupH, style: { ...((n as { style?: object }).style ?? {}), height: groupH } }
+      const pos = positions.get(n.id)
+      return pos ? { ...n, position: pos } : n
+    }))
+  }
+
+  const memberCount = ((data as { memberIds?: string[] }).memberIds ?? []).length
+  const minW = minGroupWidth(300)  // 300 = fallback member width
+
   return (
     <>
       <NodeResizer
-        minWidth={260}
-        minHeight={160}
+        minWidth={minW}
+        minHeight={GRID_TOP + GRID_PAD * 2 + 160}
         handleStyle={{ opacity: 0, pointerEvents: 'all' }}
         lineStyle={{ border: `1px solid ${color}33` }}
+        onResizeEnd={onResizeEnd}
       />
 
       {/* Frame */}
