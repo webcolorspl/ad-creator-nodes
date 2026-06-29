@@ -6,7 +6,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { NodeProps } from '@xyflow/react'
 import { useReactFlow } from '@xyflow/react'
-import { AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd, RectangleHorizontal, MousePointer2 } from 'lucide-react'
+import { AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd, RectangleHorizontal, MousePointer2, Combine } from 'lucide-react'
 import { BaseNode } from './BaseNode'
 import { NodeFloatingPanel } from '@/components/ui/NodeFloatingPanel'
 import { useAppStore } from '@/store/appStore'
@@ -448,6 +448,53 @@ export function BannerMasterNode({ id }: NodeProps) {
     setNodes(nds => nds.map(n => ({ ...n, selected: n.id === id || slaveIds.has(n.id) })))
   }
 
+  // Create one BannerGroupNode wrapping master + all slaves, set parentId on all
+  function createGroup() {
+    const masterNode = getNode(id); if (!masterNode) return
+    const slaveEdges = getEdges().filter(e => e.source === id && e.sourceHandle === 'masterData')
+    const allNodes   = getNodes()
+    const members    = [masterNode, ...slaveEdges.map(e => allNodes.find(n => n.id === e.target)).filter(Boolean)] as typeof allNodes
+
+    // Skip if already inside a group
+    if (masterNode.parentId) return
+
+    // Bounding box of all members
+    const PAD = 28, TOP_PAD = 44  // extra top for label chip
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    for (const n of members) {
+      const w = (n as { measured?: { width?: number } }).measured?.width  ?? 300
+      const h = (n as { measured?: { height?: number } }).measured?.height ?? 300
+      minX = Math.min(minX, n.position.x)
+      minY = Math.min(minY, n.position.y)
+      maxX = Math.max(maxX, n.position.x + w)
+      maxY = Math.max(maxY, n.position.y + h)
+    }
+
+    const gx = minX - PAD
+    const gy = minY - TOP_PAD
+    const gw = maxX - minX + PAD * 2
+    const gh = maxY - minY + PAD + TOP_PAD
+
+    const groupId = `group-${Date.now()}`
+    const groupNode = {
+      id: groupId, type: 'bannerGroupNode',
+      position: { x: gx, y: gy },
+      width: gw, height: gh,
+      style: { width: gw, height: gh },
+      zIndex: -1,
+      data: { title: 'Kampania' },
+    }
+
+    // Insert group FIRST (so parentId children can reference it), then update members
+    setNodes(nds => [
+      groupNode,
+      ...nds.map(n => {
+        if (!members.some(m => m.id === n.id)) return n
+        return { ...n, parentId: groupId, position: { x: n.position.x - gx, y: n.position.y - gy } }
+      }),
+    ])
+  }
+
   function exportPng() {
     const c = canvasRef.current; if (!c) return
     const a = document.createElement('a'); a.href = c.toDataURL('image/png')
@@ -505,8 +552,16 @@ export function BannerMasterNode({ id }: NodeProps) {
               style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', borderRadius: 4, padding: '3px', display: 'flex', alignItems: 'center', transition: 'color .12s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#E7A800' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)' }}
-              title="Zaznacz master + wszystkie slave (potem przeciągnij razem)">
+              title="Zaznacz wszystkie (przeciągnij razem)">
               <MousePointer2 size={13} />
+            </button>
+            <button
+              onMouseDown={e => { e.stopPropagation(); createGroup() }}
+              style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', borderRadius: 4, padding: '3px', display: 'flex', alignItems: 'center', transition: 'color .12s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#FF9F4A' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)' }}
+              title="Utwórz grupę — otocz master + wszystkie slave jedną ramką">
+              <Combine size={13} />
             </button>
           </div>
         </div>
