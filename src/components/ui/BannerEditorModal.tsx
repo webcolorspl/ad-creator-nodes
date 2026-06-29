@@ -27,7 +27,7 @@ export interface BannerEditorModalProps {
   formatId: string
   masterData: BannerMasterData | null
   overrides: BannerCardOverrides
-  onApply: (overrides: BannerCardOverrides) => void
+  onApply: (overrides: BannerCardOverrides, headline: HeadlineData | null, cta: CTAData | null) => void
 }
 
 interface BannerPreset {
@@ -482,7 +482,7 @@ export function BannerEditorModal({
             Zapisz preset
           </button>
           <button
-            onClick={() => { onApply({ ...local }); onClose() }}
+            onClick={() => { onApply({ ...local }, localHeadline, localCta); onClose() }}
             style={{
               padding: '6px 18px', borderRadius: 6, border: 'none',
               background: 'var(--color-process)', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 700,

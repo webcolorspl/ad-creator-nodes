@@ -195,6 +195,9 @@ export interface BannerCardOverrides {
   bgColor?:      string
   mainColor?:    string
   subColor?:     string
+  // Text overrides
+  headlineOverride?: Partial<HeadlineData>
+  ctaOverride?:      Partial<CTAData>
   // Image controls
   imageUrl?:   string     // per-slave image override
   bgFit?:      BgFit      // default 'cover'

@@ -17,7 +17,7 @@ import { composeBanner } from '@/lib/canvasComposer'
 import { AD_FORMATS } from '@/lib/constants'
 import type {
   CopyGroupData, StyleData, BannerCardOverrides, BannerLayoutOptions,
-  BannerMasterData, HeadlineData, VerticalPosition,
+  BannerMasterData, HeadlineData, CTAData, VerticalPosition,
 } from '@/types'
 import { BannerEditorModal } from '@/components/ui/BannerEditorModal'
 
@@ -64,6 +64,8 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
   const [formatId,  setFormatId]  = useState((data as { formatId?: string }).formatId ?? 'ig-square')
   const version = (data as { version?: number }).version ?? 1
   const [overrides, setOverrides] = useState<BannerCardOverrides>({})
+  const [headlineOverride, setHeadlineOverride] = useState<HeadlineData | null>(null)
+  const [ctaOverride,      setCtaOverride]      = useState<CTAData | null>(null)
   const [showFmtPicker,     setShowFmtPicker]     = useState(false)
   const [showOverridePanel, setShowOverridePanel] = useState(false)
   const [editorOpen,        setEditorOpen]        = useState(false)
@@ -86,10 +88,13 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
 
   const headline: HeadlineData | null = masterData?.headline ? {
     ...masterData.headline,
-    mainColor: overrides.mainColor ?? masterData.overrides?.mainColor ?? masterData.headline.mainColor,
-    subColor:  overrides.subColor  ?? masterData.overrides?.subColor  ?? masterData.headline.subColor,
+    ...(headlineOverride ?? {}),
+    mainColor: overrides.mainColor ?? headlineOverride?.mainColor ?? masterData.overrides?.mainColor ?? masterData.headline.mainColor,
+    subColor:  overrides.subColor  ?? headlineOverride?.subColor  ?? masterData.overrides?.subColor  ?? masterData.headline.subColor,
   } : null
-  const cta              = masterData?.cta ?? null
+  const cta = ctaOverride
+    ? { ...(masterData?.cta ?? { text: '', style: 'primary' as const }), ...ctaOverride }
+    : masterData?.cta ?? null
   const effectiveImageUrl = overrides.imageUrl ?? masterData?.imageUrl ?? null
   const effectiveBg      = overrides.bgColor ?? masterData?.overrides?.bgColor ?? masterData?.bgColor ?? masterData?.theme?.bgColor ?? '#1a1a2e'
   const theme            = masterData?.theme ?? null
@@ -360,7 +365,11 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
         formatId={formatId}
         masterData={masterData ?? null}
         overrides={overrides}
-        onApply={newOverrides => setOverrides(newOverrides)}
+        onApply={(newOverrides, hl, cta) => {
+          setOverrides(newOverrides)
+          setHeadlineOverride(hl)
+          setCtaOverride(cta)
+        }}
       />
     </BaseNode>
   )
