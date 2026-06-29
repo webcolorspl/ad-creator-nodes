@@ -635,19 +635,67 @@ export function BannerEditorModal({
             <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px' }}>
 
               {/* ── Tab: Tło ─────────────────────── */}
-              {tab === 'bg' && (
-                <>
-                  <ColorField
-                    label="Kolor tła"
-                    value={local.bgColor ?? masterData?.bgColor ?? '#1a1a2e'}
-                    onChange={v => patchLocal({ bgColor: v })}
-                  />
-                  <SectionLabel>Przełącz widok</SectionLabel>
-                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-                    Przejdź do zakładki <strong>Obraz</strong>, aby ustawić obraz tła.
-                  </div>
-                </>
-              )}
+              {tab === 'bg' && (() => {
+                const hasOwnBg = !!(local.bgColor || local.imageUrl)
+                const masterBgColor = masterData?.bgColor ?? masterData?.theme?.bgColor ?? '#1a1a2e'
+                return (
+                  <>
+                    <label style={{
+                      display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+                      marginBottom: 14, padding: '8px 10px',
+                      background: hasOwnBg ? 'rgba(124,92,245,0.08)' : 'rgba(255,255,255,0.03)',
+                      borderRadius: 6,
+                      border: `1px solid ${hasOwnBg ? 'rgba(124,92,245,0.3)' : 'var(--color-field-border)'}`,
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={hasOwnBg}
+                        style={{ margin: 0, accentColor: 'var(--color-process)' }}
+                        onChange={e => {
+                          if (!e.target.checked) {
+                            patchLocal({ bgColor: undefined, imageUrl: undefined })
+                          } else {
+                            patchLocal({ bgColor: masterBgColor })
+                          }
+                        }}
+                      />
+                      <span style={{ fontSize: 12, color: hasOwnBg ? 'var(--color-text)' : 'var(--color-text-muted)' }}>
+                        Własne tło
+                      </span>
+                      {!hasOwnBg && (
+                        <span style={{
+                          fontSize: 10, color: 'var(--color-text-muted)',
+                          marginLeft: 'auto', opacity: 0.7,
+                        }}>z mastera</span>
+                      )}
+                    </label>
+
+                    {!hasOwnBg && (
+                      <div style={{ marginBottom: 12 }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', marginBottom: 4 }}>
+                          Kolor tła (z mastera)
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ width: 36, height: 28, borderRadius: 4, border: '1px solid var(--color-field-border)', background: masterBgColor, flexShrink: 0 }} />
+                          <span style={{ fontSize: 12, color: 'var(--color-text-muted)', fontFamily: 'monospace' }}>{masterBgColor}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {hasOwnBg && (
+                      <ColorField
+                        label="Kolor tła"
+                        value={local.bgColor ?? masterBgColor}
+                        onChange={v => patchLocal({ bgColor: v })}
+                      />
+                    )}
+
+                    <div style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 4 }}>
+                      Obraz tła — zakładka <strong>Obraz</strong>
+                    </div>
+                  </>
+                )
+              })()}
 
               {/* ── Tab: Obraz ───────────────────── */}
               {tab === 'image' && (
