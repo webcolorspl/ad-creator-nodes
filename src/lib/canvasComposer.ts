@@ -4,7 +4,7 @@
 // Layout: center (domyślny) | top | bottom
 // ═══════════════════════════════════════════════
 import { AD_FORMATS } from './constants'
-import type { CopyGroupData, StyleData, ThemeData, BannerLayoutOptions } from '@/types'
+import type { CopyGroupData, StyleData, ThemeData, BannerLayoutOptions, BgFit } from '@/types'
 
 interface ComposeOptions {
   copy?:       CopyGroupData | null
@@ -14,6 +14,12 @@ interface ComposeOptions {
   style?:      StyleData | null
   theme?:      ThemeData | null
   layout?:     BannerLayoutOptions | null
+  // Image positioning
+  bgFit?:          BgFit   // default 'cover'
+  bgOffsetX?:      number  // -100..100 (%)
+  bgOffsetY?:      number  // -100..100 (%)
+  bgScale?:        number  // multiplier, default 1.0
+  overlayOpacity?: number  // 0..1, overrides default per textPos
 }
 
 function isColorDark(hex: string): boolean {
@@ -53,7 +59,7 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
 
 export async function composeBanner(
   canvas: HTMLCanvasElement,
-  { copy, background, bgColor, image, style, theme, layout }: ComposeOptions
+  { copy, background, bgColor, image, style, theme, layout, bgFit, bgOffsetX, bgOffsetY, bgScale, overlayOpacity }: ComposeOptions
 ): Promise<void> {
   const fmt = AD_FORMATS.find(f => f.id === (style?.format ?? '')) ?? AD_FORMATS[0]
   canvas.width  = Math.min(fmt.w, 2000)
@@ -71,11 +77,15 @@ export async function composeBanner(
 
   // ── 1. Background ──────────────────────────────────────────────────
   const bgUrl = image ?? background
+  const fit: BgFit  = bgFit    ?? 'cover'
+  const offX        = bgOffsetX ?? 0      // -100..100
+  const offY        = bgOffsetY ?? 0      // -100..100
+  const scaleExtra  = bgScale   ?? 1.0
+
   if (bgUrl) {
     const img = await loadImage(bgUrl)
     if (img.width > 0) {
-      const s = Math.max(W / img.width, H / img.height)
-      ctx.drawImage(img, (W - img.width * s) / 2, (H - img.height * s) / 2, img.width * s, img.height * s)
+      drawBgImage(ctx, img, W, H, fit, offX, offY, scaleExtra)
     } else {
       ctx.fillStyle = bgColor ?? theme?.bgColor ?? '#1a1a2e'
       ctx.fillRect(0, 0, W, H)
@@ -88,19 +98,22 @@ export async function composeBanner(
     drawFallbackBg(ctx, W, H)
   }
 
-  // ── 2. Overlay (adaptive per textPos) ─────────────────────────────
+  // ── 2. Overlay (adaptive per textPos, controllable opacity) ───────
+  const alpha = overlayOpacity !== undefined ? overlayOpacity : undefined
   if (textPos === 'center') {
-    ctx.fillStyle = 'rgba(0,0,0,0.42)'
+    ctx.fillStyle = `rgba(0,0,0,${alpha ?? 0.42})`
     ctx.fillRect(0, 0, W, H)
   } else if (textPos === 'top') {
+    const a0 = alpha !== undefined ? alpha : 0.78
     const grad = ctx.createLinearGradient(0, 0, 0, H * 0.65)
-    grad.addColorStop(0, 'rgba(0,0,0,0.78)')
+    grad.addColorStop(0, `rgba(0,0,0,${a0})`)
     grad.addColorStop(1, 'rgba(0,0,0,0)')
     ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H)
   } else { // bottom
+    const a0 = alpha !== undefined ? alpha : 0.78
     const grad = ctx.createLinearGradient(0, H * 0.35, 0, H)
     grad.addColorStop(0, 'rgba(0,0,0,0)')
-    grad.addColorStop(1, 'rgba(0,0,0,0.78)')
+    grad.addColorStop(1, `rgba(0,0,0,${a0})`)
     ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H)
   }
 
@@ -217,6 +230,43 @@ export async function composeBanner(
     ctx.fillStyle = ctaTc; ctx.textAlign = 'center'
     ctx.fillText(copy.cta.text, centerX, btnY + ctaBtnH * 0.66)
   }
+}
+
+function drawBgImage(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  W: number, H: number,
+  fit: BgFit,
+  offX: number,   // -100..100 (%)
+  offY: number,   // -100..100 (%)
+  scaleExtra: number,
+) {
+  const iw = img.width, ih = img.height
+
+  if (fit === 'fill') {
+    ctx.drawImage(img, 0, 0, W, H)
+    return
+  }
+
+  const baseScale = fit === 'cover'
+    ? Math.max(W / iw, H / ih)
+    : Math.min(W / iw, H / ih)   // 'contain'
+
+  const s  = baseScale * scaleExtra
+  const sw = iw * s
+  const sh = ih * s
+
+  // Default center offset
+  const cx = (W - sw) / 2
+  const cy = (H - sh) / 2
+
+  // User offset: +100% moves the image right/down by half the overflow
+  const overflowX = sw - W
+  const overflowY = sh - H
+  const dx = fit === 'cover' ? (offX / 100) * (overflowX / 2) : (offX / 100) * (W / 4)
+  const dy = fit === 'cover' ? (offY / 100) * (overflowY / 2) : (offY / 100) * (H / 4)
+
+  ctx.drawImage(img, cx + dx, cy + dy, sw, sh)
 }
 
 function drawFallbackBg(ctx: CanvasRenderingContext2D, W: number, H: number) {

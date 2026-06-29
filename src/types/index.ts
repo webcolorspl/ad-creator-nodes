@@ -187,12 +187,22 @@ export interface BannerLayoutOptions {
   ctaVisible:   boolean
 }
 
+export type BgFit = 'cover' | 'contain' | 'fill'
+
 export interface BannerCardOverrides {
   textPosition?: VerticalPosition
   ctaVisible?:   boolean
   bgColor?:      string
   mainColor?:    string
   subColor?:     string
+  // Image controls
+  imageUrl?:   string     // per-slave image override
+  bgFit?:      BgFit      // default 'cover'
+  bgOffsetX?:  number     // -100..100 (%)
+  bgOffsetY?:  number     // -100..100 (%)
+  bgScale?:    number     // multiplier on top of base fit scale, default 1.0
+  // Overlay
+  overlayOpacity?: number // 0..1, default depends on textPos
 }
 
 export interface BannerCard {
