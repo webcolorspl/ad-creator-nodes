@@ -38,7 +38,38 @@ interface BannerPreset {
   created_at: string
 }
 
+interface AdGenElem {
+  type: string
+  text?: string
+  color?: string
+  size?: number
+  weight?: number
+  ctaBg?: string
+  ctaTc?: string
+}
+
+interface AdGenBg {
+  bgImg?: string | null
+  bgColor?: string
+  bgSize?: string
+  bgPos?: { x: number; y: number }
+  bgOverlay?: { enabled?: boolean; a1?: number }
+}
+
+interface AdGenProject {
+  bg?: AdGenBg
+  masterElems?: AdGenElem[]
+}
+
+interface AdGenTemplate {
+  id: string
+  name: string
+  thumbnail: string | null
+  project: AdGenProject
+}
+
 type TabId = 'bg' | 'image' | 'overlay' | 'text' | 'cta' | 'layout'
+type RightTab = 'presets' | 'adgen'
 
 // ── Helpers ───────────────────────────────────
 
@@ -155,6 +186,49 @@ function SectionLabel({ children }: SectionLabelProps) {
   )
 }
 
+// ── Ad Generator mapping ──────────────────────
+
+function projectToOverrides(project: AdGenProject): BannerCardOverrides {
+  const bg = project.bg ?? {}
+  const textElems = (project.masterElems ?? []).filter(e => e.type === 'text')
+  const main = textElems[0]
+  const sub  = textElems[1]
+  return {
+    bgColor:        bg.bgColor    ?? undefined,
+    imageUrl:       bg.bgImg      ?? undefined,
+    bgFit:          (bg.bgSize as BgFit) ?? 'cover',
+    bgOffsetX:      bg.bgPos ? (bg.bgPos.x - 50) * 2 : 0,
+    bgOffsetY:      bg.bgPos ? (bg.bgPos.y - 50) * 2 : 0,
+    overlayOpacity: bg.bgOverlay?.enabled ? (bg.bgOverlay.a1 ?? undefined) : undefined,
+    mainColor:      main?.color ?? undefined,
+    subColor:       sub?.color  ?? undefined,
+  }
+}
+
+function projectToHeadline(project: AdGenProject): Partial<HeadlineData> | null {
+  const textElems = (project.masterElems ?? []).filter(e => e.type === 'text')
+  if (!textElems.length) return null
+  const main = textElems[0]
+  const sub  = textElems[1]
+  return {
+    mainSize:   main?.size   ?? undefined,
+    mainWeight: main?.weight ?? undefined,
+    mainColor:  main?.color  ?? undefined,
+    subSize:    sub?.size    ?? undefined,
+    subColor:   sub?.color   ?? undefined,
+  }
+}
+
+function projectToCta(project: AdGenProject): Partial<CTAData> | null {
+  const ctaElem = (project.masterElems ?? []).find(e => e.type === 'cta')
+  if (!ctaElem) return null
+  return {
+    text:      ctaElem.text      ?? undefined,
+    bgColor:   ctaElem.ctaBg     ?? undefined,
+    textColor: ctaElem.ctaTc     ?? undefined,
+  }
+}
+
 // ── Main Component ────────────────────────────
 
 export function BannerEditorModal({
@@ -189,6 +263,13 @@ export function BannerEditorModal({
   const [presetName, setPresetName] = useState('')
   const [savingPreset, setSavingPreset] = useState(false)
 
+  // Right panel tab
+  const [rightTab, setRightTab] = useState<RightTab>('presets')
+
+  // Ad Generator templates
+  const [adGenTemplates, setAdGenTemplates] = useState<AdGenTemplate[]>([])
+  const [adGenLoading, setAdGenLoading] = useState(false)
+
   // Canvas ref
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -201,6 +282,7 @@ export function BannerEditorModal({
       setPreviewFormatId(formatId)
       setTab('bg')
       loadPresets()
+      loadAdGenTemplates()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
@@ -261,6 +343,36 @@ export function BannerEditorModal({
       overlayOpacity: local.overlayOpacity,
     })
   }, [open, local, localHeadline, localCta, previewFormatId, masterData])
+
+  // Load Ad Generator templates
+  const loadAdGenTemplates = useCallback(async () => {
+    setAdGenLoading(true)
+    try {
+      const { data } = await supabase
+        .from('banner_templates')
+        .select('id,name,thumbnail,project')
+        .limit(30)
+      setAdGenTemplates((data as AdGenTemplate[]) ?? [])
+    } catch {
+      // silently ignore
+    } finally {
+      setAdGenLoading(false)
+    }
+  }, [])
+
+  // Apply Ad Generator template
+  const applyAdGenTemplate = (template: AdGenTemplate) => {
+    const newOverrides = projectToOverrides(template.project)
+    setLocal(newOverrides)
+    const hl = projectToHeadline(template.project)
+    if (hl) {
+      setLocalHeadline(prev => ({ ...(prev ?? masterData?.headline ?? { main: '' }), ...hl }))
+    }
+    const cta = projectToCta(template.project)
+    if (cta) {
+      setLocalCta(prev => ({ ...(prev ?? masterData?.cta ?? { text: '', style: 'primary' as const }), ...cta } as CTAData))
+    }
+  }
 
   // Load presets
   const loadPresets = useCallback(async () => {
@@ -787,17 +899,33 @@ export function BannerEditorModal({
             flexShrink: 0,
           }}>
             <div style={{
-              padding: '10px 12px',
+              display: 'flex',
               borderBottom: '1px solid var(--color-border)',
-              fontWeight: 700,
-              fontSize: 12,
-              color: 'var(--color-text)',
+              flexShrink: 0,
             }}>
-              Presety
+              {(['presets', 'adgen'] as RightTab[]).map(rt => (
+                <button
+                  key={rt}
+                  onClick={() => setRightTab(rt)}
+                  style={{
+                    flex: 1,
+                    padding: '9px 4px',
+                    border: 'none',
+                    borderBottom: rightTab === rt ? '2px solid var(--color-process)' : '2px solid transparent',
+                    background: 'none',
+                    cursor: 'pointer',
+                    fontSize: 11,
+                    fontWeight: rightTab === rt ? 700 : 400,
+                    color: rightTab === rt ? 'var(--color-text)' : 'var(--color-text-muted)',
+                  }}
+                >
+                  {rt === 'presets' ? 'Presety' : 'Ad Generator'}
+                </button>
+              ))}
             </div>
 
-            {/* Save preset inline form */}
-            {showSaveForm && (
+            {/* ── Tab: Presety ─────────────────── */}
+            {rightTab === 'presets' && showSaveForm && (
               <div style={{
                 padding: '10px 12px',
                 borderBottom: '1px solid var(--color-border)',
@@ -842,54 +970,106 @@ export function BannerEditorModal({
             )}
 
             {/* Presets list */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '6px 0' }}>
-              {presetsLoading && (
-                <div style={{ padding: '16px 12px', fontSize: 12, color: 'var(--color-text-muted)', textAlign: 'center' }}>
-                  Ładowanie...
-                </div>
-              )}
-              {!presetsLoading && presets.length === 0 && (
-                <div style={{ padding: '16px 12px', fontSize: 12, color: 'var(--color-text-muted)', textAlign: 'center' }}>
-                  Brak presetów
-                </div>
-              )}
-              {presets.map(preset => (
-                <button
-                  key={preset.id}
-                  onClick={() => applyPreset(preset)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    width: '100%',
-                    padding: '7px 12px',
-                    background: 'none',
-                    border: 'none',
-                    borderBottom: '1px solid var(--color-border)',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                  }}
-                >
-                  {/* Thumbnail */}
-                  {preset.thumbnail ? (
-                    <img
-                      src={preset.thumbnail}
-                      alt={preset.name}
-                      style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }}
-                    />
-                  ) : (
-                    <div style={{
-                      width: 60, height: 60, borderRadius: 4, flexShrink: 0,
-                      background: 'var(--color-process)',
-                      opacity: 0.3,
-                    }} />
-                  )}
-                  <span style={{ fontSize: 12, color: 'var(--color-text)', lineHeight: 1.3 }}>
-                    {preset.name}
-                  </span>
-                </button>
-              ))}
-            </div>
+            {rightTab === 'presets' && (
+              <div style={{ flex: 1, overflowY: 'auto', padding: '6px 0' }}>
+                {presetsLoading && (
+                  <div style={{ padding: '16px 12px', fontSize: 12, color: 'var(--color-text-muted)', textAlign: 'center' }}>
+                    Ładowanie...
+                  </div>
+                )}
+                {!presetsLoading && presets.length === 0 && (
+                  <div style={{ padding: '16px 12px', fontSize: 12, color: 'var(--color-text-muted)', textAlign: 'center' }}>
+                    Brak presetów
+                  </div>
+                )}
+                {presets.map(preset => (
+                  <button
+                    key={preset.id}
+                    onClick={() => applyPreset(preset)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      width: '100%',
+                      padding: '7px 12px',
+                      background: 'none',
+                      border: 'none',
+                      borderBottom: '1px solid var(--color-border)',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                    }}
+                  >
+                    {preset.thumbnail ? (
+                      <img
+                        src={preset.thumbnail}
+                        alt={preset.name}
+                        style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: 60, height: 60, borderRadius: 4, flexShrink: 0,
+                        background: 'var(--color-process)', opacity: 0.3,
+                      }} />
+                    )}
+                    <span style={{ fontSize: 12, color: 'var(--color-text)', lineHeight: 1.3 }}>
+                      {preset.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Ad Generator templates list */}
+            {rightTab === 'adgen' && (
+              <div style={{ flex: 1, overflowY: 'auto', padding: '6px 0' }}>
+                {adGenLoading && (
+                  <div style={{ padding: '16px 12px', fontSize: 12, color: 'var(--color-text-muted)', textAlign: 'center' }}>
+                    Ładowanie...
+                  </div>
+                )}
+                {!adGenLoading && adGenTemplates.length === 0 && (
+                  <div style={{ padding: '16px 12px', fontSize: 12, color: 'var(--color-text-muted)', textAlign: 'center' }}>
+                    Brak szablonów
+                  </div>
+                )}
+                {adGenTemplates.map(tpl => (
+                  <button
+                    key={tpl.id}
+                    onClick={() => applyAdGenTemplate(tpl)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      width: '100%',
+                      padding: '7px 12px',
+                      background: 'none',
+                      border: 'none',
+                      borderBottom: '1px solid var(--color-border)',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                    }}
+                  >
+                    {tpl.thumbnail ? (
+                      <img
+                        src={tpl.thumbnail}
+                        alt={tpl.name}
+                        style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: 60, height: 60, borderRadius: 4, flexShrink: 0,
+                        background: 'rgba(124,92,245,0.3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 18, color: 'rgba(255,255,255,0.3)',
+                      }}>◈</div>
+                    )}
+                    <span style={{ fontSize: 12, color: 'var(--color-text)', lineHeight: 1.3 }}>
+                      {tpl.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
