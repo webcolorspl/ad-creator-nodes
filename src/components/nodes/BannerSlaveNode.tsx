@@ -8,7 +8,7 @@ import type { NodeProps } from '@xyflow/react'
 import { useReactFlow } from '@xyflow/react'
 import {
   AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd,
-  Trash2, RectangleHorizontal,
+  Trash2, RectangleHorizontal, Pencil,
 } from 'lucide-react'
 import { BaseNode } from './BaseNode'
 import { useAppStore } from '@/store/appStore'
@@ -19,6 +19,7 @@ import type {
   CopyGroupData, StyleData, BannerCardOverrides, BannerLayoutOptions,
   BannerMasterData, HeadlineData, VerticalPosition,
 } from '@/types'
+import { BannerEditorModal } from '@/components/ui/BannerEditorModal'
 
 const PLATFORM_LABEL: Record<string, string> = {
   fb: 'Facebook', ig: 'Instagram', li: 'LinkedIn',
@@ -65,6 +66,7 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
   const [overrides, setOverrides] = useState<BannerCardOverrides>({})
   const [showFmtPicker,     setShowFmtPicker]     = useState(false)
   const [showOverridePanel, setShowOverridePanel] = useState(false)
+  const [editorOpen,        setEditorOpen]        = useState(false)
 
   const fmt = AD_FORMATS.find(f => f.id === formatId) ?? AD_FORMATS[0]
   const { w: minW, h: minH } = thumbSize(fmt)
@@ -87,17 +89,17 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
     mainColor: overrides.mainColor ?? masterData.overrides?.mainColor ?? masterData.headline.mainColor,
     subColor:  overrides.subColor  ?? masterData.overrides?.subColor  ?? masterData.headline.subColor,
   } : null
-  const cta         = masterData?.cta ?? null
-  const imageUrl    = masterData?.imageUrl ?? null
-  const effectiveBg = overrides.bgColor ?? masterData?.overrides?.bgColor ?? masterData?.bgColor ?? masterData?.theme?.bgColor ?? '#1a1a2e'
-  const theme       = masterData?.theme ?? null
+  const cta              = masterData?.cta ?? null
+  const effectiveImageUrl = overrides.imageUrl ?? masterData?.imageUrl ?? null
+  const effectiveBg      = overrides.bgColor ?? masterData?.overrides?.bgColor ?? masterData?.bgColor ?? masterData?.theme?.bgColor ?? '#1a1a2e'
+  const theme            = masterData?.theme ?? null
   const layout: BannerLayoutOptions = {
     textPosition: overrides.textPosition ?? masterData?.overrides?.textPosition ?? 'center',
     ctaVisible:   overrides.ctaVisible   ?? masterData?.overrides?.ctaVisible   ?? true,
   }
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const canvasKey = JSON.stringify({ formatId, headline, cta, imageUrl, effectiveBg, theme, overrides, masterData })
+  const canvasKey = JSON.stringify({ formatId, headline, cta, effectiveImageUrl, effectiveBg, theme, overrides, masterData })
   useEffect(() => {
     const canvas = canvasRef.current; if (!canvas) return
     const style: StyleData = { format: fmt.id, width: fmt.w, height: fmt.h }
@@ -106,7 +108,16 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
       headline: headline ?? { main: '' },
       cta:      cta ?? { text: '', style: 'primary' },
     } : null
-    composeBanner(canvas, { copy, background: null, bgColor: effectiveBg, image: imageUrl || undefined, style, theme: theme ?? null, layout })
+    composeBanner(canvas, {
+      copy, background: null, bgColor: effectiveBg,
+      image: effectiveImageUrl || undefined,
+      style, theme: theme ?? null, layout,
+      bgFit:          overrides.bgFit,
+      bgOffsetX:      overrides.bgOffsetX,
+      bgOffsetY:      overrides.bgOffsetY,
+      bgScale:        overrides.bgScale,
+      overlayOpacity: overrides.overlayOpacity,
+    })
       .catch(() => {
         canvas.width = Math.min(fmt.w, 1080); canvas.height = Math.min(fmt.h, 1080)
         const ctx = canvas.getContext('2d')
@@ -195,6 +206,12 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            {/* Editor modal */}
+            <button onMouseDown={e => { e.stopPropagation(); setEditorOpen(true) }}
+              style={{ background: editorOpen ? 'rgba(124,92,245,0.12)' : 'none', border: 'none', color: editorOpen ? 'var(--color-process)' : 'var(--color-text-muted)', cursor: 'pointer', borderRadius: 4, padding: '3px', display: 'flex', alignItems: 'center' }}
+              title="Edytor bannera">
+              <Pencil size={13} />
+            </button>
             {/* Format picker */}
             <button onMouseDown={e => { e.stopPropagation(); setShowFmtPicker(v => !v) }}
               style={{ background: showFmtPicker ? 'rgba(255,159,74,0.12)' : 'none', border: 'none', color: showFmtPicker ? '#FF9F4A' : 'var(--color-text-muted)', cursor: 'pointer', borderRadius: 4, padding: '3px', display: 'flex', alignItems: 'center' }}
@@ -307,7 +324,7 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
             <canvas ref={canvasRef} data-banner-canvas={`${id}-slave`}
               style={{ width: displayW, height: displayH, display: 'block' }} />
 
-            {!headline && !cta && !imageUrl && !theme && (
+            {!headline && !cta && !effectiveImageUrl && !theme && (
               <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                 <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>Oczekuje na dane…</span>
               </div>
@@ -336,6 +353,15 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
           </div>
         )}
       </div>
+
+      <BannerEditorModal
+        open={editorOpen}
+        onClose={() => setEditorOpen(false)}
+        formatId={formatId}
+        masterData={masterData ?? null}
+        overrides={overrides}
+        onApply={newOverrides => setOverrides(newOverrides)}
+      />
     </BaseNode>
   )
 }
