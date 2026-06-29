@@ -198,6 +198,7 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
   const { setCenter, getNode, fitBounds, fitView, getNodes, setNodes: setNodesRF } = useReactFlow()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const groupDragOrigins = useRef<Map<string, { x: number; y: number }>>(new Map())
+  const dragRaf = useRef<number | null>(null)
   const [rfInstance, setRfInstance] = useState<{ screenToFlowPosition: (p: {x:number,y:number}) => {x:number,y:number} } | null>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
@@ -311,59 +312,103 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     groupDragOrigins.current = map
   }, [getNodes])
 
-  // While dragging a group: move all members by the same delta
+  // While dragging a group: move all members by the same delta (RAF-throttled)
   const onNodeDrag = useCallback((_: unknown, node: Node) => {
     if (node.type !== 'bannerGroupNode') return
     const memberIds = (node.data as { memberIds?: string[] }).memberIds ?? []
     if (!memberIds.length) return
     const origin = groupDragOrigins.current.get(node.id)
     if (!origin) return
+
+    if (dragRaf.current !== null) cancelAnimationFrame(dragRaf.current)
     const dx = node.position.x - origin.x
     const dy = node.position.y - origin.y
-    setNodesRF(nds => nds.map(n => {
-      if (!memberIds.includes(n.id)) return n
-      const o = groupDragOrigins.current.get(n.id)
-      if (!o) return n
-      return { ...n, position: { x: o.x + dx, y: o.y + dy } }
-    }))
+    dragRaf.current = requestAnimationFrame(() => {
+      setNodesRF(nds => nds.map(n => {
+        if (!memberIds.includes(n.id)) return n
+        const o = groupDragOrigins.current.get(n.id)
+        if (!o) return n
+        return { ...n, position: { x: o.x + dx, y: o.y + dy } }
+      }))
+      dragRaf.current = null
+    })
   }, [setNodesRF])
 
-  // When a slave stops dragging: auto-resize its group to bounding box of all members
+  // After drag ends:
+  // - Group: clear origins + cancel pending RAF
+  // - Slave: handle drop-into-group (update memberIds) + resize all affected groups in one pass
   const onNodeDragStop = useCallback((_: unknown, node: Node) => {
+    if (node.type === 'bannerGroupNode') {
+      if (dragRaf.current !== null) { cancelAnimationFrame(dragRaf.current); dragRaf.current = null }
+      groupDragOrigins.current.clear()
+      return
+    }
     if (node.type !== 'bannerSlaveNode') return
+
     const allNodes = getNodes()
-    const group = allNodes.find(n =>
+    const slaveW = (node as { measured?: { width?: number } }).measured?.width ?? 300
+    const slaveH = (node as { measured?: { height?: number } }).measured?.height ?? 300
+    const slaveCX = node.position.x + slaveW / 2
+    const slaveCY = node.position.y + slaveH / 2
+
+    // Group the slave's center is currently inside
+    const targetGroup = allNodes.find(n => {
+      if (n.type !== 'bannerGroupNode') return false
+      const gW = (n as { width?: number }).width ?? (n as { measured?: { width?: number } }).measured?.width ?? 600
+      const gH = (n as { height?: number }).height ?? (n as { measured?: { height?: number } }).measured?.height ?? 400
+      return slaveCX >= n.position.x && slaveCX <= n.position.x + gW
+          && slaveCY >= n.position.y && slaveCY <= n.position.y + gH
+    })
+
+    // Group that currently claims this slave as a member
+    const ownerGroup = allNodes.find(n =>
       n.type === 'bannerGroupNode' &&
       ((n.data as { memberIds?: string[] }).memberIds ?? []).includes(node.id)
     )
-    if (!group) return
 
-    const memberIds = (group.data as { memberIds?: string[] }).memberIds ?? []
-    const members = allNodes.filter(n => memberIds.includes(n.id))
-    const PAD = 20, TOP = 44
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
-    for (const m of members) {
-      const mW = (m as { measured?: { width?: number } }).measured?.width ?? 300
-      const mH = (m as { measured?: { height?: number } }).measured?.height ?? 300
-      minX = Math.min(minX, m.position.x)
-      minY = Math.min(minY, m.position.y)
-      maxX = Math.max(maxX, m.position.x + mW)
-      maxY = Math.max(maxY, m.position.y + mH)
-    }
+    const groupsToResize = new Set<string>()
+    if (targetGroup) groupsToResize.add(targetGroup.id)
+    if (ownerGroup)  groupsToResize.add(ownerGroup.id)
+    if (!groupsToResize.size) return
 
-    const newX = minX - PAD
-    const newY = minY - TOP
-    const newW = maxX - minX + PAD * 2
-    const newH = maxY - minY + PAD + TOP
+    const membershipChanged = targetGroup?.id !== ownerGroup?.id
 
-    setNodes(nds => nds.map(n =>
-      n.id !== group.id ? n : {
-        ...n,
-        position: { x: newX, y: newY },
-        width: newW, height: newH,
-        style: { ...((n as { style?: object }).style ?? {}), width: newW, height: newH },
-      }
-    ))
+    setNodes(nds => {
+      // Pass 1: update memberIds if the slave changed groups
+      const pass1 = membershipChanged ? nds.map(n => {
+        if (n.type !== 'bannerGroupNode') return n
+        const mIds = (n.data as { memberIds?: string[] }).memberIds ?? []
+        if (n.id === ownerGroup?.id)  return { ...n, data: { ...(n.data as object), memberIds: mIds.filter(mid => mid !== node.id) } }
+        if (n.id === targetGroup?.id) return { ...n, data: { ...(n.data as object), memberIds: [...mIds, node.id] } }
+        return n
+      }) : nds
+
+      // Pass 2: resize affected groups to bounding box of their (now-updated) members
+      const PAD = 20, TOP = 44
+      return pass1.map(n => {
+        if (n.type !== 'bannerGroupNode' || !groupsToResize.has(n.id)) return n
+        const mIds = (n.data as { memberIds?: string[] }).memberIds ?? []
+        const members = pass1.filter(m => mIds.includes(m.id))
+        if (!members.length) return n
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+        for (const m of members) {
+          // Use latest position for the dragged node itself
+          const pos = m.id === node.id ? node.position : m.position
+          const mW = (m as { measured?: { width?: number } }).measured?.width ?? 300
+          const mH = (m as { measured?: { height?: number } }).measured?.height ?? 300
+          minX = Math.min(minX, pos.x);  minY = Math.min(minY, pos.y)
+          maxX = Math.max(maxX, pos.x + mW); maxY = Math.max(maxY, pos.y + mH)
+        }
+        const nW = maxX - minX + PAD * 2, nH = maxY - minY + PAD + TOP
+        return {
+          ...n,
+          position: { x: minX - PAD, y: minY - TOP },
+          width: nW, height: nH,
+          style: { ...((n as { style?: object }).style ?? {}), width: nW, height: nH },
+        }
+      })
+    })
   }, [getNodes, setNodes])
 
   const save = () => {
