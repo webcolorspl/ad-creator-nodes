@@ -401,6 +401,7 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
         borderTop: `1px solid ${t.divider}`,
         position: 'relative', overflow: 'hidden',
         padding: '120px 0',
+        background: dark ? '#020204' : '#e8e8ee',
       }}
     >
       {/* Parallax gradient layers */}
