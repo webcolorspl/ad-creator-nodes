@@ -1,7 +1,10 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useAppStore } from '@/store/appStore'
 import { FlaskConical, KeyRound, Moon, Sun } from '@/lib/icons'
+import { LogIn, LogOut, User } from 'lucide-react'
+import { useAuth } from '@/store/AuthContext'
+import { AuthModal } from '@/components/ui/AuthModal'
 
 export function Topbar() {
   const apiKey              = useAppStore(s => s.apiKey)
@@ -15,6 +18,10 @@ export function Topbar() {
   const darkMode       = useAppStore(s => s.darkMode)
   const toggleDarkMode = useAppStore(s => s.toggleDarkMode)
   const totalErrors = Object.values(nodeErrors).reduce((s, e) => s + e.length, 0)
+
+  const { user, signOut } = useAuth()
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode)
@@ -124,7 +131,64 @@ export function Topbar() {
           <KeyRound size={12} strokeWidth={1.75} />
           {apiKey ? 'API ✓' : 'API Key'}
         </button>
+
+        {/* Auth */}
+        {user ? (
+          <div style={{ position: 'relative' }}>
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => setShowUserMenu(v => !v)}
+              style={{ gap: 6, borderColor: 'rgba(124,92,245,0.3)', color: 'var(--color-text)' }}
+              title={user.email}
+            >
+              <User size={12} strokeWidth={1.75} />
+              <span style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user.email?.split('@')[0]}
+              </span>
+            </button>
+            {showUserMenu && (
+              <div style={{
+                position: 'absolute', top: '100%', right: 0, marginTop: 4, zIndex: 200,
+                background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+                borderRadius: 8, padding: '4px 0', minWidth: 180,
+                boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+              }}>
+                <div style={{ padding: '8px 12px 6px', borderBottom: '1px solid var(--color-border)' }}>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Zalogowany jako</div>
+                  <div style={{ fontSize: 13, color: 'var(--color-text)', marginTop: 2, wordBreak: 'break-all' }}>{user.email}</div>
+                </div>
+                <button
+                  onClick={() => { signOut(); setShowUserMenu(false) }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    width: '100%', padding: '8px 12px', background: 'none', border: 'none',
+                    color: '#ef4444', cursor: 'pointer', fontSize: 13, fontWeight: 500,
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.08)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                >
+                  <LogOut size={13} strokeWidth={1.75} />
+                  Wyloguj się
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => setShowAuthModal(true)}
+            style={{ borderColor: 'rgba(124,92,245,0.3)', color: '#7C5CF5', fontWeight: 600 }}
+          >
+            <LogIn size={12} strokeWidth={1.75} />
+            Zaloguj
+          </button>
+        )}
       </div>
+
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+      {showUserMenu && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 199 }} onClick={() => setShowUserMenu(false)} />
+      )}
     </header>
   )
 }
