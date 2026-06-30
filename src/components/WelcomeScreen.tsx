@@ -724,28 +724,38 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           </button>
         </div>
 
-        <div style={{ position: 'relative', zIndex: 1, padding: '64px 72px 0 64px' }}>
-          <HeroSlider dark={dark} />
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
-            <div style={{ flex: 1, height: 1, background: t.divider }} />
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: t.textMuted }}>
-              Wybierz narzędzie
-            </span>
-            <div style={{ flex: 1, height: 1, background: t.divider }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {/* Hero — z paddingiem */}
+          <div style={{ padding: '64px 72px 0 64px' }}>
+            <HeroSlider dark={dark} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
+              <div style={{ flex: 1, height: 1, background: t.divider }} />
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: t.textMuted }}>
+                Wybierz narzędzie
+              </span>
+              <div style={{ flex: 1, height: 1, background: t.divider }} />
+            </div>
+            <div style={{ display: 'flex', gap: 16 }}>
+              {TOOL_TILES.map(tile => (
+                <BigTile key={tile.id} tile={tile} dark={dark} onClick={() => onSelect(tile.id)} />
+              ))}
+            </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 16 }}>
-            {TOOL_TILES.map(tile => (
-              <BigTile key={tile.id} tile={tile} dark={dark} onClick={() => onSelect(tile.id)} />
-            ))}
+          {/* Sekcje z paddingiem */}
+          <div style={{ padding: '0 72px 0 64px' }}>
+            <SectionComingSoon dark={dark} />
+            <SectionFeatures dark={dark} />
+            <SectionTestimonials dark={dark} />
           </div>
 
-          <SectionComingSoon dark={dark} />
-          <SectionFeatures dark={dark} />
-          <SectionTestimonials dark={dark} />
-          <SectionPricing dark={dark} scrollY={scrollY} padL={64} padR={72} />
-          <SectionFinalCTA dark={dark} />
+          {/* Cennik — pełna szerokość */}
+          <SectionPricing dark={dark} scrollY={scrollY} />
+
+          {/* Final CTA z paddingiem */}
+          <div style={{ padding: '0 72px 0 64px' }}>
+            <SectionFinalCTA dark={dark} />
+          </div>
         </div>
       </div>
 

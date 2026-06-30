@@ -351,43 +351,46 @@ export function SectionTestimonials({ dark }: { dark: boolean }) {
 }
 
 // ── SEKCJA 5: Cennik (full-width + parallax gradient) ─────────
+import { Gift, Rocket, Building2 } from 'lucide-react'
+
 interface Plan {
   name: string; price: string; period: string; desc: string
+  Icon: LucideIcon; iconColor: string; iconBg: string
   features: string[]; missing: string[]; cta: string; pro?: boolean
 }
 const PLANS: Plan[] = [
   {
     name: 'Free', price: '0 zł', period: 'na zawsze',
-    desc: 'Zacznij bez karty kredytowej.',
+    desc: 'Idealny start — bez karty kredytowej, bez zobowiązań. Sprawdź czy XTOOLS pasuje do Twojego workflow.',
+    Icon: Gift, iconColor: '#6366f1', iconBg: 'rgba(99,102,241,0.12)',
     features: ['3 aktywne projekty', 'Creator (generator banerów)', '20 eksportów miesięcznie', 'Formaty: FB, IG, Google'],
     missing: ['Composer (canvas)', 'Eksport bez watermarku', 'Historia wersji', 'Wsparcie priorytetowe'],
     cta: 'Zacznij za darmo',
   },
   {
-    name: 'Pro', price: '79 zł', period: 'miesięcznie',
-    desc: 'Dla freelancerów i małych agencji.',
+    name: 'Pro', price: '79 zł', period: '/ miesiąc',
+    desc: 'Dla freelancerów i rosnących agencji, które chcą pracować szybciej i dostarczać więcej bez zwiększania zespołu.',
+    Icon: Rocket, iconColor: '#16a34a', iconBg: 'rgba(22,163,74,0.15)',
     features: ['Nielimitowane projekty', 'Creator + Composer', 'Nielimitowany eksport', 'Brak watermarku', 'Historia i wersje', 'Wszystkie formaty i kanały', 'Chat support'],
     missing: ['Multi-klient workspace', 'Brandbook (SOON)', 'White-label'],
-    cta: 'Wypróbuj Pro 14 dni gratis',
+    cta: 'Wypróbuj 14 dni gratis',
     pro: true,
   },
   {
-    name: 'Agency', price: '249 zł', period: 'miesięcznie',
-    desc: 'Dla agencji obsługujących wielu klientów.',
+    name: 'Agency', price: '249 zł', period: '/ miesiąc',
+    desc: 'Dla agencji obsługujących wielu klientów jednocześnie. Osobne workspace, white-label i dedykowany opiekun.',
+    Icon: Building2, iconColor: '#0ea5e9', iconBg: 'rgba(14,165,233,0.12)',
     features: ['Wszystko z Pro', 'Do 15 klientów / workspace', 'Brandbook (SOON)', 'Video Creator (wkrótce)', 'White-label eksport', 'Dedykowany opiekun', 'Priorytetowe wsparcie'],
     missing: [],
     cta: 'Porozmawiaj z nami',
   },
 ]
 
-export function SectionPricing({ dark, scrollY, padL, padR }: {
-  dark: boolean; scrollY: number; padL: number; padR: number
-}) {
+export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: number }) {
   const t = theme(dark)
   const [hovered, setHovered] = useState<number | null>(null)
   const sectionRef = useRef<HTMLElement>(null)
 
-  // parallax offset relative to section position
   const offsetTop = sectionRef.current?.offsetTop ?? 0
   const parallaxY = (scrollY - offsetTop) * 0.35
 
@@ -395,119 +398,180 @@ export function SectionPricing({ dark, scrollY, padL, padR }: {
     <section
       ref={sectionRef}
       style={{
-        // escape parent padding → full width
-        marginLeft: -padL, marginRight: -padR,
-        padding: `120px ${padR}px 120px ${padL}px`,
         borderTop: `1px solid ${t.divider}`,
         position: 'relative', overflow: 'hidden',
+        padding: '120px 0',
       }}
     >
-      {/* Parallax gradient background */}
+      {/* Parallax gradient layers */}
       <div style={{
-        position: 'absolute', inset: '-40% -20%',
+        position: 'absolute', inset: '-50% -20%', pointerEvents: 'none',
         background: dark
-          ? 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(22,163,74,0.12) 0%, rgba(99,102,241,0.08) 50%, transparent 100%)'
-          : 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(22,163,74,0.10) 0%, rgba(99,102,241,0.06) 50%, transparent 100%)',
+          ? 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(22,163,74,0.13) 0%, rgba(99,102,241,0.08) 55%, transparent 100%)'
+          : 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(22,163,74,0.09) 0%, rgba(99,102,241,0.05) 55%, transparent 100%)',
         transform: `translateY(${parallaxY}px)`,
-        pointerEvents: 'none',
         transition: 'background .3s',
       }} />
-      {/* Second layer — moves faster */}
       <div style={{
-        position: 'absolute', inset: '-20% -10%',
+        position: 'absolute', inset: '-30% -10%', pointerEvents: 'none',
         background: dark
-          ? 'radial-gradient(ellipse 40% 30% at 20% 80%, rgba(22,163,74,0.07) 0%, transparent 100%)'
-          : 'radial-gradient(ellipse 40% 30% at 20% 80%, rgba(22,163,74,0.06) 0%, transparent 100%)',
-        transform: `translateY(${parallaxY * 1.6}px)`,
-        pointerEvents: 'none',
+          ? 'radial-gradient(ellipse 45% 35% at 15% 85%, rgba(14,165,233,0.08) 0%, transparent 100%)'
+          : 'radial-gradient(ellipse 45% 35% at 15% 85%, rgba(14,165,233,0.06) 0%, transparent 100%)',
+        transform: `translateY(${parallaxY * 1.7}px)`,
       }} />
 
-      <div style={{ position: 'relative', zIndex: 1 }}>
+      <div style={{ position: 'relative', zIndex: 1, padding: '0 72px 0 64px' }}>
+        {/* Header — centered */}
         <FadeSection>
-          <SectionHeader
-            label="Cennik"
-            title="Zacznij za darmo,"
-            green="skaluj gdy rośniesz."
-            sub="Bez umów na rok. Bez ukrytych opłat. Zmień plan w każdej chwili."
-            dark={dark}
-          />
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: 'rgba(22,163,74,0.1)', borderRadius: 20,
+              padding: '5px 18px', marginBottom: 22,
+              border: '1px solid rgba(22,163,74,0.2)',
+            }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#16a34a', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                Cennik
+              </span>
+            </div>
+            <h2 style={{
+              fontSize: 'clamp(36px, 3.5vw, 54px)', fontWeight: 900,
+              color: t.text, lineHeight: 1.08, letterSpacing: '-0.025em', marginBottom: 18,
+            }}>
+              Zacznij za darmo,<br /><span style={{ color: '#16a34a' }}>skaluj gdy rośniesz.</span>
+            </h2>
+            <p style={{ fontSize: 19, color: t.textMuted, lineHeight: 1.7, maxWidth: 520, margin: '0 auto' }}>
+              Bez umów rocznych. Bez ukrytych opłat.<br />Zmień lub anuluj plan w każdej chwili.
+            </p>
+          </div>
         </FadeSection>
 
-        <div style={{ display: 'flex', gap: 20 }}>
-          {PLANS.map((plan, i) => (
-            <FadeSection key={plan.name} delay={i * 90}>
-              <div
-                onMouseEnter={() => setHovered(i)}
-                onMouseLeave={() => setHovered(null)}
-                style={{
-                  flex: 1, padding: '36px 28px',
-                  borderRadius: 24,
-                  border: `2px solid ${plan.pro ? t.planBorderPro : (hovered === i ? t.cardBorderH : t.planBorder)}`,
-                  background: plan.pro ? t.planProBg : t.planBg,
-                  display: 'flex', flexDirection: 'column', gap: 0,
-                  transition: 'all .2s', position: 'relative',
-                }}
-              >
-                {plan.pro && (
-                  <div style={{
-                    position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
-                    background: 'linear-gradient(135deg, #16a34a, #15803d)',
-                    borderRadius: 20, padding: '5px 16px',
-                    fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: '0.1em',
-                    textTransform: 'uppercase', whiteSpace: 'nowrap',
-                  }}>
-                    Najpopularniejszy
-                  </div>
-                )}
-                <div style={{ fontSize: 15, fontWeight: 700, color: plan.pro ? '#16a34a' : t.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  {plan.name}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
-                  <span style={{ fontSize: 42, fontWeight: 900, color: t.text, letterSpacing: '-0.025em' }}>{plan.price}</span>
-                  <span style={{ fontSize: 14, color: t.textMuted }}>{plan.period}</span>
-                </div>
-                <p style={{ fontSize: 14, color: t.textMuted, marginBottom: 28, lineHeight: 1.6 }}>{plan.desc}</p>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 11, marginBottom: 28 }}>
-                  {plan.features.map(f => (
-                    <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                      <Check size={15} strokeWidth={2.5} color={t.checkColor} style={{ flexShrink: 0, marginTop: 2 }} />
-                      <span style={{ fontSize: 14, color: t.textSub, lineHeight: 1.55 }}>{f}</span>
-                    </div>
-                  ))}
-                  {plan.missing.map(f => (
-                    <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, opacity: 0.35 }}>
-                      <div style={{ width: 15, height: 15, flexShrink: 0, marginTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ width: 8, height: 2, background: t.textFaint, borderRadius: 1 }} />
-                      </div>
-                      <span style={{ fontSize: 14, color: t.textMuted, lineHeight: 1.55 }}>{f}</span>
-                    </div>
-                  ))}
-                </div>
-                <a
-                  href="/rejestracja"
+        {/* Cards */}
+        <div style={{ display: 'flex', gap: 24, alignItems: 'stretch' }}>
+          {PLANS.map((plan, i) => {
+            const isHovered = hovered === i
+            return (
+              <FadeSection key={plan.name} delay={i * 100}>
+                <div
+                  onMouseEnter={() => setHovered(i)}
+                  onMouseLeave={() => setHovered(null)}
                   style={{
-                    display: 'block', textAlign: 'center',
-                    padding: '14px', borderRadius: 14,
-                    fontSize: 14, fontWeight: 800,
-                    textDecoration: 'none',
+                    flex: 1, display: 'flex', flexDirection: 'column',
+                    borderRadius: 28,
+                    border: `2px solid ${plan.pro
+                      ? t.planBorderPro
+                      : isHovered ? t.cardBorderH : t.planBorder}`,
                     background: plan.pro
-                      ? 'linear-gradient(135deg, #16a34a, #15803d)'
-                      : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'),
-                    color: plan.pro ? '#fff' : t.text,
-                    border: plan.pro ? 'none' : `1.5px solid ${t.planBorder}`,
-                    boxShadow: plan.pro ? '0 4px 18px rgba(22,163,74,0.4)' : 'none',
-                    transition: 'all .15s',
+                      ? (dark ? 'rgba(22,163,74,0.07)' : 'rgba(22,163,74,0.04)')
+                      : (dark ? 'rgba(255,255,255,0.03)' : '#fff'),
+                    padding: plan.pro ? '44px 32px' : '36px 32px',
+                    position: 'relative',
+                    transform: plan.pro ? 'translateY(-12px)' : 'translateY(0)',
+                    boxShadow: plan.pro
+                      ? dark ? '0 32px 80px rgba(22,163,74,0.2)' : '0 24px 64px rgba(22,163,74,0.15)'
+                      : isHovered ? (dark ? '0 16px 48px rgba(0,0,0,0.4)' : '0 12px 36px rgba(0,0,0,0.1)') : 'none',
+                    transition: 'all .25s cubic-bezier(0.34,1.4,0.64,1)',
                   }}
                 >
-                  {plan.cta}
-                </a>
-              </div>
-            </FadeSection>
-          ))}
+                  {plan.pro && (
+                    <div style={{
+                      position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)',
+                      background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                      borderRadius: 20, padding: '6px 20px',
+                      fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: '0.1em',
+                      textTransform: 'uppercase', whiteSpace: 'nowrap',
+                      boxShadow: '0 4px 12px rgba(22,163,74,0.4)',
+                    }}>
+                      ✦ Najpopularniejszy
+                    </div>
+                  )}
+
+                  {/* Icon */}
+                  <div style={{
+                    width: 56, height: 56, borderRadius: 18, marginBottom: 24,
+                    background: isHovered || plan.pro ? plan.iconBg : (dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: `1px solid ${isHovered || plan.pro ? plan.iconColor + '30' : t.cardBorder}`,
+                    transition: 'all .2s',
+                  }}>
+                    <plan.Icon
+                      size={26} strokeWidth={1.5}
+                      color={isHovered || plan.pro ? plan.iconColor : t.textMuted}
+                    />
+                  </div>
+
+                  {/* Name + price */}
+                  <div style={{ fontSize: 13, fontWeight: 800, color: plan.pro ? '#16a34a' : t.textMuted, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                    {plan.name}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 }}>
+                    <span style={{ fontSize: 46, fontWeight: 900, color: t.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
+                      {plan.price}
+                    </span>
+                    <span style={{ fontSize: 14, color: t.textMuted, marginBottom: 2 }}>{plan.period}</span>
+                  </div>
+                  <p style={{ fontSize: 14, color: t.textMuted, marginBottom: 28, lineHeight: 1.7, minHeight: 60 }}>
+                    {plan.desc}
+                  </p>
+
+                  {/* Divider */}
+                  <div style={{ height: 1, background: t.divider, marginBottom: 24 }} />
+
+                  {/* Features */}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 32 }}>
+                    {plan.features.map(f => (
+                      <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                        <div style={{
+                          width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1,
+                          background: plan.pro ? 'rgba(22,163,74,0.15)' : (dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'),
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <Check size={12} strokeWidth={3} color={t.checkColor} />
+                        </div>
+                        <span style={{ fontSize: 14, color: t.textSub, lineHeight: 1.55 }}>{f}</span>
+                      </div>
+                    ))}
+                    {plan.missing.map(f => (
+                      <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, opacity: 0.3 }}>
+                        <div style={{
+                          width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1,
+                          background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <div style={{ width: 8, height: 1.5, background: t.textFaint, borderRadius: 1 }} />
+                        </div>
+                        <span style={{ fontSize: 14, color: t.textMuted, lineHeight: 1.55 }}>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* CTA */}
+                  <a
+                    href="/rejestracja"
+                    style={{
+                      display: 'block', textAlign: 'center',
+                      padding: '16px', borderRadius: 16,
+                      fontSize: 15, fontWeight: 800,
+                      textDecoration: 'none', letterSpacing: '-0.01em',
+                      background: plan.pro
+                        ? 'linear-gradient(135deg, #16a34a, #15803d)'
+                        : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)'),
+                      color: plan.pro ? '#fff' : t.text,
+                      border: plan.pro ? 'none' : `1.5px solid ${t.planBorder}`,
+                      boxShadow: plan.pro ? '0 6px 22px rgba(22,163,74,0.45)' : 'none',
+                      transition: 'all .15s',
+                    }}
+                  >
+                    {plan.cta}
+                  </a>
+                </div>
+              </FadeSection>
+            )
+          })}
         </div>
 
-        <FadeSection delay={300}>
-          <p style={{ fontSize: 14, color: t.textFaint, textAlign: 'center', marginTop: 24 }}>
+        <FadeSection delay={350}>
+          <p style={{ fontSize: 13, color: t.textFaint, textAlign: 'center', marginTop: 32 }}>
             Wszystkie ceny netto + VAT. Plan Pro: pierwszy miesiąc gratis, potem 79 zł/mies. Anuluj kiedy chcesz.
           </p>
         </FadeSection>
@@ -518,8 +582,8 @@ export function SectionPricing({ dark, scrollY, padL, padR }: {
 
 // ── SEKCJA 6: Final CTA ───────────────────────────────────────
 const STATS = [
-  { value: '500+',  label: 'agencji i freelancerów' },
-  { value: '8 min', label: 'średni czas produkcji kampanii' },
+  { value: '8',     label: 'obsługiwanych platform social media' },
+  { value: '30 min', label: 'średni czas produkcji kampanii' },
   { value: '4×',    label: 'szybciej niż tradycyjne narzędzia' },
 ]
 
