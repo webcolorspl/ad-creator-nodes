@@ -195,19 +195,6 @@ export function SectionComingSoon({ dark }: { dark: boolean }) {
 
                 {/* Content */}
                 <div style={{ flex: 1, padding: '36px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {/* Badge + title */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{
-                      display: 'inline-flex', alignItems: 'center',
-                      background: badge.bg, border: `1px solid ${badge.border}`,
-                      borderRadius: 20, padding: '4px 12px',
-                    }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: badge.color, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                        {tool.badge}
-                      </span>
-                    </div>
-                  </div>
-
                   <div>
                     <div style={{ fontSize: 32, fontWeight: 900, color: t.textMuted, marginBottom: 6, letterSpacing: '-0.02em' }}>
                       {tool.label}
