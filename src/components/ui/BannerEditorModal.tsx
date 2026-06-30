@@ -440,18 +440,20 @@ export function BannerEditorModal({
     setSavingPreset(true)
     setSaveError(null)
     try {
-      // Get org_id
+      // Require auth
       const { data: { user } } = await supabase.auth.getUser()
-      let orgId: string | null = null
-      if (user) {
-        const { data: membership } = await supabase
-          .from('organization_members')
-          .select('org_id')
-          .eq('user_id', user.id)
-          .limit(1)
-          .single()
-        orgId = membership?.org_id ?? null
+      if (!user) {
+        setSaveError('Musisz być zalogowany aby zapisać preset.')
+        return
       }
+      let orgId: string | null = null
+      const { data: membership } = await supabase
+        .from('organization_members')
+        .select('org_id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .single()
+      orgId = membership?.org_id ?? null
 
       // Thumbnail from canvas
       let thumbnail: string | null = null
@@ -477,11 +479,11 @@ export function BannerEditorModal({
         config,
         thumbnail,
         org_id: orgId,
-        created_by: user?.id ?? null,
       })
 
       if (error) {
-        setSaveError(error.message)
+        console.error('[banner_presets insert]', error)
+        setSaveError(`${error.message} (code: ${error.code})`)
         return
       }
 
