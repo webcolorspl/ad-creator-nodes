@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Sun, Moon } from 'lucide-react'
 import { useAuth } from '@/store/AuthContext'
 
@@ -51,6 +51,8 @@ interface AuthPageProps {
 
 export function AuthPage({ mode }: AuthPageProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') ?? '/composer'
   const { signIn, signUp } = useAuth()
   const [dark, setDark] = useState(false)
   const [email, setEmail]       = useState('')
@@ -70,7 +72,7 @@ export function AuthPage({ mode }: AuthPageProps) {
     if (mode === 'login') {
       const { error } = await signIn(email, password)
       if (error) { setError(error); setLoading(false) }
-      else router.replace('/composer')
+      else router.replace(redirectTo)
     } else {
       const { error, needsConfirmation } = await signUp(email, password)
       setLoading(false)

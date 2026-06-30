@@ -11,8 +11,11 @@
     "test:ci": "jest --ci"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.3",
+    "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "@xyflow/react": "^12.3.0",
+    "ai": "^7.0.8",
     "clsx": "^2.1.1",
     "lucide-react": "^1.21.0",
     "next": "^16.2.9",

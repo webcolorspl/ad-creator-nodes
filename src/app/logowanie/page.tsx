@@ -1,5 +1,10 @@
+import { Suspense } from 'react'
 import { AuthPage } from '@/components/AuthPage'
 
 export default function LogowaniePage() {
-  return <AuthPage mode="login" />
+  return (
+    <Suspense>
+      <AuthPage mode="login" />
+    </Suspense>
+  )
 }
