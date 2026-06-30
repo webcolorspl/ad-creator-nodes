@@ -84,9 +84,9 @@ function theme(dark: boolean) {
     fadeColor:     '#07070b',
     dotColor:      'rgba(255,255,255,0.05)',
     text:          '#ffffff',
-    textSub:       'rgba(255,255,255,0.65)',
-    textMuted:     'rgba(255,255,255,0.35)',
-    textFaint:     'rgba(255,255,255,0.18)',
+    textSub:       'rgba(255,255,255,0.82)',
+    textMuted:     'rgba(255,255,255,0.55)',
+    textFaint:     'rgba(255,255,255,0.28)',
     tileBg:        'rgba(255,255,255,0.03)',
     tileBgHover:   'rgba(255,255,255,0.07)',
     tileBorder:    'rgba(255,255,255,0.08)',
@@ -194,15 +194,15 @@ function HeroSlider({ dark }: { dark: boolean }) {
         {/* Number + label */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22 }}>
           <span style={{
-            fontSize: 13, fontWeight: 900, letterSpacing: '0.14em',
-            color: t.textMuted, fontFamily: 'var(--font-mono, monospace)',
+            fontSize: 20, fontWeight: 900, letterSpacing: '0.14em',
+            color: t.text, fontFamily: 'var(--font-mono, monospace)',
           }}>
             {slide.num}
           </span>
           <div style={{ width: 28, height: 1, background: t.divider }} />
           <span style={{
-            fontSize: 10, fontWeight: 700, letterSpacing: '0.12em',
-            textTransform: 'uppercase', color: t.textMuted,
+            fontSize: 14, fontWeight: 700, letterSpacing: '0.12em',
+            textTransform: 'uppercase', color: t.textSub,
           }}>
             FlowCampaigns · AI Studio
           </span>
@@ -210,8 +210,8 @@ function HeroSlider({ dark }: { dark: boolean }) {
 
         {/* Headline */}
         <h1 style={{
-          fontSize: 'clamp(28px, 2.8vw, 44px)', fontWeight: 800,
-          lineHeight: 1.15, color: t.text, marginBottom: 18,
+          fontSize: 'clamp(42px, 4vw, 68px)', fontWeight: 800,
+          lineHeight: 1.1, color: t.text, marginBottom: 22,
           letterSpacing: '-0.02em',
         }}>
           {slide.headline.split('\n').map((line, i) =>
@@ -223,8 +223,8 @@ function HeroSlider({ dark }: { dark: boolean }) {
 
         {/* Sub */}
         <p style={{
-          fontSize: 16, color: t.textSub,
-          lineHeight: 1.7, maxWidth: 500,
+          fontSize: 20, color: t.textSub,
+          lineHeight: 1.65, maxWidth: 560,
         }}>
           {slide.sub}
         </p>
@@ -337,7 +337,7 @@ function BigTile({ tile, dark, onClick }: { tile: ToolTile; dark: boolean; onCli
       {/* Label + desc */}
       <div>
         <div style={{
-          fontSize: 28, fontWeight: 800,
+          fontSize: 36, fontWeight: 800,
           color: hover ? (dark ? '#fff' : accent) : t.text,
           lineHeight: 1.1, marginBottom: 10,
           letterSpacing: '-0.02em',
@@ -346,7 +346,7 @@ function BigTile({ tile, dark, onClick }: { tile: ToolTile; dark: boolean; onCli
           {label}
         </div>
         <div style={{
-          fontSize: 14, color: t.textSub,
+          fontSize: 16, color: t.textSub,
           lineHeight: 1.65, transition: 'color .15s',
         }}>
           {desc}
