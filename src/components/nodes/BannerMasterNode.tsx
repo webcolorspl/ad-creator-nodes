@@ -6,7 +6,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { NodeProps } from '@xyflow/react'
 import { useReactFlow } from '@xyflow/react'
-import { AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd, RectangleHorizontal, MousePointer2, Combine } from 'lucide-react'
+import { AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd, RectangleHorizontal, MousePointer2, Combine, SlidersHorizontal, Download } from 'lucide-react'
 import { BaseNode } from './BaseNode'
 import { NodeFloatingPanel } from '@/components/ui/NodeFloatingPanel'
 import { useAppStore } from '@/store/appStore'
@@ -60,15 +60,15 @@ function OverridePanel({ overrides, onChange }: {
   const seg = (active: boolean): React.CSSProperties => ({
     flex: 1, padding: '5px 0', cursor: 'pointer', borderRadius: 4, textAlign: 'center',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: `1px solid ${active ? '#E7A800' : 'var(--color-field-border)'}`,
+    border: `1px solid ${active ? '#E7A800' : 'rgba(255,255,255,0.15)'}`,
     background: active ? 'rgba(231,168,0,0.15)' : 'transparent',
-    color: active ? '#E7A800' : 'var(--color-text-muted)',
+    color: active ? '#E7A800' : 'rgba(255,255,255,0.45)',
   })
-  const lbl: React.CSSProperties = { fontSize: 8, color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }
-  const ci: React.CSSProperties  = { width: 28, height: 20, padding: 1, border: '1px solid var(--color-field-border)', borderRadius: 3, cursor: 'pointer', background: 'none' }
+  const lbl: React.CSSProperties = { fontSize: 8, color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }
+  const ci: React.CSSProperties  = { width: 28, height: 20, padding: 1, border: '1px solid rgba(255,255,255,0.15)', borderRadius: 3, cursor: 'pointer', background: 'none' }
 
   return (
-    <div style={{ padding: '10px 12px', borderTop: '1px solid rgba(231,168,0,0.3)', display: 'flex', flexDirection: 'column', gap: 10 }}
+    <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 10 }}
       onMouseDown={e => e.stopPropagation()}>
       <div style={{ fontSize: 9, color: '#E7A800', fontWeight: 700, letterSpacing: '0.05em' }}>★ MASTER SETTINGS</div>
       <div>
@@ -88,7 +88,7 @@ function OverridePanel({ overrides, onChange }: {
           <input type="checkbox" checked={overrides.ctaVisible ?? true}
             onChange={e => onChange({ ctaVisible: e.target.checked })}
             onMouseDown={e => e.stopPropagation()} style={{ margin: 0 }} />
-          <span style={{ fontSize: 9, color: 'var(--color-text-muted)' }}>widoczne</span>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.45)' }}>widoczne</span>
         </label>
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
@@ -278,11 +278,51 @@ function SlaveFormatPicker({ onSelect, onClose }: {
   )
 }
 
+// ── MasterPillBtn ────────────────────────────────────────────────────────
+function MasterPillBtn({ icon: Icon, title, active, onClick }: {
+  icon: React.ElementType
+  title: string
+  active?: boolean
+  onClick: (e: React.MouseEvent) => void
+}) {
+  return (
+    <button
+      title={title}
+      onMouseDown={e => { e.stopPropagation(); onClick(e) }}
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        width: 30, height: 30, borderRadius: 8, cursor: 'pointer',
+        border: `1px solid ${active ? 'rgba(231,168,0,0.6)' : 'rgba(255,255,255,0.12)'}`,
+        background: active ? 'rgba(231,168,0,0.18)' : 'rgba(20,20,30,0.72)',
+        color: active ? '#E7A800' : 'rgba(255,255,255,0.7)',
+        backdropFilter: 'blur(10px)',
+        transition: 'all .13s',
+        flexShrink: 0,
+      }}
+      onMouseEnter={e => {
+        if (!active) {
+          (e.currentTarget as HTMLElement).style.background = 'rgba(40,40,55,0.85)'
+          ;(e.currentTarget as HTMLElement).style.color = '#fff'
+        }
+      }}
+      onMouseLeave={e => {
+        if (!active) {
+          (e.currentTarget as HTMLElement).style.background = 'rgba(20,20,30,0.72)'
+          ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'
+        }
+      }}
+    >
+      <Icon size={14} strokeWidth={1.75} />
+    </button>
+  )
+}
+
 // ── BannerMasterNode ─────────────────────────────────────────────────────
 export function BannerMasterNode({ id }: NodeProps) {
   const edges        = useAppStore(s => s.edges)
   const nodeOutputs  = useAppStore(s => s.nodeOutputs)
   const setNodeOutput = useAppStore(s => s.setNodeOutput)
+  const selectedId   = useAppStore(s => s.selectedId)
 
   const headline         = resolveInput<HeadlineData>(id, 'headline', edges, nodeOutputs) ?? scanOutputs<HeadlineData>(nodeOutputs, 'headline')
   const cta              = resolveInput<CTAData>(id, 'cta', edges, nodeOutputs) ?? scanOutputs<CTAData>(nodeOutputs, 'cta')
@@ -295,11 +335,20 @@ export function BannerMasterNode({ id }: NodeProps) {
   const imageUrl = image?.url || background?.url || null
   const bgColor  = background?.color ?? null
 
+  const isSelected = selectedId === id
+
   const [formatId,   setFormatId]   = useState('ig-square')
   const [overrides,  setOverrides]  = useState<BannerCardOverrides>({})
   const [showOverride, setShowOverride] = useState(false)
   const [showSlavePicker, setShowSlavePicker] = useState(false)
   const [showFmtPicker,   setShowFmtPicker]   = useState(false)
+
+  useEffect(() => {
+    if (!isSelected) {
+      setShowFmtPicker(false)
+      setShowOverride(false)
+    }
+  }, [isSelected])
 
   const masterKey = JSON.stringify({ headline, cta, imageUrl, bgColor, theme, overrides })
   useEffect(() => {
@@ -599,10 +648,11 @@ export function BannerMasterNode({ id }: NodeProps) {
   }
 
   return (
-    <BaseNode id={id} nodeType="bannerMasterNode">
+    <BaseNode id={id} nodeType="bannerMasterNode" titleOverride="Master">
       <NodeFloatingPanel nodeId={id} open={showSlavePicker} onClose={() => setShowSlavePicker(false)} placement="right" nodeWidth={nodeW}>
         <SlaveFormatPicker onSelect={spawnSlaves} onClose={() => setShowSlavePicker(false)} />
       </NodeFloatingPanel>
+
       {/* "+" button — floats on right edge, vertically centered */}
       <button
         className="nodrag"
@@ -624,78 +674,91 @@ export function BannerMasterNode({ id }: NodeProps) {
 
       <div style={{ width: nodeW, position: 'relative' }} onMouseDown={e => e.stopPropagation()}>
 
-        {/* Header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px',
-          borderBottom: '1px solid rgba(231,168,0,0.3)',
-          background: 'rgba(231,168,0,0.06)',
-        }}>
-          <span style={{ fontSize: 11 }}>★</span>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#E7A800', lineHeight: 1 }}>Master</div>
-            <div style={{ fontSize: 8, color: 'var(--color-text-muted)', marginTop: 1 }}>{fmt.label} · {fmt.w}×{fmt.h}</div>
-          </div>
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-            <button onMouseDown={e => { e.stopPropagation(); setShowFmtPicker(v => !v) }}
-              style={{ background: showFmtPicker ? 'rgba(231,168,0,0.12)' : 'none', border: 'none', color: showFmtPicker ? '#E7A800' : 'var(--color-text-muted)', cursor: 'pointer', borderRadius: 4, padding: '3px', display: 'flex', alignItems: 'center' }} title="Zmień format">
-              <RectangleHorizontal size={14} />
-            </button>
-            <button onMouseDown={e => { e.stopPropagation(); setShowOverride(v => !v) }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, lineHeight: 1, padding: '2px 4px', color: showOverride ? '#E7A800' : 'var(--color-text-muted)' }} title="Ustawienia">⚙</button>
-            <button onMouseDown={e => { e.stopPropagation(); exportPng() }}
-              style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: 12, lineHeight: 1, padding: '2px 4px' }} title="Export PNG">⬇</button>
-            <button
-              onMouseDown={e => { e.stopPropagation(); selectGroup() }}
-              style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', borderRadius: 4, padding: '3px', display: 'flex', alignItems: 'center', transition: 'color .12s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#E7A800' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)' }}
-              title="Zaznacz wszystkie (przeciągnij razem)">
-              <MousePointer2 size={13} />
-            </button>
-            <button
-              onMouseDown={e => { e.stopPropagation(); createGroup() }}
-              style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', borderRadius: 4, padding: '3px', display: 'flex', alignItems: 'center', transition: 'color .12s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#FF9F4A' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)' }}
-              title="Utwórz grupę — otocz master + wszystkie slave jedną ramką">
-              <Combine size={13} />
-            </button>
-          </div>
-        </div>
+        {/* Canvas with pills bar overlay */}
+        <div style={{ background: '#0d0d0d', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: thumbH, position: 'relative', borderRadius: 4, overflow: 'visible' }}>
 
-        {/* Format picker (master) */}
-        {showFmtPicker && (
-          <div style={{ position: 'absolute', top: 36, right: 8, zIndex: 40, background: 'var(--color-surface)', border: '1px solid var(--color-field-border)', borderRadius: 8, padding: 6, minWidth: 180, maxHeight: 240, overflowY: 'auto', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-            {AD_FORMATS.map(f => (
-              <div key={f.id} onMouseDown={e => { e.stopPropagation(); setFormatId(f.id); setShowFmtPicker(false) }}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 6px', borderRadius: 4, cursor: 'pointer', background: f.id === formatId ? 'rgba(231,168,0,0.15)' : 'transparent' }}>
-                <div style={{
-                  width: f.w >= f.h ? 18 : Math.round(18 * f.w / f.h),
-                  height: f.h >= f.w ? 18 : Math.round(18 * f.h / f.w),
-                  background: 'var(--color-border)', borderRadius: 2, flexShrink: 0,
-                }} />
-                <span style={{ fontSize: 10, color: 'var(--color-text)' }}>{f.label}</span>
-                <span style={{ marginLeft: 'auto', fontSize: 8, color: 'var(--color-text-muted)', fontFamily: 'monospace' }}>{f.w}×{f.h}</span>
-              </div>
-            ))}
+          {/* Pills bar — floats above canvas, visible when selected */}
+          <div
+            className="nodrag"
+            style={{
+              position: 'absolute', top: -44, left: 0, right: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+              padding: '5px 8px',
+              opacity: isSelected ? 1 : 0,
+              transform: isSelected ? 'translateY(0)' : 'translateY(-6px)',
+              transition: 'opacity .15s, transform .15s',
+              pointerEvents: isSelected ? 'all' : 'none',
+              zIndex: 30,
+            }}
+          >
+            <MasterPillBtn icon={RectangleHorizontal} title="Zmień format podglądu" active={showFmtPicker}
+              onClick={() => { setShowFmtPicker(v => !v); setShowOverride(false) }} />
+            <MasterPillBtn icon={SlidersHorizontal} title="Ustawienia master" active={showOverride}
+              onClick={() => { setShowOverride(v => !v); setShowFmtPicker(false) }} />
+            <MasterPillBtn icon={MousePointer2} title="Zaznacz wszystkie (przeciągnij razem)"
+              onClick={() => selectGroup()} />
+            <MasterPillBtn icon={Combine} title="Utwórz grupę — otocz master + slave jedną ramką"
+              onClick={() => createGroup()} />
+            <MasterPillBtn icon={Download} title="Eksportuj PNG"
+              onClick={() => exportPng()} />
           </div>
-        )}
 
-        {/* Override panel */}
-        {showOverride && (
-          <OverridePanel overrides={overrides} onChange={p => setOverrides(prev => ({ ...prev, ...p }))} />
-        )}
+          {/* Format picker — dark glass overlay */}
+          {showFmtPicker && (
+            <div onMouseDown={e => e.stopPropagation()} style={{
+              position: 'absolute', top: 8, left: 0, zIndex: 40,
+              background: 'rgba(14,14,22,0.92)', border: '1px solid rgba(231,168,0,0.25)',
+              borderRadius: 10, padding: 6, minWidth: 200, maxHeight: 260, overflowY: 'auto',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.7)', backdropFilter: 'blur(14px)',
+            }}>
+              {AD_FORMATS.map(f => (
+                <div key={f.id} onMouseDown={e => { e.stopPropagation(); setFormatId(f.id); setShowFmtPicker(false) }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 6px', borderRadius: 6, cursor: 'pointer', background: f.id === formatId ? 'rgba(231,168,0,0.15)' : 'transparent' }}
+                  onMouseEnter={e => { if (f.id !== formatId) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)' }}
+                  onMouseLeave={e => { if (f.id !== formatId) (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+                  <div style={{
+                    width: f.w >= f.h ? 18 : Math.round(18 * f.w / f.h),
+                    height: f.h >= f.w ? 18 : Math.round(18 * f.h / f.w),
+                    background: f.id === formatId ? 'rgba(231,168,0,0.4)' : 'rgba(255,255,255,0.2)',
+                    borderRadius: 2, flexShrink: 0,
+                  }} />
+                  <span style={{ fontSize: 10, color: f.id === formatId ? '#E7A800' : 'rgba(255,255,255,0.75)' }}>{f.label}</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 8, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>{f.w}×{f.h}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
-        {/* Canvas */}
-        <div style={{ background: '#0d0d0d', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: thumbH, position: 'relative' }}>
+          {/* Override panel — dark glass overlay */}
+          {showOverride && (
+            <div onMouseDown={e => e.stopPropagation()} style={{
+              position: 'absolute', top: 8, right: 0, zIndex: 40,
+              background: 'rgba(14,14,22,0.92)', border: '1px solid rgba(231,168,0,0.2)',
+              borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.7)', backdropFilter: 'blur(14px)',
+              minWidth: 200,
+            }}>
+              <OverridePanel overrides={overrides} onChange={p => setOverrides(prev => ({ ...prev, ...p }))} />
+            </div>
+          )}
+
           <canvas ref={canvasRef} data-banner-canvas={`${id}-master`}
             style={{ width: thumbW, height: thumbH, display: 'block' }} />
+
           {!headline && !cta && !imageUrl && !theme && (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, pointerEvents: 'none' }}>
               <span style={{ fontSize: 28, opacity: 0.15 }}>★</span>
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', textAlign: 'center', lineHeight: 1.5 }}>Podłącz Headline + CTA<br />do mastera</span>
             </div>
           )}
+
+          {/* Format info badge — bottom right of canvas */}
+          <div style={{
+            position: 'absolute', bottom: 6, right: 6,
+            fontSize: 8, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace',
+            pointerEvents: 'none', lineHeight: 1,
+          }}>
+            {fmt.w}×{fmt.h}
+          </div>
         </div>
 
       </div>
