@@ -14,6 +14,8 @@ import { ToastList }         from './ToastList'
 import { TestsPanel }        from './TestsPanel'
 import { StartModal }        from './StartModal'
 import { ResetConfirmModal } from './ResetConfirmModal'
+import { WelcomeScreen }     from './WelcomeScreen'
+import { AiAgentPanel }      from './AiAgentPanel'
 import { useAppStore }       from '@/store/appStore'
 
 export function AdCreatorApp() {
@@ -22,11 +24,18 @@ export function AdCreatorApp() {
   const resetCanvas  = useAppStore(s => s.resetCanvas)
   const [liveNodes, setLiveNodes] = useState<Node[]>([])
   const [liveEdges, setLiveEdges] = useState<Edge[]>([])
+  const [showWelcome, setShowWelcome] = useState(true)
+  const [campaignType, setCampaignType] = useState<string | undefined>(undefined)
 
   const handleChange = useCallback((nodes: Node[], edges: Edge[]) => {
     setLiveNodes(nodes)
     setLiveEdges(edges)
   }, [])
+
+  function handleCampaignSelect(type: string) {
+    setCampaignType(type)
+    setShowWelcome(false)
+  }
 
   return (
     <div className="app-shell">
@@ -42,6 +51,15 @@ export function AdCreatorApp() {
       <ToastList />
       <StartModal />
       <ResetConfirmModal onConfirm={resetCanvas} />
+
+      {showWelcome && (
+        <WelcomeScreen
+          onSelect={handleCampaignSelect}
+          onSkip={() => setShowWelcome(false)}
+        />
+      )}
+
+      {!showWelcome && <AiAgentPanel campaignType={campaignType} />}
     </div>
   )
 }
