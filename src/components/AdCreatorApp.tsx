@@ -49,7 +49,7 @@ export function AdCreatorApp() {
       {showApiModal && <ApiKeyModal />}
       {showTests    && <TestsPanel />}
       <ToastList />
-      <StartModal />
+      {!showWelcome && <StartModal />}
       <ResetConfirmModal onConfirm={resetCanvas} />
 
       {showWelcome && (
