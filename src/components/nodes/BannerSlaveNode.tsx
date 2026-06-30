@@ -146,11 +146,12 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
 
   const nodeW = Math.max(220, displayW + 24)
 
-  const headline: HeadlineData | null = masterData?.headline ? {
-    ...masterData.headline,
+  const baseHeadline = masterData?.headline ?? (headlineOverride ? { main: '' } : null)
+  const headline: HeadlineData | null = baseHeadline ? {
+    ...baseHeadline,
     ...(headlineOverride ?? {}),
-    mainColor: overrides.mainColor ?? headlineOverride?.mainColor ?? masterData.overrides?.mainColor ?? masterData.headline.mainColor,
-    subColor:  overrides.subColor  ?? headlineOverride?.subColor  ?? masterData.overrides?.subColor  ?? masterData.headline.subColor,
+    mainColor: overrides.mainColor ?? headlineOverride?.mainColor ?? masterData?.overrides?.mainColor ?? masterData?.headline?.mainColor,
+    subColor:  overrides.subColor  ?? headlineOverride?.subColor  ?? masterData?.overrides?.subColor  ?? masterData?.headline?.subColor,
   } : null
   const cta = ctaOverride
     ? { ...(masterData?.cta ?? { text: '', style: 'primary' as const }), ...ctaOverride }

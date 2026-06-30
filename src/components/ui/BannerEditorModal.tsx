@@ -266,6 +266,7 @@ export function BannerEditorModal({
   const [showSaveForm, setShowSaveForm] = useState(false)
   const [presetName, setPresetName] = useState('')
   const [savingPreset, setSavingPreset] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   // Right panel tab
   const [rightTab, setRightTab] = useState<RightTab>('presets')
@@ -437,6 +438,7 @@ export function BannerEditorModal({
   const savePreset = async () => {
     if (!presetName.trim()) return
     setSavingPreset(true)
+    setSaveError(null)
     try {
       // Get org_id
       const { data: { user } } = await supabase.auth.getUser()
@@ -470,18 +472,24 @@ export function BannerEditorModal({
         cta: localCta,
       }
 
-      await supabase.from('banner_presets').insert({
+      const { error } = await supabase.from('banner_presets').insert({
         name: presetName.trim(),
         config,
         thumbnail,
         org_id: orgId,
+        created_by: user?.id ?? null,
       })
+
+      if (error) {
+        setSaveError(error.message)
+        return
+      }
 
       setPresetName('')
       setShowSaveForm(false)
       await loadPresets()
-    } catch {
-      // silently ignore
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : 'Nieznany błąd')
     } finally {
       setSavingPreset(false)
     }
@@ -1020,7 +1028,7 @@ export function BannerEditorModal({
                     {savingPreset ? '...' : 'Zapisz'}
                   </button>
                   <button
-                    onClick={() => { setShowSaveForm(false); setPresetName('') }}
+                    onClick={() => { setShowSaveForm(false); setPresetName(''); setSaveError(null) }}
                     style={{
                       padding: '5px 8px', borderRadius: 4,
                       border: '1px solid var(--color-field-border)',
@@ -1031,6 +1039,11 @@ export function BannerEditorModal({
                     Anuluj
                   </button>
                 </div>
+                {saveError && (
+                  <div style={{ fontSize: 11, color: '#ef4444', marginTop: 4, lineHeight: 1.4 }}>
+                    ✕ {saveError}
+                  </div>
+                )}
               </div>
             )}
 
