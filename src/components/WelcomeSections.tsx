@@ -356,52 +356,68 @@ import { Gift, Rocket, Star, Building2, Sparkles } from 'lucide-react'
 interface Plan {
   name: string; price: string; period: string; desc: string
   Icon: LucideIcon; iconColor: string; iconBg: string
-  tokens: number; tokenDesc: string
-  features: string[]; missing: string[]; cta: string; pro?: boolean
+  tokens: number; tokenDesc: string; tokenRate: string
+  savings?: string
+  features: string[]; missing: string[]; cta: string; highlighted?: boolean
 }
 const PLANS: Plan[] = [
   {
     name: 'Free', price: '0 zł', period: 'na zawsze',
     desc: 'Idealny start — bez karty kredytowej, bez zobowiązań.',
     Icon: Gift, iconColor: '#6366f1', iconBg: 'rgba(99,102,241,0.12)',
-    tokens: 100, tokenDesc: '~20 banerów lub 50 tekstów',
+    tokens: 100, tokenDesc: '~20 banerów lub 50 tekstów', tokenRate: '0,24 zł / token',
     features: ['3 aktywne projekty', 'Creator (generator banerów)', '20 eksportów miesięcznie', 'Formaty: FB, IG, Google'],
     missing: ['Composer (canvas)', 'Eksport bez watermarku', 'Historia wersji', 'Wsparcie priorytetowe'],
     cta: 'Zacznij za darmo',
   },
   {
-    name: 'Pro', price: '79 zł', period: '/ miesiąc',
+    name: 'Starter', price: '119 zł', period: '/ miesiąc',
     desc: 'Dla freelancerów, którzy chcą dostarczać więcej bez zwiększania zespołu.',
     Icon: Rocket, iconColor: '#16a34a', iconBg: 'rgba(22,163,74,0.15)',
-    tokens: 500, tokenDesc: '~100 banerów lub 25 zdjęć AI',
+    tokens: 500, tokenDesc: '~100 banerów lub 25 zdjęć AI', tokenRate: '0,24 zł / token',
     features: ['Nielimitowane projekty', 'Creator + Composer', 'Nielimitowany eksport', 'Brak watermarku', 'Historia i wersje', 'Wszystkie formaty i kanały', 'Chat support'],
     missing: ['Multi-klient workspace', 'Brandbook (SOON)', 'White-label'],
     cta: 'Wypróbuj 14 dni gratis',
-    pro: true,
+    highlighted: true,
   },
   {
-    name: 'Starter', price: '149 zł', period: '/ miesiąc',
+    name: 'Pro', price: '249 zł', period: '/ miesiąc',
     desc: 'Dla rosnących firm, które potrzebują więcej mocy AI i kilku workspace\'ów.',
     Icon: Star, iconColor: '#f59e0b', iconBg: 'rgba(245,158,11,0.12)',
-    tokens: 1000, tokenDesc: '~200 banerów lub 20 filmów AI',
-    features: ['Wszystko z Pro', '3 workspace\'y klientów', 'Priorytetowe generowanie', 'Wczesny dostęp do nowych modułów'],
-    missing: ['Brandbook (SOON)', 'White-label', 'Dedykowany opiekun'],
-    cta: 'Wybierz Starter',
+    tokens: 1500, tokenDesc: '~300 banerów lub 75 zdjęć AI', tokenRate: '0,17 zł / token',
+    savings: 'O 30% taniej za token niż Starter',
+    features: ['Wszystko ze Starter', '3 workspace\'y klientów', 'Priorytetowe generowanie AI', 'Wczesny dostęp do nowych modułów', 'Brandbook (SOON)'],
+    missing: ['White-label eksport', 'Dedykowany opiekun'],
+    cta: 'Wybierz Pro',
   },
   {
-    name: 'Agency', price: '249 zł', period: '/ miesiąc',
-    desc: 'Dla agencji obsługujących wielu klientów — osobne workspace, white-label, opiekun.',
+    name: 'Agency', price: '699 zł', period: '/ miesiąc',
+    desc: 'Dla agencji obsługujących wielu klientów — 15 workspace\'ów za cenę 6 kont Starter.',
     Icon: Building2, iconColor: '#0ea5e9', iconBg: 'rgba(14,165,233,0.12)',
-    tokens: 2500, tokenDesc: '~500 banerów lub 50 filmów AI',
-    features: ['Wszystko ze Starter', 'Do 15 workspace\'ów klientów', 'Brandbook (SOON)', 'Video Creator (wkrótce)', 'White-label eksport', 'Dedykowany opiekun'],
+    tokens: 5000, tokenDesc: '~1 000 banerów lub 100 filmów AI', tokenRate: '0,14 zł / token',
+    savings: 'Oszczędzasz 1 086 zł/mies vs 15 × Starter',
+    features: ['Wszystko z Pro', 'Do 15 workspace\'ów klientów', 'Brandbook (SOON)', 'Video Creator (wkrótce)', 'White-label eksport', 'Dedykowany opiekun', 'Priorytetowe wsparcie 24/7'],
     missing: [],
     cta: 'Porozmawiaj z nami',
   },
 ]
 
+// yearly discounts: Free 0%, Starter 10%, Pro 20%, Agency 30%
+const YEARLY_DISCOUNT = [0, 0.10, 0.20, 0.30]
+
+function yearlyMonthly(monthlyPrice: string, discountIdx: number): { crossed: string; price: string; saving: string } | null {
+  const disc = YEARLY_DISCOUNT[discountIdx]
+  if (!disc) return null
+  const num = parseInt(monthlyPrice)
+  const discounted = Math.round(num * (1 - disc))
+  const saving = Math.round(num * disc * 12)
+  return { crossed: monthlyPrice, price: `${discounted} zł`, saving: `Oszczędzasz ${saving} zł/rok` }
+}
+
 export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: number }) {
   const t = theme(dark)
   const [hovered, setHovered] = useState<number | null>(null)
+  const [yearly, setYearly] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
 
   const offsetTop = sectionRef.current?.offsetTop ?? 0
@@ -454,47 +470,86 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
             }}>
               Zacznij za darmo,<br /><span style={{ color: '#16a34a' }}>skaluj gdy rośniesz.</span>
             </h2>
-            <p style={{ fontSize: 19, color: t.textMuted, lineHeight: 1.7, maxWidth: 520, margin: '0 auto' }}>
-              Bez umów rocznych. Bez ukrytych opłat.<br />Zmień lub anuluj plan w każdej chwili.
+            <p style={{ fontSize: 19, color: t.textMuted, lineHeight: 1.7, maxWidth: 520, margin: '0 auto 32px' }}>
+              Bez ukrytych opłat. Zmień lub anuluj plan w każdej chwili.
             </p>
+
+            {/* Switcher miesięcznie / rocznie */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: !yearly ? t.text : t.textMuted, transition: 'color .2s' }}>
+                Miesięcznie
+              </span>
+              <button
+                onClick={() => setYearly(y => !y)}
+                style={{
+                  width: 52, height: 28, borderRadius: 14, border: 'none',
+                  background: yearly
+                    ? 'linear-gradient(135deg, #16a34a, #15803d)'
+                    : (dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)'),
+                  cursor: 'pointer', position: 'relative',
+                  transition: 'background .25s',
+                  flexShrink: 0,
+                }}
+              >
+                <div style={{
+                  position: 'absolute', top: 4, left: yearly ? 28 : 4,
+                  width: 20, height: 20, borderRadius: '50%', background: '#fff',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+                  transition: 'left .25s cubic-bezier(0.34,1.4,0.64,1)',
+                }} />
+              </button>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: yearly ? t.text : t.textMuted, transition: 'color .2s' }}>
+                  Rocznie
+                </span>
+                <span style={{
+                  fontSize: 11, fontWeight: 800, color: '#16a34a',
+                  background: 'rgba(22,163,74,0.12)', border: '1px solid rgba(22,163,74,0.25)',
+                  borderRadius: 20, padding: '2px 10px', letterSpacing: '0.05em',
+                }}>
+                  do −30%
+                </span>
+              </span>
+            </div>
           </div>
         </FadeSection>
 
-        {/* Cards */}
-        <div style={{ display: 'flex', gap: 24, alignItems: 'stretch' }}>
+        {/* Cards — grid dla równej wysokości */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, alignItems: 'stretch' }}>
           {PLANS.map((plan, i) => {
             const isHovered = hovered === i
+            const yr = yearly ? yearlyMonthly(plan.price, i) : null
+
             return (
-              <FadeSection key={plan.name} delay={i * 100}>
+              <FadeSection key={plan.name} delay={i * 90}>
                 <div
                   onMouseEnter={() => setHovered(i)}
                   onMouseLeave={() => setHovered(null)}
                   style={{
-                    flex: 1, display: 'flex', flexDirection: 'column',
+                    height: '100%', display: 'flex', flexDirection: 'column',
                     borderRadius: 24,
-                    border: `2px solid ${plan.pro
-                      ? t.planBorderPro
+                    border: `2px solid ${plan.highlighted
+                      ? plan.iconColor
                       : isHovered ? t.cardBorderH : t.planBorder}`,
-                    background: plan.pro
-                      ? (dark ? 'rgba(22,163,74,0.07)' : 'rgba(22,163,74,0.04)')
+                    background: plan.highlighted
+                      ? (dark ? `${plan.iconColor}10` : `${plan.iconColor}07`)
                       : (dark ? 'rgba(255,255,255,0.03)' : '#fff'),
-                    padding: plan.pro ? '40px 24px' : '32px 24px',
+                    padding: '32px 22px',
                     position: 'relative',
-                    transform: plan.pro ? 'translateY(-12px)' : 'translateY(0)',
-                    boxShadow: plan.pro
-                      ? dark ? '0 32px 80px rgba(22,163,74,0.2)' : '0 24px 64px rgba(22,163,74,0.15)'
-                      : isHovered ? (dark ? '0 16px 48px rgba(0,0,0,0.4)' : '0 12px 36px rgba(0,0,0,0.1)') : 'none',
-                    transition: 'all .25s cubic-bezier(0.34,1.4,0.64,1)',
+                    boxShadow: plan.highlighted
+                      ? `0 24px 60px ${plan.iconColor}22`
+                      : isHovered ? (dark ? '0 12px 40px rgba(0,0,0,0.4)' : '0 8px 28px rgba(0,0,0,0.08)') : 'none',
+                    transition: 'all .25s ease',
                   }}
                 >
-                  {plan.pro && (
+                  {plan.highlighted && (
                     <div style={{
-                      position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)',
-                      background: 'linear-gradient(135deg, #16a34a, #15803d)',
-                      borderRadius: 20, padding: '6px 20px',
-                      fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: '0.1em',
+                      position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
+                      background: `linear-gradient(135deg, ${plan.iconColor}, ${plan.iconColor}cc)`,
+                      borderRadius: 20, padding: '5px 16px',
+                      fontSize: 10, fontWeight: 800, color: '#fff', letterSpacing: '0.1em',
                       textTransform: 'uppercase', whiteSpace: 'nowrap',
-                      boxShadow: '0 4px 12px rgba(22,163,74,0.4)',
+                      boxShadow: `0 4px 12px ${plan.iconColor}50`,
                     }}>
                       ✦ Najpopularniejszy
                     </div>
@@ -502,86 +557,121 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
 
                   {/* Icon */}
                   <div style={{
-                    width: 56, height: 56, borderRadius: 18, marginBottom: 24,
-                    background: isHovered || plan.pro ? plan.iconBg : (dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
+                    width: 52, height: 52, borderRadius: 16, marginBottom: 20,
+                    background: isHovered || plan.highlighted ? plan.iconBg : (dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    border: `1px solid ${isHovered || plan.pro ? plan.iconColor + '30' : t.cardBorder}`,
+                    border: `1px solid ${isHovered || plan.highlighted ? plan.iconColor + '35' : t.cardBorder}`,
                     transition: 'all .2s',
                   }}>
-                    <plan.Icon
-                      size={26} strokeWidth={1.5}
-                      color={isHovered || plan.pro ? plan.iconColor : t.textMuted}
-                    />
+                    <plan.Icon size={24} strokeWidth={1.5}
+                      color={isHovered || plan.highlighted ? plan.iconColor : t.textMuted} />
                   </div>
 
-                  {/* Name + price */}
-                  <div style={{ fontSize: 13, fontWeight: 800, color: plan.pro ? '#16a34a' : t.textMuted, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  {/* Name */}
+                  <div style={{
+                    fontSize: 12, fontWeight: 800,
+                    color: isHovered || plan.highlighted ? plan.iconColor : t.textMuted,
+                    marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.1em',
+                    transition: 'color .2s',
+                  }}>
                     {plan.name}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 }}>
-                    <span style={{ fontSize: 46, fontWeight: 900, color: t.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
-                      {plan.price}
-                    </span>
-                    <span style={{ fontSize: 14, color: t.textMuted, marginBottom: 2 }}>{plan.period}</span>
+
+                  {/* Price */}
+                  <div style={{ marginBottom: 6, minHeight: 64 }}>
+                    {yr ? (
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                          <span style={{
+                            fontSize: 15, fontWeight: 600, color: t.textFaint,
+                            textDecoration: 'line-through',
+                          }}>{yr.crossed}</span>
+                          <span style={{
+                            fontSize: 10, fontWeight: 800, color: '#16a34a',
+                            background: 'rgba(22,163,74,0.12)', borderRadius: 10, padding: '2px 7px',
+                          }}>
+                            −{YEARLY_DISCOUNT[i] * 100}%
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
+                          <span style={{ fontSize: 38, fontWeight: 900, color: t.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
+                            {yr.price}
+                          </span>
+                          <span style={{ fontSize: 13, color: t.textMuted }}>/ miesiąc</span>
+                        </div>
+                        <div style={{ fontSize: 11, color: '#16a34a', fontWeight: 600, marginTop: 4 }}>{yr.saving}</div>
+                      </>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
+                        <span style={{ fontSize: 38, fontWeight: 900, color: t.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
+                          {plan.price}
+                        </span>
+                        <span style={{ fontSize: 13, color: t.textMuted }}>{plan.period}</span>
+                      </div>
+                    )}
                   </div>
-                  <p style={{ fontSize: 14, color: t.textMuted, marginBottom: 20, lineHeight: 1.7 }}>
+
+                  <p style={{ fontSize: 13, color: t.textMuted, marginBottom: 18, lineHeight: 1.65 }}>
                     {plan.desc}
                   </p>
 
-                  {/* Token block */}
+                  {/* Savings badge */}
+                  {plan.savings && (
+                    <div style={{
+                      fontSize: 11, fontWeight: 700, color: plan.iconColor,
+                      background: `${plan.iconColor}12`,
+                      border: `1px solid ${plan.iconColor}28`,
+                      borderRadius: 10, padding: '5px 10px', marginBottom: 16,
+                    }}>
+                      ✦ {plan.savings}
+                    </div>
+                  )}
+
+                  {/* Tokens */}
                   <div style={{
-                    borderRadius: 14,
-                    background: isHovered || plan.pro
-                      ? `${plan.iconColor}14`
-                      : dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
-                    border: `1px solid ${isHovered || plan.pro ? plan.iconColor + '28' : t.divider}`,
-                    padding: '14px 16px', marginBottom: 24,
-                    display: 'flex', alignItems: 'center', gap: 12,
+                    borderRadius: 12,
+                    background: isHovered || plan.highlighted ? `${plan.iconColor}12` : (dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'),
+                    border: `1px solid ${isHovered || plan.highlighted ? plan.iconColor + '25' : t.divider}`,
+                    padding: '12px 14px', marginBottom: 20,
+                    display: 'flex', alignItems: 'center', gap: 10,
                     transition: 'all .2s',
                   }}>
-                    <div style={{
-                      width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                      background: `${plan.iconColor}20`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <Sparkles size={16} strokeWidth={1.5} color={plan.iconColor} />
-                    </div>
+                    <Sparkles size={16} strokeWidth={1.5} color={plan.iconColor} style={{ flexShrink: 0 }} />
                     <div>
-                      <div style={{ fontSize: 20, fontWeight: 900, color: plan.iconColor, letterSpacing: '-0.02em', lineHeight: 1 }}>
+                      <div style={{ fontSize: 16, fontWeight: 900, color: plan.iconColor, letterSpacing: '-0.02em', lineHeight: 1 }}>
                         {plan.tokens.toLocaleString('pl-PL')} tokenów
-                        <span style={{ fontSize: 11, fontWeight: 600, color: t.textFaint, marginLeft: 6 }}>/ mies.</span>
+                        <span style={{ fontSize: 10, fontWeight: 600, color: t.textFaint, marginLeft: 5 }}>/ mies.</span>
                       </div>
-                      <div style={{ fontSize: 11, color: t.textMuted, marginTop: 3 }}>{plan.tokenDesc}</div>
+                      <div style={{ fontSize: 10, color: t.textMuted, marginTop: 2 }}>{plan.tokenDesc}</div>
                     </div>
                   </div>
 
-                  {/* Divider */}
-                  <div style={{ height: 1, background: t.divider, marginBottom: 20 }} />
+                  <div style={{ height: 1, background: t.divider, marginBottom: 16 }} />
 
                   {/* Features */}
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 32 }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
                     {plan.features.map(f => (
-                      <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                      <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                         <div style={{
-                          width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1,
-                          background: plan.pro ? 'rgba(22,163,74,0.15)' : (dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'),
+                          width: 18, height: 18, borderRadius: 5, flexShrink: 0, marginTop: 1,
+                          background: `${plan.iconColor}18`,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>
-                          <Check size={12} strokeWidth={3} color={t.checkColor} />
+                          <Check size={10} strokeWidth={3} color={plan.iconColor} />
                         </div>
-                        <span style={{ fontSize: 14, color: t.textSub, lineHeight: 1.55 }}>{f}</span>
+                        <span style={{ fontSize: 13, color: t.textSub, lineHeight: 1.5 }}>{f}</span>
                       </div>
                     ))}
                     {plan.missing.map(f => (
-                      <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, opacity: 0.3 }}>
+                      <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, opacity: 0.28 }}>
                         <div style={{
-                          width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1,
+                          width: 18, height: 18, borderRadius: 5, flexShrink: 0, marginTop: 1,
                           background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>
-                          <div style={{ width: 8, height: 1.5, background: t.textFaint, borderRadius: 1 }} />
+                          <div style={{ width: 7, height: 1.5, background: t.textFaint, borderRadius: 1 }} />
                         </div>
-                        <span style={{ fontSize: 14, color: t.textMuted, lineHeight: 1.55 }}>{f}</span>
+                        <span style={{ fontSize: 13, color: t.textMuted, lineHeight: 1.5 }}>{f}</span>
                       </div>
                     ))}
                   </div>
@@ -591,15 +681,15 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                     href="/rejestracja"
                     style={{
                       display: 'block', textAlign: 'center',
-                      padding: '16px', borderRadius: 16,
-                      fontSize: 15, fontWeight: 800,
+                      padding: '14px', borderRadius: 14,
+                      fontSize: 14, fontWeight: 800,
                       textDecoration: 'none', letterSpacing: '-0.01em',
-                      background: plan.pro
-                        ? 'linear-gradient(135deg, #16a34a, #15803d)'
+                      background: plan.highlighted
+                        ? `linear-gradient(135deg, ${plan.iconColor}, ${plan.iconColor}cc)`
                         : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)'),
-                      color: plan.pro ? '#fff' : t.text,
-                      border: plan.pro ? 'none' : `1.5px solid ${t.planBorder}`,
-                      boxShadow: plan.pro ? '0 6px 22px rgba(22,163,74,0.45)' : 'none',
+                      color: plan.highlighted ? '#fff' : t.text,
+                      border: plan.highlighted ? 'none' : `1.5px solid ${t.planBorder}`,
+                      boxShadow: plan.highlighted ? `0 6px 20px ${plan.iconColor}40` : 'none',
                       transition: 'all .15s',
                     }}
                   >
@@ -611,9 +701,9 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
           })}
         </div>
 
-        <FadeSection delay={350}>
-          <p style={{ fontSize: 13, color: t.textFaint, textAlign: 'center', marginTop: 32 }}>
-            Wszystkie ceny netto + VAT. Plan Pro: pierwszy miesiąc gratis, potem 79 zł/mies. Anuluj kiedy chcesz.
+        <FadeSection delay={400}>
+          <p style={{ fontSize: 13, color: t.textFaint, textAlign: 'center', marginTop: 28 }}>
+            Wszystkie ceny netto + VAT. Starter i Pro: pierwszy miesiąc gratis. Anuluj kiedy chcesz.
           </p>
         </FadeSection>
       </div>
