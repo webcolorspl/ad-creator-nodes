@@ -14,20 +14,38 @@ interface Slide {
 const SLIDES: Slide[] = [
   {
     num: '01',
-    headline: 'Buduj kampanie\ntak, jak je myślisz.',
-    sub: 'Wizualny canvas, w którym łączysz kreacje, kanały i budżety — node po node.',
+    headline: 'Wreszcie budujesz kampanię,\na nie walczysz z narzędziem.',
+    sub: 'Łącz kreacje, kanały i budżety na jednym ekranie — tak intuicyjnie, jak tablica z post-itami.',
     color: '#e2e8f0',
   },
   {
     num: '02',
-    headline: 'Kreacje na wczoraj?\nAI wygeneruje je teraz.',
-    sub: 'Podaj brief, wybierz formaty — otrzymasz gotowe banery w sekundach.',
+    headline: 'Brief rano,\ngotowe banery przed kawą.',
+    sub: 'Podaj wytyczne, wybierz formaty — AI przygotuje kreacje za Ciebie w kilka sekund.',
     color: '#cbd5e1',
   },
   {
     num: '03',
-    headline: 'Jeden flow.\nDziesięć klientów. Zero chaosu.',
-    sub: 'Zarządzaj wieloma kampaniami na jednym boardzie — od briefu po eksport.',
+    headline: 'Dziesięciu klientów, jeden ekran,\nzero maili z „Gdzie jest ta kreacja?"',
+    sub: 'Każda kampania w jednym miejscu — od briefu po finalne pliki.',
+    color: '#94a3b8',
+  },
+  {
+    num: '04',
+    headline: 'Koniec przeskakiwania\nmiędzy dwunastoma zakładkami.',
+    sub: 'Kreacja, media plan, formaty i eksport — wszystko w jednym oknie.',
+    color: '#cbd5e1',
+  },
+  {
+    num: '05',
+    headline: 'Od pomysłu do gotowej paczki\nw minutach, nie w dniach.',
+    sub: 'Eksportuj kreacje per kanał — gotowe do wrzucenia w Meta, Google czy TikTok.',
+    color: '#e2e8f0',
+  },
+  {
+    num: '06',
+    headline: 'Jedno narzędzie zamiast pięciu.\nI jeszcze robi kreacje za Was.',
+    sub: 'Planowanie, generowanie i eksport kampanii — w jednym miejscu, z AI na pokładzie.',
     color: '#94a3b8',
   },
 ]
