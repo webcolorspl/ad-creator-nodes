@@ -524,7 +524,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
                 }} />
               </div>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Marry</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Mary</div>
                 <div style={{ fontSize: 9, color: '#4ade80', fontWeight: 600 }}>● online</div>
               </div>
             </div>
