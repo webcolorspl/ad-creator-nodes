@@ -78,7 +78,7 @@ const TOOL_TILES: ToolTile[] = [
     Icon: Layers,
     label: 'Composer',
     tag: 'Visual canvas',
-    desc: 'Buduj kampanie wizualnie — połącz formaty, kanały i budżety na flow canvas node po node.',
+    desc: 'Przeciągnij, połącz, gotowe — kampanię składasz w minuty bez jednej linii kodu.',
     color: '#cbd5e1',
   },
 ]
