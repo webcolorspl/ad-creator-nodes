@@ -11,6 +11,7 @@ interface CampaignTile {
   label: string
   desc: string
   color: string
+  href?: string
 }
 
 const CAMPAIGN_TILES: CampaignTile[] = [
@@ -23,7 +24,7 @@ const CAMPAIGN_TILES: CampaignTile[] = [
 ]
 
 const TOOL_TILES: CampaignTile[] = [
-  { id: 'adgen',    Icon: Wand2,        label: 'AI Generator',   desc: 'Generuj kreacje z AI',        color: '#8B5CF6' },
+  { id: 'adgen',    Icon: Wand2,        label: 'AI Generator',   desc: 'Generuj kreacje z AI',        color: '#8B5CF6', href: 'https://xtools.pl' },
   { id: 'nodes',    Icon: Layers,       label: 'Visual Nodes',   desc: 'Flow canvas node-based',      color: '#6366F1' },
   { id: 'refresh',  Icon: RefreshCw,    label: 'Kontynuuj',      desc: 'Wróć do poprzedniej sesji',   color: '#64748B' },
 ]
@@ -35,10 +36,19 @@ interface WelcomeScreenProps {
 
 function Tile({ tile, onClick }: { tile: CampaignTile; onClick: () => void }) {
   const [hover, setHover] = useState(false)
-  const { Icon, label, desc, color } = tile
+  const { Icon, label, desc, color, href } = tile
+
+  function handleClick() {
+    if (href) {
+      window.open(href, '_blank', 'noopener,noreferrer')
+    } else {
+      onClick()
+    }
+  }
+
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
