@@ -1,6 +1,6 @@
 'use client'
-import { useRef, useEffect, useState } from 'react'
-import { Send, X, Minimize2, ChevronUp } from 'lucide-react'
+import { useRef, useEffect, useState, useCallback } from 'react'
+import { Send, Minimize2, ChevronUp, Volume2, VolumeX } from 'lucide-react'
 
 interface Message {
   role: 'agent' | 'user'
@@ -22,14 +22,16 @@ const GREETINGS: Record<string, string> = {
 }
 
 export function AiAgentPanel({ campaignType }: AiAgentPanelProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const videoRef       = useRef<HTMLVideoElement>(null)
+  const inputRef       = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const timerRef       = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const [expanded, setExpanded] = useState(true)
-  const [input, setInput] = useState('')
+  const [expanded,    setExpanded]    = useState(true)
+  const [input,       setInput]       = useState('')
   const [videoLoaded, setVideoLoaded] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
+  const [messages,    setMessages]    = useState<Message[]>([])
+  const [muted,       setMuted]       = useState(true)
 
   useEffect(() => {
     const greeting = GREETINGS[campaignType ?? 'default'] ?? GREETINGS.default
@@ -37,7 +39,28 @@ export function AiAgentPanel({ campaignType }: AiAgentPanelProps) {
   }, [campaignType])
 
   useEffect(() => {
-    if (videoRef.current) videoRef.current.play().catch(() => {})
+    const v = videoRef.current
+    if (!v) return
+    v.muted = true
+    v.play().catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const v = videoRef.current
+    if (v) v.muted = muted
+  }, [muted])
+
+  const handleEnded = useCallback(() => {
+    timerRef.current = setTimeout(() => {
+      const v = videoRef.current
+      if (!v) return
+      v.currentTime = 0
+      v.play().catch(() => {})
+    }, 20_000)
+  }, [])
+
+  useEffect(() => () => {
+    if (timerRef.current) clearTimeout(timerRef.current)
   }, [])
 
   useEffect(() => {
@@ -81,8 +104,9 @@ export function AiAgentPanel({ campaignType }: AiAgentPanelProps) {
             <video
               ref={videoRef}
               src="/avatar.mp4"
-              loop muted playsInline
+              playsInline
               onCanPlay={() => setVideoLoaded(true)}
+              onEnded={handleEnded}
               style={{
                 width: '100%', maxHeight: 180,
                 objectFit: 'cover',
@@ -119,16 +143,30 @@ export function AiAgentPanel({ campaignType }: AiAgentPanelProps) {
                   AI Agent
                 </span>
               </div>
-              <button
-                onClick={() => setExpanded(false)}
-                style={{
-                  background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 6, padding: '3px 5px', cursor: 'pointer',
-                  color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center',
-                }}
-              >
-                <Minimize2 size={12} strokeWidth={1.75} />
-              </button>
+              <div style={{ display: 'flex', gap: 5 }}>
+                <button
+                  onClick={() => setMuted(v => !v)}
+                  title={muted ? 'Włącz dźwięk' : 'Wycisz'}
+                  style={{
+                    background: 'rgba(0,0,0,0.4)', border: `1px solid ${muted ? 'rgba(255,255,255,0.1)' : 'rgba(124,92,245,0.5)'}`,
+                    borderRadius: 6, padding: '3px 5px', cursor: 'pointer',
+                    color: muted ? 'rgba(255,255,255,0.5)' : '#a78bfa',
+                    display: 'flex', alignItems: 'center',
+                  }}
+                >
+                  {muted ? <VolumeX size={12} strokeWidth={1.75} /> : <Volume2 size={12} strokeWidth={1.75} />}
+                </button>
+                <button
+                  onClick={() => setExpanded(false)}
+                  style={{
+                    background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: 6, padding: '3px 5px', cursor: 'pointer',
+                    color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center',
+                  }}
+                >
+                  <Minimize2 size={12} strokeWidth={1.75} />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -215,7 +253,7 @@ export function AiAgentPanel({ campaignType }: AiAgentPanelProps) {
         >
           <video
             src="/avatar.mp4"
-            autoPlay loop muted playsInline
+            autoPlay playsInline muted
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
           <div style={{

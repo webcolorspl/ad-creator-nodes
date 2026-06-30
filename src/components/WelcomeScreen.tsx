@@ -1,5 +1,6 @@
 'use client'
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useCallback } from 'react'
+import { Volume2, VolumeX } from 'lucide-react'
 
 const CAMPAIGN_TYPES = [
   { id: 'social',   emoji: '📱', label: 'Social Media',    desc: 'Facebook, Instagram, TikTok' },
@@ -16,14 +17,41 @@ interface WelcomeScreenProps {
 }
 
 export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const videoRef   = useRef<HTMLVideoElement>(null)
+  const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [videoLoaded, setVideoLoaded] = useState(false)
-  const [hovered, setHovered] = useState<string | null>(null)
+  const [hovered,     setHovered]     = useState<string | null>(null)
+  const [muted,       setMuted]       = useState(true)
 
+  const playVideo = useCallback(() => {
+    const v = videoRef.current
+    if (!v) return
+    v.currentTime = 0
+    v.muted = muted
+    v.play().catch(() => {})
+  }, [muted])
+
+  // Initial play
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
+    v.muted = true
     v.play().catch(() => {})
+  }, [])
+
+  // When user toggles sound — apply immediately
+  useEffect(() => {
+    const v = videoRef.current
+    if (v) v.muted = muted
+  }, [muted])
+
+  // On video end → wait 20s → replay
+  const handleEnded = useCallback(() => {
+    timerRef.current = setTimeout(() => playVideo(), 20_000)
+  }, [playVideo])
+
+  useEffect(() => () => {
+    if (timerRef.current) clearTimeout(timerRef.current)
   }, [])
 
   return (
@@ -75,10 +103,9 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
             <video
               ref={videoRef}
               src="/avatar.mp4"
-              loop
-              muted
               playsInline
               onCanPlay={() => setVideoLoaded(true)}
+              onEnded={handleEnded}
               style={{
                 width: '100%',
                 display: 'block',
@@ -116,6 +143,29 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
                 AI Agent
               </span>
             </div>
+
+            {/* Sound toggle */}
+            <button
+              onClick={() => setMuted(v => !v)}
+              style={{
+                position: 'absolute', top: 12, right: 12,
+                background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)',
+                border: `1px solid ${muted ? 'rgba(255,255,255,0.12)' : 'rgba(124,92,245,0.5)'}`,
+                borderRadius: 20, padding: '5px 10px', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 5,
+                color: muted ? 'rgba(255,255,255,0.5)' : '#a78bfa',
+                transition: 'all .15s',
+              }}
+              title={muted ? 'Włącz dźwięk' : 'Wycisz'}
+            >
+              {muted
+                ? <VolumeX size={13} strokeWidth={1.75} />
+                : <Volume2 size={13} strokeWidth={1.75} />
+              }
+              <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.04em' }}>
+                {muted ? 'Włącz dźwięk' : 'Wycisz'}
+              </span>
+            </button>
           </div>
         </div>
 
