@@ -101,11 +101,40 @@ function SectionHeader({ label, title, green, sub, dark }: {
 }
 
 // ── SEKCJA 2: Więcej narzędzi ─────────────────────────────────
-interface ComingTool { Icon: LucideIcon; label: string; desc: string; badge: 'SOON' | 'IN PROGRESS' }
+interface ComingTool {
+  label: string
+  desc: string
+  longDesc: string
+  badge: 'SOON' | 'IN PROGRESS'
+  photo: string
+  gradient: string
+}
+
 const COMING: ComingTool[] = [
-  { Icon: BookOpen, label: 'Brandbook',        desc: 'Wygeneruj spójną identyfikację wizualną marki — logo, kolory, typografię — w kilka minut.', badge: 'SOON' },
-  { Icon: Video,    label: 'Video Creator',     desc: 'Twórz krótkie filmy reklamowe z AI. Podaj brief, wybierz styl — AI montuje za Ciebie.',     badge: 'IN PROGRESS' },
-  { Icon: Camera,   label: 'Photo Generator',   desc: 'Generuj zdjęcia produktowe i lifestyle bez sesji. Realistyczne fotki AI w każdym formacie.', badge: 'SOON' },
+  {
+    label: 'Brandbook',
+    badge: 'SOON',
+    photo: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=480&h=320&fit=crop&auto=format',
+    gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+    desc: 'Spójna identyfikacja wizualna w minuty.',
+    longDesc: 'Opisz swoją markę, podaj wartości i grupę docelową — AI wygeneruje kompletny brandbook: logo w wariantach, paletę kolorów, typografię, przykłady zastosowania i gotowy PDF do przekazania klientowi. Koniec z tygodniami pracy studio graficznego.',
+  },
+  {
+    label: 'Video Creator',
+    badge: 'IN PROGRESS',
+    photo: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=480&h=320&fit=crop&auto=format',
+    gradient: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
+    desc: 'Filmy reklamowe z briefu, bez ekipy.',
+    longDesc: 'Podaj brief, wybierz styl i muzykę — AI generuje gotowy film reklamowy z lektorem, napisami i animacjami. Obsługuje formaty pionowe (Reels, TikTok), poziome (YouTube) i kwadratowe (FB). Eksport w rozdzielczości 4K, gotowy do publikacji.',
+  },
+  {
+    label: 'Photo Generator',
+    badge: 'SOON',
+    photo: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=480&h=320&fit=crop&auto=format',
+    gradient: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
+    desc: 'Zdjęcia produktowe bez sesji foto.',
+    longDesc: 'Wgraj zdjęcie produktu ze smartfona — AI umieści go w profesjonalnym otoczeniu: białe tło, lifestyle, sezon, dowolna lokalizacja. Generuj dziesiątki wariantów w kilka sekund. Idealne dla e-commerce, które nie mają budżetu na fotografa.',
+  },
 ]
 
 export function SectionComingSoon({ dark }: { dark: boolean }) {
@@ -117,40 +146,87 @@ export function SectionComingSoon({ dark }: { dark: boolean }) {
           label="Na horyzoncie"
           title="Kolejne narzędzia"
           green="już wkrótce."
-          sub="Rozbudowujemy ekosystem. Zarejestruj się dziś i jako pierwszy dostaniesz dostęp do nowych modułów."
+          sub="Rozbudowujemy ekosystem. Zarejestruj się dziś i jako pierwszy dostaniesz dostęp do nowych modułów — jeszcze przed oficjalnym startem."
           dark={dark}
         />
       </FadeSection>
-      <div style={{ display: 'flex', gap: 22 }}>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {COMING.map((tool, i) => {
           const badge = tool.badge === 'SOON' ? t.badgeSoon : t.badgeWip
           return (
-            <FadeSection key={tool.label} delay={i * 90}>
+            <FadeSection key={tool.label} delay={i * 100}>
               <div style={{
-                flex: 1, padding: '40px 32px',
+                display: 'flex', alignItems: 'stretch',
                 borderRadius: 24,
                 border: `1px solid ${t.cardBorder}`,
                 background: t.cardBg,
-                position: 'relative', overflow: 'hidden',
+                overflow: 'hidden',
+                filter: dark ? 'grayscale(0.3)' : 'grayscale(0.15)',
+                opacity: 0.85,
               }}>
+                {/* Photo */}
                 <div style={{
-                  display: 'inline-flex', alignItems: 'center',
-                  background: badge.bg, border: `1px solid ${badge.border}`,
-                  borderRadius: 20, padding: '4px 12px', marginBottom: 24,
+                  width: 260, flexShrink: 0, position: 'relative',
+                  background: tool.gradient,
                 }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: badge.color, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                    {tool.badge}
-                  </span>
+                  <img
+                    src={tool.photo}
+                    alt={tool.label}
+                    style={{
+                      width: '100%', height: '100%',
+                      objectFit: 'cover', display: 'block',
+                      mixBlendMode: dark ? 'luminosity' : 'luminosity',
+                      opacity: dark ? 0.5 : 0.65,
+                    }}
+                  />
+                  {/* gradient overlay on photo */}
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    background: `linear-gradient(to right, transparent 60%, ${dark ? 'rgba(7,7,11,0.6)' : 'rgba(244,244,247,0.5)'} 100%)`,
+                  }} />
                 </div>
-                <tool.Icon size={34} strokeWidth={1.5} color={t.textMuted} style={{ marginBottom: 18, display: 'block' }} />
-                <div style={{ fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 12 }}>{tool.label}</div>
-                <div style={{ fontSize: 16, color: t.textMuted, lineHeight: 1.7 }}>{tool.desc}</div>
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  backdropFilter: 'blur(1.5px)',
-                  background: dark ? 'rgba(7,7,11,0.35)' : 'rgba(244,244,247,0.3)',
-                  borderRadius: 24,
-                }} />
+
+                {/* Content */}
+                <div style={{ flex: 1, padding: '36px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {/* Badge + title */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{
+                      display: 'inline-flex', alignItems: 'center',
+                      background: badge.bg, border: `1px solid ${badge.border}`,
+                      borderRadius: 20, padding: '4px 12px',
+                    }}>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: badge.color, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                        {tool.badge}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: 28, fontWeight: 900, color: t.textMuted, marginBottom: 6, letterSpacing: '-0.02em' }}>
+                      {tool.label}
+                    </div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: t.textFaint, marginBottom: 16 }}>
+                      {tool.desc}
+                    </div>
+                    <p style={{ fontSize: 15, color: t.textMuted, lineHeight: 1.75, maxWidth: 580 }}>
+                      {tool.longDesc}
+                    </p>
+                  </div>
+
+                  <div style={{ marginTop: 'auto' }}>
+                    <a
+                      href="/rejestracja"
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        fontSize: 13, fontWeight: 700, color: t.textFaint,
+                        textDecoration: 'none', letterSpacing: '0.02em',
+                      }}
+                    >
+                      Powiadom mnie o starcie →
+                    </a>
+                  </div>
+                </div>
               </div>
             </FadeSection>
           )
