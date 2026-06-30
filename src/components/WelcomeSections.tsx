@@ -351,36 +351,49 @@ export function SectionTestimonials({ dark }: { dark: boolean }) {
 }
 
 // ── SEKCJA 5: Cennik (full-width + parallax gradient) ─────────
-import { Gift, Rocket, Building2 } from 'lucide-react'
+import { Gift, Rocket, Star, Building2, Sparkles } from 'lucide-react'
 
 interface Plan {
   name: string; price: string; period: string; desc: string
   Icon: LucideIcon; iconColor: string; iconBg: string
+  tokens: number; tokenDesc: string
   features: string[]; missing: string[]; cta: string; pro?: boolean
 }
 const PLANS: Plan[] = [
   {
     name: 'Free', price: '0 zł', period: 'na zawsze',
-    desc: 'Idealny start — bez karty kredytowej, bez zobowiązań. Sprawdź czy XTOOLS pasuje do Twojego workflow.',
+    desc: 'Idealny start — bez karty kredytowej, bez zobowiązań.',
     Icon: Gift, iconColor: '#6366f1', iconBg: 'rgba(99,102,241,0.12)',
+    tokens: 100, tokenDesc: '~20 banerów lub 50 tekstów',
     features: ['3 aktywne projekty', 'Creator (generator banerów)', '20 eksportów miesięcznie', 'Formaty: FB, IG, Google'],
     missing: ['Composer (canvas)', 'Eksport bez watermarku', 'Historia wersji', 'Wsparcie priorytetowe'],
     cta: 'Zacznij za darmo',
   },
   {
     name: 'Pro', price: '79 zł', period: '/ miesiąc',
-    desc: 'Dla freelancerów i rosnących agencji, które chcą pracować szybciej i dostarczać więcej bez zwiększania zespołu.',
+    desc: 'Dla freelancerów, którzy chcą dostarczać więcej bez zwiększania zespołu.',
     Icon: Rocket, iconColor: '#16a34a', iconBg: 'rgba(22,163,74,0.15)',
+    tokens: 500, tokenDesc: '~100 banerów lub 25 zdjęć AI',
     features: ['Nielimitowane projekty', 'Creator + Composer', 'Nielimitowany eksport', 'Brak watermarku', 'Historia i wersje', 'Wszystkie formaty i kanały', 'Chat support'],
     missing: ['Multi-klient workspace', 'Brandbook (SOON)', 'White-label'],
     cta: 'Wypróbuj 14 dni gratis',
     pro: true,
   },
   {
+    name: 'Starter', price: '149 zł', period: '/ miesiąc',
+    desc: 'Dla rosnących firm, które potrzebują więcej mocy AI i kilku workspace\'ów.',
+    Icon: Star, iconColor: '#f59e0b', iconBg: 'rgba(245,158,11,0.12)',
+    tokens: 1000, tokenDesc: '~200 banerów lub 20 filmów AI',
+    features: ['Wszystko z Pro', '3 workspace\'y klientów', 'Priorytetowe generowanie', 'Wczesny dostęp do nowych modułów'],
+    missing: ['Brandbook (SOON)', 'White-label', 'Dedykowany opiekun'],
+    cta: 'Wybierz Starter',
+  },
+  {
     name: 'Agency', price: '249 zł', period: '/ miesiąc',
-    desc: 'Dla agencji obsługujących wielu klientów jednocześnie. Osobne workspace, white-label i dedykowany opiekun.',
+    desc: 'Dla agencji obsługujących wielu klientów — osobne workspace, white-label, opiekun.',
     Icon: Building2, iconColor: '#0ea5e9', iconBg: 'rgba(14,165,233,0.12)',
-    features: ['Wszystko z Pro', 'Do 15 klientów / workspace', 'Brandbook (SOON)', 'Video Creator (wkrótce)', 'White-label eksport', 'Dedykowany opiekun', 'Priorytetowe wsparcie'],
+    tokens: 2500, tokenDesc: '~500 banerów lub 50 filmów AI',
+    features: ['Wszystko ze Starter', 'Do 15 workspace\'ów klientów', 'Brandbook (SOON)', 'Video Creator (wkrótce)', 'White-label eksport', 'Dedykowany opiekun'],
     missing: [],
     cta: 'Porozmawiaj z nami',
   },
@@ -458,14 +471,14 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                   onMouseLeave={() => setHovered(null)}
                   style={{
                     flex: 1, display: 'flex', flexDirection: 'column',
-                    borderRadius: 28,
+                    borderRadius: 24,
                     border: `2px solid ${plan.pro
                       ? t.planBorderPro
                       : isHovered ? t.cardBorderH : t.planBorder}`,
                     background: plan.pro
                       ? (dark ? 'rgba(22,163,74,0.07)' : 'rgba(22,163,74,0.04)')
                       : (dark ? 'rgba(255,255,255,0.03)' : '#fff'),
-                    padding: plan.pro ? '44px 32px' : '36px 32px',
+                    padding: plan.pro ? '40px 24px' : '32px 24px',
                     position: 'relative',
                     transform: plan.pro ? 'translateY(-12px)' : 'translateY(0)',
                     boxShadow: plan.pro
@@ -511,12 +524,39 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                     </span>
                     <span style={{ fontSize: 14, color: t.textMuted, marginBottom: 2 }}>{plan.period}</span>
                   </div>
-                  <p style={{ fontSize: 14, color: t.textMuted, marginBottom: 28, lineHeight: 1.7, minHeight: 60 }}>
+                  <p style={{ fontSize: 14, color: t.textMuted, marginBottom: 20, lineHeight: 1.7 }}>
                     {plan.desc}
                   </p>
 
+                  {/* Token block */}
+                  <div style={{
+                    borderRadius: 14,
+                    background: isHovered || plan.pro
+                      ? `${plan.iconColor}14`
+                      : dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+                    border: `1px solid ${isHovered || plan.pro ? plan.iconColor + '28' : t.divider}`,
+                    padding: '14px 16px', marginBottom: 24,
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    transition: 'all .2s',
+                  }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                      background: `${plan.iconColor}20`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Sparkles size={16} strokeWidth={1.5} color={plan.iconColor} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: plan.iconColor, letterSpacing: '-0.02em', lineHeight: 1 }}>
+                        {plan.tokens.toLocaleString('pl-PL')} tokenów
+                        <span style={{ fontSize: 11, fontWeight: 600, color: t.textFaint, marginLeft: 6 }}>/ mies.</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: t.textMuted, marginTop: 3 }}>{plan.tokenDesc}</div>
+                    </div>
+                  </div>
+
                   {/* Divider */}
-                  <div style={{ height: 1, background: t.divider, marginBottom: 24 }} />
+                  <div style={{ height: 1, background: t.divider, marginBottom: 20 }} />
 
                   {/* Features */}
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 32 }}>
