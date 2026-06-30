@@ -633,27 +633,83 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           transition: 'background .3s',
         }} />
 
-        {/* Dark/light toggle */}
-        <button
-          onClick={() => setDark(d => !d)}
-          style={{
-            position: 'absolute', top: 24, right: 24,
-            height: 36, borderRadius: 18, border: `1.5px solid ${dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'}`,
-            background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)',
-            cursor: 'pointer', zIndex: 2,
-            display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px',
-            transition: 'all .2s',
-          }}
-          title={dark ? 'Tryb jasny' : 'Tryb ciemny'}
-        >
-          {dark
-            ? <Sun  size={15} strokeWidth={2} color="#facc15" />
-            : <Moon size={15} strokeWidth={2} color="#6366f1" />
-          }
-          <span style={{ fontSize: 12, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)', letterSpacing: '0.02em' }}>
-            {dark ? 'Jasny' : 'Ciemny'}
-          </span>
-        </button>
+        {/* Top-right controls */}
+        <div style={{
+          position: 'absolute', top: 24, right: 24, zIndex: 2,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          {/* Zaloguj się */}
+          <a
+            href="/logowanie"
+            style={{
+              height: 36, borderRadius: 18, padding: '0 16px',
+              border: `1.5px solid ${dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'}`,
+              background: 'transparent',
+              display: 'flex', alignItems: 'center',
+              fontSize: 12, fontWeight: 700,
+              color: dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)',
+              textDecoration: 'none', letterSpacing: '0.02em',
+              transition: 'all .15s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.color = dark ? '#fff' : '#0f0f12'
+              e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.color = dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)'
+              e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'
+            }}
+          >
+            Zaloguj się
+          </a>
+
+          {/* Zarejestruj się */}
+          <a
+            href="/rejestracja"
+            style={{
+              height: 36, borderRadius: 18, padding: '0 18px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+              display: 'flex', alignItems: 'center',
+              fontSize: 12, fontWeight: 800,
+              color: '#fff',
+              textDecoration: 'none', letterSpacing: '0.02em',
+              boxShadow: '0 4px 14px rgba(22,163,74,0.4)',
+              transition: 'all .15s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-1px)'
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(22,163,74,0.5)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 4px 14px rgba(22,163,74,0.4)'
+            }}
+          >
+            Zarejestruj się →
+          </a>
+
+          {/* Dark/light toggle */}
+          <button
+            onClick={() => setDark(d => !d)}
+            style={{
+              height: 36, borderRadius: 18, border: `1.5px solid ${dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'}`,
+              background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)',
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px',
+              transition: 'all .2s',
+            }}
+            title={dark ? 'Tryb jasny' : 'Tryb ciemny'}
+          >
+            {dark
+              ? <Sun  size={15} strokeWidth={2} color="#facc15" />
+              : <Moon size={15} strokeWidth={2} color="#6366f1" />
+            }
+            <span style={{ fontSize: 12, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)', letterSpacing: '0.02em' }}>
+              {dark ? 'Jasny' : 'Ciemny'}
+            </span>
+          </button>
+        </div>
 
         <div style={{ position: 'relative', zIndex: 1 }}>
           <HeroSlider dark={dark} />
