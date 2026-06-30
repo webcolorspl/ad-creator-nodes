@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { BookOpen, Video, Camera, Zap, Target, Bot, Package, Lock, Users, Check } from 'lucide-react'
 import type { LucideIcon } from '@/lib/icons'
 
-// ── Theme (mirror WelcomeScreen) ──────────────────────────────
+// ── Theme ─────────────────────────────────────────────────────
 function theme(dark: boolean) {
   return dark ? {
     bg:            '#07070b',
@@ -15,16 +15,13 @@ function theme(dark: boolean) {
     cardBg:        'rgba(255,255,255,0.03)',
     cardBorder:    'rgba(255,255,255,0.08)',
     cardBorderH:   'rgba(255,255,255,0.2)',
-    sectionBg:     'rgba(255,255,255,0.02)',
     badgeSoon:     { bg: 'rgba(99,102,241,0.15)', color: '#a5b4fc', border: 'rgba(99,102,241,0.3)' },
     badgeWip:      { bg: 'rgba(234,179,8,0.15)',  color: '#fde047', border: 'rgba(234,179,8,0.3)'  },
-    planBg:        'rgba(255,255,255,0.03)',
-    planBorder:    'rgba(255,255,255,0.08)',
+    planBg:        'rgba(255,255,255,0.04)',
+    planBorder:    'rgba(255,255,255,0.1)',
     planBorderPro: '#16a34a',
-    planProBg:     'rgba(22,163,74,0.06)',
+    planProBg:     'rgba(22,163,74,0.08)',
     checkColor:    '#4ade80',
-    mutedCheck:    'rgba(255,255,255,0.2)',
-    statsColor:    '#fff',
   } : {
     bg:            '#f4f4f7',
     text:          '#0f0f12',
@@ -35,16 +32,13 @@ function theme(dark: boolean) {
     cardBg:        '#ffffff',
     cardBorder:    'rgba(0,0,0,0.08)',
     cardBorderH:   'rgba(0,0,0,0.22)',
-    sectionBg:     'rgba(0,0,0,0.015)',
     badgeSoon:     { bg: 'rgba(99,102,241,0.08)', color: '#6366f1', border: 'rgba(99,102,241,0.2)' },
     badgeWip:      { bg: 'rgba(234,179,8,0.1)',   color: '#b45309', border: 'rgba(234,179,8,0.25)'  },
     planBg:        '#ffffff',
     planBorder:    'rgba(0,0,0,0.1)',
     planBorderPro: '#16a34a',
-    planProBg:     'rgba(22,163,74,0.04)',
+    planProBg:     'rgba(22,163,74,0.05)',
     checkColor:    '#16a34a',
-    mutedCheck:    'rgba(0,0,0,0.15)',
-    statsColor:    '#0f0f12',
   }
 }
 
@@ -57,7 +51,7 @@ function useFadeIn() {
     if (!el) return
     const obs = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect() } },
-      { threshold: 0.1 }
+      { threshold: 0.08 }
     )
     obs.observe(el)
     return () => obs.disconnect()
@@ -70,8 +64,8 @@ function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay
   return (
     <div ref={ref} style={{
       opacity: visible ? 1 : 0,
-      transform: visible ? 'translateY(0)' : 'translateY(32px)',
-      transition: `opacity .6s ease ${delay}ms, transform .6s ease ${delay}ms`,
+      transform: visible ? 'translateY(0)' : 'translateY(40px)',
+      transition: `opacity .65s ease ${delay}ms, transform .65s ease ${delay}ms`,
     }}>
       {children}
     </div>
@@ -84,21 +78,24 @@ function SectionHeader({ label, title, green, sub, dark }: {
 }) {
   const t = theme(dark)
   return (
-    <div style={{ marginBottom: 40 }}>
+    <div style={{ marginBottom: 56 }}>
       <div style={{
         display: 'inline-flex', alignItems: 'center', gap: 8,
         background: 'rgba(22,163,74,0.1)', borderRadius: 20,
-        padding: '4px 14px', marginBottom: 16,
+        padding: '5px 18px', marginBottom: 22,
         border: '1px solid rgba(22,163,74,0.2)',
       }}>
-        <span style={{ fontSize: 11, fontWeight: 700, color: '#16a34a', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#16a34a', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
           {label}
         </span>
       </div>
-      <h2 style={{ fontSize: 'clamp(28px, 3vw, 42px)', fontWeight: 900, color: t.text, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 12 }}>
+      <h2 style={{
+        fontSize: 'clamp(36px, 3.5vw, 54px)', fontWeight: 900,
+        color: t.text, lineHeight: 1.08, letterSpacing: '-0.025em', marginBottom: 18,
+      }}>
         {title}<br /><span style={{ color: '#16a34a' }}>{green}</span>
       </h2>
-      <p style={{ fontSize: 17, color: t.textMuted, lineHeight: 1.65, maxWidth: 520 }}>{sub}</p>
+      <p style={{ fontSize: 20, color: t.textMuted, lineHeight: 1.7, maxWidth: 560 }}>{sub}</p>
     </div>
   )
 }
@@ -106,15 +103,15 @@ function SectionHeader({ label, title, green, sub, dark }: {
 // ── SEKCJA 2: Więcej narzędzi ─────────────────────────────────
 interface ComingTool { Icon: LucideIcon; label: string; desc: string; badge: 'SOON' | 'IN PROGRESS' }
 const COMING: ComingTool[] = [
-  { Icon: BookOpen, label: 'Brandbook', desc: 'Wygeneruj spójną identyfikację wizualną marki — logo, kolory, typografię — w kilka minut.', badge: 'SOON' },
-  { Icon: Video,    label: 'Video Creator', desc: 'Twórz krótkie filmy reklamowe z AI. Podaj brief, wybierz styl — AI montuje za Ciebie.', badge: 'IN PROGRESS' },
-  { Icon: Camera,   label: 'Photo Generator', desc: 'Generuj zdjęcia produktowe i lifestyle bez sesji. Realistyczne fotki AI w każdym formacie.', badge: 'SOON' },
+  { Icon: BookOpen, label: 'Brandbook',        desc: 'Wygeneruj spójną identyfikację wizualną marki — logo, kolory, typografię — w kilka minut.', badge: 'SOON' },
+  { Icon: Video,    label: 'Video Creator',     desc: 'Twórz krótkie filmy reklamowe z AI. Podaj brief, wybierz styl — AI montuje za Ciebie.',     badge: 'IN PROGRESS' },
+  { Icon: Camera,   label: 'Photo Generator',   desc: 'Generuj zdjęcia produktowe i lifestyle bez sesji. Realistyczne fotki AI w każdym formacie.', badge: 'SOON' },
 ]
 
 export function SectionComingSoon({ dark }: { dark: boolean }) {
   const t = theme(dark)
   return (
-    <section style={{ padding: '80px 0' }}>
+    <section style={{ padding: '120px 0' }}>
       <FadeSection>
         <SectionHeader
           label="Na horyzoncie"
@@ -124,37 +121,35 @@ export function SectionComingSoon({ dark }: { dark: boolean }) {
           dark={dark}
         />
       </FadeSection>
-      <div style={{ display: 'flex', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 22 }}>
         {COMING.map((tool, i) => {
           const badge = tool.badge === 'SOON' ? t.badgeSoon : t.badgeWip
           return (
-            <FadeSection key={tool.label} delay={i * 80}>
+            <FadeSection key={tool.label} delay={i * 90}>
               <div style={{
-                flex: 1, padding: '28px 24px',
-                borderRadius: 20,
+                flex: 1, padding: '40px 32px',
+                borderRadius: 24,
                 border: `1px solid ${t.cardBorder}`,
                 background: t.cardBg,
                 position: 'relative', overflow: 'hidden',
               }}>
-                {/* Badge */}
                 <div style={{
                   display: 'inline-flex', alignItems: 'center',
                   background: badge.bg, border: `1px solid ${badge.border}`,
-                  borderRadius: 20, padding: '3px 10px', marginBottom: 18,
+                  borderRadius: 20, padding: '4px 12px', marginBottom: 24,
                 }}>
-                  <span style={{ fontSize: 9, fontWeight: 800, color: badge.color, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: badge.color, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                     {tool.badge}
                   </span>
                 </div>
-                <tool.Icon size={28} strokeWidth={1.5} color={t.textMuted} style={{ marginBottom: 14, display: 'block' }} />
-                <div style={{ fontSize: 20, fontWeight: 800, color: t.text, marginBottom: 8 }}>{tool.label}</div>
-                <div style={{ fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>{tool.desc}</div>
-                {/* Blur overlay */}
+                <tool.Icon size={34} strokeWidth={1.5} color={t.textMuted} style={{ marginBottom: 18, display: 'block' }} />
+                <div style={{ fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 12 }}>{tool.label}</div>
+                <div style={{ fontSize: 16, color: t.textMuted, lineHeight: 1.7 }}>{tool.desc}</div>
                 <div style={{
                   position: 'absolute', inset: 0,
                   backdropFilter: 'blur(1.5px)',
                   background: dark ? 'rgba(7,7,11,0.35)' : 'rgba(244,244,247,0.3)',
-                  borderRadius: 20,
+                  borderRadius: 24,
                 }} />
               </div>
             </FadeSection>
@@ -168,19 +163,19 @@ export function SectionComingSoon({ dark }: { dark: boolean }) {
 // ── SEKCJA 3: Features ────────────────────────────────────────
 interface Feature { Icon: LucideIcon; title: string; desc: string }
 const FEATURES: Feature[] = [
-  { Icon: Zap,     title: 'Od briefu do kreacji w minuty', desc: 'Zapomnij o godzinach w Photoshopie. Opisz co chcesz — AI robi resztę.' },
-  { Icon: Target,  title: 'Multi-channel w jednym miejscu', desc: 'Meta, Google, TikTok, LinkedIn — wszystkie formaty generujesz w jednej sesji.' },
-  { Icon: Bot,     title: 'AI wbudowane, nie doklejone', desc: 'Generowanie tekstu i grafiki to rdzeń narzędzia, nie dodatek.' },
-  { Icon: Package, title: 'Eksport gotowy do wrzucenia', desc: 'Pliki per format i kanał. ZIP jednym kliknięciem, gotowy do upload.' },
-  { Icon: Lock,    title: 'Twoje dane, tylko Twoje', desc: 'Nie trenujemy na Twoich kreacjach. Zero udostępniania danych do modeli.' },
-  { Icon: Users,   title: 'Praca zespołowa bez chaosu', desc: 'Komentarze, wersje, role. Agencja i klient w jednym workspace.' },
+  { Icon: Zap,     title: 'Od briefu do kreacji w minuty',    desc: 'Zapomnij o godzinach w Photoshopie. Opisz co chcesz — AI robi resztę.' },
+  { Icon: Target,  title: 'Multi-channel w jednym miejscu',   desc: 'Meta, Google, TikTok, LinkedIn — wszystkie formaty generujesz w jednej sesji.' },
+  { Icon: Bot,     title: 'AI wbudowane, nie doklejone',      desc: 'Generowanie tekstu i grafiki to rdzeń narzędzia, nie dodatek.' },
+  { Icon: Package, title: 'Eksport gotowy do wrzucenia',      desc: 'Pliki per format i kanał. ZIP jednym kliknięciem, gotowy do upload.' },
+  { Icon: Lock,    title: 'Twoje dane, tylko Twoje',          desc: 'Nie trenujemy na Twoich kreacjach. Zero udostępniania danych do modeli.' },
+  { Icon: Users,   title: 'Praca zespołowa bez chaosu',       desc: 'Komentarze, wersje, role. Agencja i klient w jednym workspace.' },
 ]
 
 export function SectionFeatures({ dark }: { dark: boolean }) {
   const t = theme(dark)
   const [hovered, setHovered] = useState<number | null>(null)
   return (
-    <section style={{ padding: '80px 0', borderTop: `1px solid ${t.divider}` }}>
+    <section style={{ padding: '120px 0', borderTop: `1px solid ${t.divider}` }}>
       <FadeSection>
         <SectionHeader
           label="Dlaczego XTOOLS"
@@ -190,31 +185,30 @@ export function SectionFeatures({ dark }: { dark: boolean }) {
           dark={dark}
         />
       </FadeSection>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
         {FEATURES.map((f, i) => (
           <FadeSection key={f.title} delay={i * 60}>
             <div
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
               style={{
-                padding: '24px 22px',
-                borderRadius: 16,
+                padding: '36px 30px',
+                borderRadius: 20,
                 border: `1px solid ${hovered === i ? t.cardBorderH : t.cardBorder}`,
-                background: hovered === i ? (dark ? 'rgba(255,255,255,0.05)' : '#fff') : t.cardBg,
-                transition: 'all .2s',
-                cursor: 'default',
+                background: hovered === i ? (dark ? 'rgba(255,255,255,0.06)' : '#fff') : t.cardBg,
+                transition: 'all .2s', cursor: 'default',
               }}
             >
               <div style={{
-                width: 40, height: 40, borderRadius: 12, marginBottom: 14,
+                width: 48, height: 48, borderRadius: 14, marginBottom: 18,
                 background: hovered === i ? 'rgba(22,163,74,0.15)' : (dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transition: 'background .2s',
               }}>
-                <f.Icon size={20} strokeWidth={1.5} color={hovered === i ? '#16a34a' : t.textMuted} />
+                <f.Icon size={24} strokeWidth={1.5} color={hovered === i ? '#16a34a' : t.textMuted} />
               </div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: t.text, marginBottom: 6 }}>{f.title}</div>
-              <div style={{ fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>{f.desc}</div>
+              <div style={{ fontSize: 19, fontWeight: 800, color: t.text, marginBottom: 10 }}>{f.title}</div>
+              <div style={{ fontSize: 15, color: t.textMuted, lineHeight: 1.7 }}>{f.desc}</div>
             </div>
           </FadeSection>
         ))}
@@ -226,33 +220,15 @@ export function SectionFeatures({ dark }: { dark: boolean }) {
 // ── SEKCJA 4: Testimonials ────────────────────────────────────
 interface Testimonial { name: string; role: string; company: string; quote: string; avatar: number }
 const TESTIMONIALS: Testimonial[] = [
-  {
-    name: 'Marta Kowalczyk',
-    role: 'Head of Performance',
-    company: 'Agencja Wzrost',
-    quote: 'Skróciliśmy czas produkcji kreacji o 70%. Klienci dostają materiały następnego dnia po briefie, nie po tygodniu.',
-    avatar: 44,
-  },
-  {
-    name: 'Piotr Zając',
-    role: 'Freelance Art Director',
-    company: 'Self-employed',
-    quote: 'W końcu narzędzie, które rozumie workflow agencyjny. Generuję paczki na 5 kanałów jednocześnie — to jest przyszłość.',
-    avatar: 68,
-  },
-  {
-    name: 'Karolina Nowak',
-    role: 'Marketing Manager',
-    company: 'Sklep Zenith',
-    quote: 'Wdrożyliśmy XTOOLS dla całego zespołu marketingu. Oszczędzamy 20h tygodniowo tylko na formatowaniu kreacji.',
-    avatar: 56,
-  },
+  { name: 'Marta Kowalczyk', role: 'Head of Performance', company: 'Agencja Wzrost',    quote: 'Skróciliśmy czas produkcji kreacji o 70%. Klienci dostają materiały następnego dnia po briefie, nie po tygodniu.', avatar: 44 },
+  { name: 'Piotr Zając',     role: 'Freelance Art Director', company: 'Self-employed',   quote: 'W końcu narzędzie, które rozumie workflow agencyjny. Generuję paczki na 5 kanałów jednocześnie — to jest przyszłość.', avatar: 68 },
+  { name: 'Karolina Nowak',  role: 'Marketing Manager',   company: 'Sklep Zenith',      quote: 'Wdrożyliśmy XTOOLS dla całego zespołu marketingu. Oszczędzamy 20h tygodniowo tylko na formatowaniu kreacji.', avatar: 56 },
 ]
 
 export function SectionTestimonials({ dark }: { dark: boolean }) {
   const t = theme(dark)
   return (
-    <section style={{ padding: '80px 0', borderTop: `1px solid ${t.divider}` }}>
+    <section style={{ padding: '120px 0', borderTop: `1px solid ${t.divider}` }}>
       <FadeSection>
         <SectionHeader
           label="Opinie użytkowników"
@@ -262,40 +238,32 @@ export function SectionTestimonials({ dark }: { dark: boolean }) {
           dark={dark}
         />
       </FadeSection>
-      <div style={{ display: 'flex', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 22 }}>
         {TESTIMONIALS.map((tm, i) => (
           <FadeSection key={tm.name} delay={i * 100}>
             <div style={{
-              flex: 1, padding: '28px 24px',
-              borderRadius: 20,
+              flex: 1, padding: '36px 30px',
+              borderRadius: 24,
               border: `1px solid ${t.cardBorder}`,
               background: t.cardBg,
-              display: 'flex', flexDirection: 'column', gap: 20,
+              display: 'flex', flexDirection: 'column', gap: 24,
             }}>
-              {/* Stars */}
-              <div style={{ display: 'flex', gap: 3 }}>
-                {[...Array(5)].map((_, s) => (
-                  <span key={s} style={{ color: '#facc15', fontSize: 14 }}>★</span>
-                ))}
+              <div style={{ display: 'flex', gap: 4 }}>
+                {[...Array(5)].map((_, s) => <span key={s} style={{ color: '#facc15', fontSize: 18 }}>★</span>)}
               </div>
-              {/* Quote */}
-              <p style={{
-                fontSize: 14, color: t.textSub, lineHeight: 1.7,
-                flex: 1, fontStyle: 'italic',
-              }}>
+              <p style={{ fontSize: 17, color: t.textSub, lineHeight: 1.75, flex: 1, fontStyle: 'italic' }}>
                 „{tm.quote}"
               </p>
-              {/* Author */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                 <img
-                  src={`https://i.pravatar.cc/48?img=${tm.avatar}`}
+                  src={`https://i.pravatar.cc/56?img=${tm.avatar}`}
                   alt={tm.name}
-                  width={40} height={40}
+                  width={48} height={48}
                   style={{ borderRadius: '50%', border: `2px solid ${t.cardBorder}` }}
                 />
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{tm.name}</div>
-                  <div style={{ fontSize: 11, color: t.textMuted }}>{tm.role} · {tm.company}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: t.text }}>{tm.name}</div>
+                  <div style={{ fontSize: 13, color: t.textMuted }}>{tm.role} · {tm.company}</div>
                 </div>
               </div>
             </div>
@@ -306,31 +274,21 @@ export function SectionTestimonials({ dark }: { dark: boolean }) {
   )
 }
 
-// ── SEKCJA 5: Cennik ──────────────────────────────────────────
+// ── SEKCJA 5: Cennik (full-width + parallax gradient) ─────────
 interface Plan {
-  name: string
-  price: string
-  period: string
-  desc: string
-  features: string[]
-  missing: string[]
-  cta: string
-  pro?: boolean
+  name: string; price: string; period: string; desc: string
+  features: string[]; missing: string[]; cta: string; pro?: boolean
 }
 const PLANS: Plan[] = [
   {
-    name: 'Free',
-    price: '0 zł',
-    period: 'na zawsze',
+    name: 'Free', price: '0 zł', period: 'na zawsze',
     desc: 'Zacznij bez karty kredytowej.',
     features: ['3 aktywne projekty', 'Creator (generator banerów)', '20 eksportów miesięcznie', 'Formaty: FB, IG, Google'],
     missing: ['Composer (canvas)', 'Eksport bez watermarku', 'Historia wersji', 'Wsparcie priorytetowe'],
     cta: 'Zacznij za darmo',
   },
   {
-    name: 'Pro',
-    price: '79 zł',
-    period: 'miesięcznie',
+    name: 'Pro', price: '79 zł', period: 'miesięcznie',
     desc: 'Dla freelancerów i małych agencji.',
     features: ['Nielimitowane projekty', 'Creator + Composer', 'Nielimitowany eksport', 'Brak watermarku', 'Historia i wersje', 'Wszystkie formaty i kanały', 'Chat support'],
     missing: ['Multi-klient workspace', 'Brandbook (SOON)', 'White-label'],
@@ -338,9 +296,7 @@ const PLANS: Plan[] = [
     pro: true,
   },
   {
-    name: 'Agency',
-    price: '249 zł',
-    period: 'miesięcznie',
+    name: 'Agency', price: '249 zł', period: 'miesięcznie',
     desc: 'Dla agencji obsługujących wielu klientów.',
     features: ['Wszystko z Pro', 'Do 15 klientów / workspace', 'Brandbook (SOON)', 'Video Creator (wkrótce)', 'White-label eksport', 'Dedykowany opiekun', 'Priorytetowe wsparcie'],
     missing: [],
@@ -348,146 +304,185 @@ const PLANS: Plan[] = [
   },
 ]
 
-export function SectionPricing({ dark }: { dark: boolean }) {
+export function SectionPricing({ dark, scrollY, padL, padR }: {
+  dark: boolean; scrollY: number; padL: number; padR: number
+}) {
   const t = theme(dark)
   const [hovered, setHovered] = useState<number | null>(null)
+  const sectionRef = useRef<HTMLElement>(null)
+
+  // parallax offset relative to section position
+  const offsetTop = sectionRef.current?.offsetTop ?? 0
+  const parallaxY = (scrollY - offsetTop) * 0.35
+
   return (
-    <section style={{ padding: '80px 0', borderTop: `1px solid ${t.divider}` }}>
-      <FadeSection>
-        <SectionHeader
-          label="Cennik"
-          title="Zacznij za darmo,"
-          green="skaluj gdy rośniesz."
-          sub="Bez umów na rok. Bez ukrytych opłat. Zmień plan w każdej chwili."
-          dark={dark}
-        />
-      </FadeSection>
-      <div style={{ display: 'flex', gap: 14 }}>
-        {PLANS.map((plan, i) => (
-          <FadeSection key={plan.name} delay={i * 80}>
-            <div
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-              style={{
-                flex: 1, padding: '28px 22px',
-                borderRadius: 20,
-                border: `2px solid ${plan.pro ? t.planBorderPro : (hovered === i ? t.cardBorderH : t.planBorder)}`,
-                background: plan.pro ? t.planProBg : t.planBg,
-                display: 'flex', flexDirection: 'column', gap: 0,
-                transition: 'all .2s', position: 'relative',
-              }}
-            >
-              {plan.pro && (
-                <div style={{
-                  position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)',
-                  background: 'linear-gradient(135deg, #16a34a, #15803d)',
-                  borderRadius: 20, padding: '4px 14px',
-                  fontSize: 10, fontWeight: 800, color: '#fff', letterSpacing: '0.1em',
-                  textTransform: 'uppercase', whiteSpace: 'nowrap',
-                }}>
-                  Najpopularniejszy
-                </div>
-              )}
-              <div style={{ fontSize: 13, fontWeight: 700, color: plan.pro ? '#16a34a' : t.textMuted, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                {plan.name}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
-                <span style={{ fontSize: 32, fontWeight: 900, color: t.text, letterSpacing: '-0.02em' }}>{plan.price}</span>
-                <span style={{ fontSize: 12, color: t.textMuted }}>{plan.period}</span>
-              </div>
-              <p style={{ fontSize: 12, color: t.textMuted, marginBottom: 22, lineHeight: 1.5 }}>{plan.desc}</p>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
-                {plan.features.map(f => (
-                  <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <Check size={13} strokeWidth={2.5} color={t.checkColor} style={{ flexShrink: 0, marginTop: 2 }} />
-                    <span style={{ fontSize: 12, color: t.textSub, lineHeight: 1.5 }}>{f}</span>
-                  </div>
-                ))}
-                {plan.missing.map(f => (
-                  <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, opacity: 0.35 }}>
-                    <div style={{ width: 13, height: 13, flexShrink: 0, marginTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <div style={{ width: 8, height: 1.5, background: t.textFaint, borderRadius: 1 }} />
-                    </div>
-                    <span style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.5 }}>{f}</span>
-                  </div>
-                ))}
-              </div>
-              <a
-                href="/rejestracja"
+    <section
+      ref={sectionRef}
+      style={{
+        // escape parent padding → full width
+        marginLeft: -padL, marginRight: -padR,
+        padding: `120px ${padR}px 120px ${padL}px`,
+        borderTop: `1px solid ${t.divider}`,
+        position: 'relative', overflow: 'hidden',
+      }}
+    >
+      {/* Parallax gradient background */}
+      <div style={{
+        position: 'absolute', inset: '-40% -20%',
+        background: dark
+          ? 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(22,163,74,0.12) 0%, rgba(99,102,241,0.08) 50%, transparent 100%)'
+          : 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(22,163,74,0.10) 0%, rgba(99,102,241,0.06) 50%, transparent 100%)',
+        transform: `translateY(${parallaxY}px)`,
+        pointerEvents: 'none',
+        transition: 'background .3s',
+      }} />
+      {/* Second layer — moves faster */}
+      <div style={{
+        position: 'absolute', inset: '-20% -10%',
+        background: dark
+          ? 'radial-gradient(ellipse 40% 30% at 20% 80%, rgba(22,163,74,0.07) 0%, transparent 100%)'
+          : 'radial-gradient(ellipse 40% 30% at 20% 80%, rgba(22,163,74,0.06) 0%, transparent 100%)',
+        transform: `translateY(${parallaxY * 1.6}px)`,
+        pointerEvents: 'none',
+      }} />
+
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <FadeSection>
+          <SectionHeader
+            label="Cennik"
+            title="Zacznij za darmo,"
+            green="skaluj gdy rośniesz."
+            sub="Bez umów na rok. Bez ukrytych opłat. Zmień plan w każdej chwili."
+            dark={dark}
+          />
+        </FadeSection>
+
+        <div style={{ display: 'flex', gap: 20 }}>
+          {PLANS.map((plan, i) => (
+            <FadeSection key={plan.name} delay={i * 90}>
+              <div
+                onMouseEnter={() => setHovered(i)}
+                onMouseLeave={() => setHovered(null)}
                 style={{
-                  display: 'block', textAlign: 'center',
-                  padding: '12px', borderRadius: 12,
-                  fontSize: 13, fontWeight: 800,
-                  textDecoration: 'none',
-                  background: plan.pro
-                    ? 'linear-gradient(135deg, #16a34a, #15803d)'
-                    : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'),
-                  color: plan.pro ? '#fff' : t.text,
-                  border: plan.pro ? 'none' : `1.5px solid ${t.planBorder}`,
-                  boxShadow: plan.pro ? '0 4px 16px rgba(22,163,74,0.35)' : 'none',
-                  transition: 'all .15s',
+                  flex: 1, padding: '36px 28px',
+                  borderRadius: 24,
+                  border: `2px solid ${plan.pro ? t.planBorderPro : (hovered === i ? t.cardBorderH : t.planBorder)}`,
+                  background: plan.pro ? t.planProBg : t.planBg,
+                  display: 'flex', flexDirection: 'column', gap: 0,
+                  transition: 'all .2s', position: 'relative',
                 }}
               >
-                {plan.cta}
-              </a>
-            </div>
-          </FadeSection>
-        ))}
+                {plan.pro && (
+                  <div style={{
+                    position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
+                    background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                    borderRadius: 20, padding: '5px 16px',
+                    fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: '0.1em',
+                    textTransform: 'uppercase', whiteSpace: 'nowrap',
+                  }}>
+                    Najpopularniejszy
+                  </div>
+                )}
+                <div style={{ fontSize: 15, fontWeight: 700, color: plan.pro ? '#16a34a' : t.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  {plan.name}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: 42, fontWeight: 900, color: t.text, letterSpacing: '-0.025em' }}>{plan.price}</span>
+                  <span style={{ fontSize: 14, color: t.textMuted }}>{plan.period}</span>
+                </div>
+                <p style={{ fontSize: 14, color: t.textMuted, marginBottom: 28, lineHeight: 1.6 }}>{plan.desc}</p>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 11, marginBottom: 28 }}>
+                  {plan.features.map(f => (
+                    <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                      <Check size={15} strokeWidth={2.5} color={t.checkColor} style={{ flexShrink: 0, marginTop: 2 }} />
+                      <span style={{ fontSize: 14, color: t.textSub, lineHeight: 1.55 }}>{f}</span>
+                    </div>
+                  ))}
+                  {plan.missing.map(f => (
+                    <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, opacity: 0.35 }}>
+                      <div style={{ width: 15, height: 15, flexShrink: 0, marginTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: 8, height: 2, background: t.textFaint, borderRadius: 1 }} />
+                      </div>
+                      <span style={{ fontSize: 14, color: t.textMuted, lineHeight: 1.55 }}>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <a
+                  href="/rejestracja"
+                  style={{
+                    display: 'block', textAlign: 'center',
+                    padding: '14px', borderRadius: 14,
+                    fontSize: 14, fontWeight: 800,
+                    textDecoration: 'none',
+                    background: plan.pro
+                      ? 'linear-gradient(135deg, #16a34a, #15803d)'
+                      : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'),
+                    color: plan.pro ? '#fff' : t.text,
+                    border: plan.pro ? 'none' : `1.5px solid ${t.planBorder}`,
+                    boxShadow: plan.pro ? '0 4px 18px rgba(22,163,74,0.4)' : 'none',
+                    transition: 'all .15s',
+                  }}
+                >
+                  {plan.cta}
+                </a>
+              </div>
+            </FadeSection>
+          ))}
+        </div>
+
+        <FadeSection delay={300}>
+          <p style={{ fontSize: 14, color: t.textFaint, textAlign: 'center', marginTop: 24 }}>
+            Wszystkie ceny netto + VAT. Plan Pro: pierwszy miesiąc gratis, potem 79 zł/mies. Anuluj kiedy chcesz.
+          </p>
+        </FadeSection>
       </div>
-      <FadeSection delay={300}>
-        <p style={{ fontSize: 12, color: t.textFaint, textAlign: 'center', marginTop: 20 }}>
-          Wszystkie ceny netto + VAT. Plan Pro: pierwszy miesiąc gratis, potem 79 zł/mies. Anuluj kiedy chcesz.
-        </p>
-      </FadeSection>
     </section>
   )
 }
 
 // ── SEKCJA 6: Final CTA ───────────────────────────────────────
 const STATS = [
-  { value: '500+',   label: 'agencji i freelancerów' },
-  { value: '8 min',  label: 'średni czas produkcji kampanii' },
-  { value: '4×',     label: 'szybciej niż tradycyjne narzędzia' },
+  { value: '500+',  label: 'agencji i freelancerów' },
+  { value: '8 min', label: 'średni czas produkcji kampanii' },
+  { value: '4×',    label: 'szybciej niż tradycyjne narzędzia' },
 ]
 
 export function SectionFinalCTA({ dark }: { dark: boolean }) {
   const t = theme(dark)
   const [hoverBtn, setHoverBtn] = useState(false)
   return (
-    <section style={{ padding: '80px 0 100px', borderTop: `1px solid ${t.divider}` }}>
+    <section style={{ padding: '120px 0 140px', borderTop: `1px solid ${t.divider}` }}>
       <FadeSection>
-        {/* Stats */}
-        <div style={{ display: 'flex', gap: 0, marginBottom: 60 }}>
+        <div style={{ display: 'flex', gap: 0, marginBottom: 72 }}>
           {STATS.map((s, i) => (
             <div key={s.value} style={{
-              flex: 1, textAlign: 'center', padding: '24px 16px',
+              flex: 1, textAlign: 'center', padding: '32px 20px',
               borderRight: i < STATS.length - 1 ? `1px solid ${t.divider}` : 'none',
             }}>
-              <div style={{ fontSize: 36, fontWeight: 900, color: '#16a34a', letterSpacing: '-0.02em', marginBottom: 6 }}>
+              <div style={{ fontSize: 48, fontWeight: 900, color: '#16a34a', letterSpacing: '-0.025em', marginBottom: 8 }}>
                 {s.value}
               </div>
-              <div style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.5 }}>{s.label}</div>
+              <div style={{ fontSize: 15, color: t.textMuted, lineHeight: 1.6 }}>{s.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Big CTA */}
         <div style={{
-          borderRadius: 24,
+          borderRadius: 28,
           background: dark
-            ? 'linear-gradient(135deg, rgba(22,163,74,0.15) 0%, rgba(15,118,110,0.1) 100%)'
+            ? 'linear-gradient(135deg, rgba(22,163,74,0.14) 0%, rgba(15,118,110,0.09) 100%)'
             : 'linear-gradient(135deg, rgba(22,163,74,0.08) 0%, rgba(15,118,110,0.05) 100%)',
-          border: `1px solid ${dark ? 'rgba(22,163,74,0.25)' : 'rgba(22,163,74,0.2)'}`,
-          padding: '48px 40px', textAlign: 'center',
+          border: `1px solid ${dark ? 'rgba(22,163,74,0.25)' : 'rgba(22,163,74,0.18)'}`,
+          padding: '64px 48px', textAlign: 'center',
         }}>
           <h2 style={{
-            fontSize: 'clamp(26px, 3vw, 40px)', fontWeight: 900,
-            color: t.text, letterSpacing: '-0.02em', marginBottom: 10, lineHeight: 1.15,
+            fontSize: 'clamp(32px, 3.5vw, 50px)', fontWeight: 900,
+            color: t.text, letterSpacing: '-0.025em', marginBottom: 14, lineHeight: 1.12,
           }}>
             Zacznij tworzyć kampanie<br />
             <span style={{ color: '#16a34a' }}>szybciej niż kiedykolwiek.</span>
           </h2>
-          <p style={{ fontSize: 16, color: t.textMuted, marginBottom: 32, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 19, color: t.textMuted, marginBottom: 40, lineHeight: 1.7 }}>
             Bezpłatne konto. Bez karty kredytowej. Bez umów.<br />
             Pierwsze kreacje gotowe w 5 minut.
           </p>
@@ -496,22 +491,20 @@ export function SectionFinalCTA({ dark }: { dark: boolean }) {
             onMouseEnter={() => setHoverBtn(true)}
             onMouseLeave={() => setHoverBtn(false)}
             style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '16px 36px', borderRadius: 50,
+              display: 'inline-flex', alignItems: 'center', gap: 10,
+              padding: '18px 44px', borderRadius: 50,
               background: 'linear-gradient(135deg, #16a34a, #15803d)',
               color: '#fff', textDecoration: 'none',
-              fontSize: 15, fontWeight: 800, letterSpacing: '-0.01em',
-              boxShadow: hoverBtn
-                ? '0 16px 40px rgba(22,163,74,0.55)'
-                : '0 8px 24px rgba(22,163,74,0.4)',
+              fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em',
+              boxShadow: hoverBtn ? '0 20px 48px rgba(22,163,74,0.55)' : '0 8px 28px rgba(22,163,74,0.4)',
               transform: hoverBtn ? 'translateY(-2px)' : 'translateY(0)',
               transition: 'all .2s',
             }}
           >
             Zarejestruj się za darmo
-            <span style={{ transform: hoverBtn ? 'translateX(4px)' : 'translateX(0)', transition: 'transform .15s', display: 'inline-block' }}>→</span>
+            <span style={{ transform: hoverBtn ? 'translateX(5px)' : 'translateX(0)', transition: 'transform .15s', display: 'inline-block' }}>→</span>
           </a>
-          <p style={{ fontSize: 12, color: t.textFaint, marginTop: 16 }}>
+          <p style={{ fontSize: 14, color: t.textFaint, marginTop: 20 }}>
             Dołącz do 500+ marketerów którzy już oszczędzają czas
           </p>
         </div>

@@ -744,7 +744,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           <SectionComingSoon dark={dark} />
           <SectionFeatures dark={dark} />
           <SectionTestimonials dark={dark} />
-          <SectionPricing dark={dark} />
+          <SectionPricing dark={dark} scrollY={scrollY} padL={64} padR={72} />
           <SectionFinalCTA dark={dark} />
         </div>
       </div>
