@@ -18,13 +18,17 @@ import { WelcomeScreen }     from './WelcomeScreen'
 import { AiAgentPanel }      from './AiAgentPanel'
 import { useAppStore }       from '@/store/appStore'
 
+// nodes.xtools.pl → skip WelcomeScreen, go straight to canvas
+const isNodesSubdomain =
+  typeof window !== 'undefined' && window.location.hostname === 'nodes.xtools.pl'
+
 export function AdCreatorApp() {
   const showApiModal = useAppStore(s => s.showApiModal)
   const showTests    = useAppStore(s => s.showTests)
   const resetCanvas  = useAppStore(s => s.resetCanvas)
   const [liveNodes, setLiveNodes] = useState<Node[]>([])
   const [liveEdges, setLiveEdges] = useState<Edge[]>([])
-  const [showWelcome, setShowWelcome] = useState(true)
+  const [showWelcome, setShowWelcome] = useState(!isNodesSubdomain)
   const [campaignType, setCampaignType] = useState<string | undefined>(undefined)
 
   const handleChange = useCallback((nodes: Node[], edges: Edge[]) => {
