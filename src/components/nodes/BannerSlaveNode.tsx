@@ -86,9 +86,9 @@ function PillBtn({
 
 // ── Thumb size ─────────────────────────────────
 function thumbSize(fmt: { w: number; h: number }) {
-  let w = Math.round(fmt.w * 0.5)
-  let h = Math.round(fmt.h * 0.5)
-  const MAX_W = 400, MAX_H = 560
+  let w = fmt.w
+  let h = fmt.h
+  const MAX_W = 600, MAX_H = 840
   if (w > MAX_W) { const r = MAX_W / w; w = MAX_W; h = Math.round(h * r) }
   if (h > MAX_H) { const r = MAX_H / h; h = MAX_H; w = Math.round(w * r) }
   return { w, h }

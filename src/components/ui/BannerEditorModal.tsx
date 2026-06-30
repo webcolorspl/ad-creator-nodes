@@ -86,7 +86,7 @@ function getRelatedFormats(formatId: string): AdFormat[] {
 }
 
 function getThumbDims(w: number, h: number): { tw: number; th: number } {
-  const scale = Math.min(400 / w, 560 / h, 0.5)
+  const scale = Math.min(560 / w, 780 / h)
   return { tw: Math.round(w * scale), th: Math.round(h * scale) }
 }
 
@@ -103,14 +103,14 @@ interface SliderProps {
 
 function Slider({ label, value, min, max, step = 1, onChange }: SliderProps) {
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 14 }}>
       <div style={{
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: 700,
         textTransform: 'uppercase',
         letterSpacing: '0.08em',
         color: 'var(--color-text-muted)',
-        marginBottom: 4,
+        marginBottom: 5,
       }}>
         {label} <span style={{ fontWeight: 400, textTransform: 'none' }}>{value.toFixed(step < 1 ? 2 : 0)}</span>
       </div>
@@ -135,14 +135,14 @@ interface ColorFieldProps {
 
 function ColorField({ label, value, onChange }: ColorFieldProps) {
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 14 }}>
       <div style={{
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: 700,
         textTransform: 'uppercase',
         letterSpacing: '0.08em',
         color: 'var(--color-text-muted)',
-        marginBottom: 4,
+        marginBottom: 5,
       }}>
         {label}
       </div>
@@ -175,13 +175,13 @@ interface SectionLabelProps { children: React.ReactNode }
 function SectionLabel({ children }: SectionLabelProps) {
   return (
     <div style={{
-      fontSize: 8,
+      fontSize: 10,
       fontWeight: 700,
       textTransform: 'uppercase',
       letterSpacing: '0.12em',
       color: 'var(--color-text-muted)',
       marginBottom: 8,
-      marginTop: 16,
+      marginTop: 18,
     }}>
       {children}
     </div>
@@ -521,11 +521,11 @@ export function BannerEditorModal({
   ]
 
   const tabStyle = (id: TabId): React.CSSProperties => ({
-    padding: '4px 10px',
+    padding: '5px 13px',
     borderRadius: 20,
     border: 'none',
     cursor: 'pointer',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: tab === id ? 700 : 400,
     background: tab === id ? 'var(--color-process)' : 'transparent',
     color: tab === id ? '#fff' : 'var(--color-text-muted)',
@@ -534,11 +534,11 @@ export function BannerEditorModal({
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '6px 8px',
-    fontSize: 13,
+    padding: '8px 10px',
+    fontSize: 14,
     background: 'var(--color-surface)',
     border: '1px solid var(--color-field-border)',
-    borderRadius: 4,
+    borderRadius: 5,
     color: 'var(--color-text)',
     boxSizing: 'border-box',
   }
@@ -568,11 +568,11 @@ export function BannerEditorModal({
         style={{
           background: 'var(--color-surface)',
           border: '1px solid var(--color-border)',
-          borderRadius: 12,
+          borderRadius: 14,
           display: 'flex',
           flexDirection: 'column',
-          width: 'min(98vw, 1100px)',
-          height: 'min(96vh, 780px)',
+          width: 'min(98vw, 1340px)',
+          height: 'min(96vh, 940px)',
           overflow: 'hidden',
           boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
         }}
@@ -580,32 +580,32 @@ export function BannerEditorModal({
       >
         {/* ── Header ─────────────────────────────── */}
         <div style={{
-          height: 52,
+          height: 62,
           borderBottom: '1px solid var(--color-border)',
           display: 'flex',
           alignItems: 'center',
-          padding: '0 16px',
-          gap: 12,
+          padding: '0 20px',
+          gap: 14,
           flexShrink: 0,
         }}>
           <button
             onClick={onClose}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              color: 'var(--color-text-muted)', fontSize: 18, lineHeight: 1, padding: '2px 6px',
+              color: 'var(--color-text-muted)', fontSize: 22, lineHeight: 1, padding: '2px 8px',
             }}
             title="Zamknij"
           >
             ×
           </button>
-          <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--color-text)', flex: 1 }}>
+          <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--color-text)', flex: 1 }}>
             Banner Editor
           </span>
           <button
             onClick={() => { setShowSaveForm(v => !v) }}
             style={{
-              padding: '6px 14px', borderRadius: 6, border: '1px solid var(--color-field-border)',
-              background: 'transparent', color: 'var(--color-text)', cursor: 'pointer', fontSize: 13,
+              padding: '8px 18px', borderRadius: 7, border: '1px solid var(--color-field-border)',
+              background: 'transparent', color: 'var(--color-text)', cursor: 'pointer', fontSize: 14,
             }}
           >
             Zapisz preset
@@ -613,8 +613,8 @@ export function BannerEditorModal({
           <button
             onClick={() => { onApply({ ...local }, localHeadline, localCta); onClose() }}
             style={{
-              padding: '6px 18px', borderRadius: 6, border: 'none',
-              background: 'var(--color-process)', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 700,
+              padding: '8px 22px', borderRadius: 7, border: 'none',
+              background: 'var(--color-process)', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 700,
             }}
           >
             Zastosuj
@@ -626,7 +626,7 @@ export function BannerEditorModal({
 
           {/* ── LEFT PANEL ─────────────────────── */}
           <div style={{
-            width: 260,
+            width: 312,
             borderRight: '1px solid var(--color-border)',
             display: 'flex',
             flexDirection: 'column',
@@ -956,7 +956,7 @@ export function BannerEditorModal({
 
           {/* ── RIGHT PANEL ────────────────────── */}
           <div style={{
-            width: 220,
+            width: 264,
             borderLeft: '1px solid var(--color-border)',
             display: 'flex',
             flexDirection: 'column',
@@ -974,12 +974,12 @@ export function BannerEditorModal({
                   onClick={() => setRightTab(rt)}
                   style={{
                     flex: 1,
-                    padding: '9px 4px',
+                    padding: '11px 4px',
                     border: 'none',
                     borderBottom: rightTab === rt ? '2px solid var(--color-process)' : '2px solid transparent',
                     background: 'none',
                     cursor: 'pointer',
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: rightTab === rt ? 700 : 400,
                     color: rightTab === rt ? 'var(--color-text)' : 'var(--color-text-muted)',
                   }}
@@ -1068,15 +1068,15 @@ export function BannerEditorModal({
                       <img
                         src={preset.thumbnail}
                         alt={preset.name}
-                        style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }}
+                        style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 5, flexShrink: 0 }}
                       />
                     ) : (
                       <div style={{
-                        width: 60, height: 60, borderRadius: 4, flexShrink: 0,
+                        width: 72, height: 72, borderRadius: 5, flexShrink: 0,
                         background: 'var(--color-process)', opacity: 0.3,
                       }} />
                     )}
-                    <span style={{ fontSize: 12, color: 'var(--color-text)', lineHeight: 1.3 }}>
+                    <span style={{ fontSize: 14, color: 'var(--color-text)', lineHeight: 1.3 }}>
                       {preset.name}
                     </span>
                   </button>
@@ -1118,17 +1118,17 @@ export function BannerEditorModal({
                       <img
                         src={tpl.thumbnail}
                         alt={tpl.name}
-                        style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }}
+                        style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 5, flexShrink: 0 }}
                       />
                     ) : (
                       <div style={{
-                        width: 60, height: 60, borderRadius: 4, flexShrink: 0,
+                        width: 72, height: 72, borderRadius: 5, flexShrink: 0,
                         background: 'rgba(124,92,245,0.3)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 18, color: 'rgba(255,255,255,0.3)',
                       }}>◈</div>
                     )}
-                    <span style={{ fontSize: 12, color: 'var(--color-text)', lineHeight: 1.3 }}>
+                    <span style={{ fontSize: 14, color: 'var(--color-text)', lineHeight: 1.3 }}>
                       {tpl.name}
                     </span>
                   </button>
