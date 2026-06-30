@@ -551,6 +551,14 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
           {PLANS.map((plan, i) => {
             const isHovered = hovered === i
             const yr = yearly ? yearlyMonthly(plan.price, i) : null
+            const ct = plan.highlighted ? {
+              text:      '#ffffff',
+              textSub:   'rgba(255,255,255,0.88)',
+              textMuted: 'rgba(255,255,255,0.62)',
+              textFaint: 'rgba(255,255,255,0.38)',
+              divider:   'rgba(255,255,255,0.12)',
+              cardBorder:'rgba(255,255,255,0.14)',
+            } : t
 
             return (
               <FadeSection key={plan.name} delay={i * 90}>
@@ -561,15 +569,15 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                     height: '100%', display: 'flex', flexDirection: 'column',
                     borderRadius: 24,
                     border: `2px solid ${plan.highlighted
-                      ? plan.iconColor
+                      ? 'rgba(255,255,255,0.12)'
                       : isHovered ? t.cardBorderH : t.planBorder}`,
                     background: plan.highlighted
-                      ? (dark ? `${plan.iconColor}10` : `${plan.iconColor}07`)
-                      : (dark ? 'rgba(255,255,255,0.03)' : '#fff'),
+                      ? '#0e0e14'
+                      : (dark ? 'rgba(255,255,255,0.06)' : '#fff'),
                     padding: '32px 22px',
                     position: 'relative',
                     boxShadow: plan.highlighted
-                      ? `0 24px 60px ${plan.iconColor}22`
+                      ? '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)'
                       : isHovered ? (dark ? '0 12px 40px rgba(0,0,0,0.4)' : '0 8px 28px rgba(0,0,0,0.08)') : 'none',
                     transition: 'all .25s ease',
                   }}
@@ -592,17 +600,17 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                     width: 52, height: 52, borderRadius: 16, marginBottom: 20,
                     background: isHovered || plan.highlighted ? plan.iconBg : (dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    border: `1px solid ${isHovered || plan.highlighted ? plan.iconColor + '35' : t.cardBorder}`,
+                    border: `1px solid ${isHovered || plan.highlighted ? plan.iconColor + '35' : ct.cardBorder}`,
                     transition: 'all .2s',
                   }}>
                     <plan.Icon size={24} strokeWidth={1.5}
-                      color={isHovered || plan.highlighted ? plan.iconColor : t.textMuted} />
+                      color={isHovered || plan.highlighted ? plan.iconColor : ct.textMuted} />
                   </div>
 
                   {/* Name */}
                   <div style={{
                     fontSize: 16, fontWeight: 800,
-                    color: isHovered || plan.highlighted ? plan.iconColor : t.textMuted,
+                    color: isHovered || plan.highlighted ? plan.iconColor : ct.textMuted,
                     marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.1em',
                     transition: 'color .2s',
                   }}>
@@ -615,7 +623,7 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                       <>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                           <span style={{
-                            fontSize: 20, fontWeight: 600, color: t.textFaint,
+                            fontSize: 20, fontWeight: 600, color: ct.textFaint,
                             textDecoration: 'line-through',
                           }}>{yr.crossed}</span>
                           <span style={{
@@ -626,24 +634,24 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                           </span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
-                          <span style={{ fontSize: 49, fontWeight: 900, color: t.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
+                          <span style={{ fontSize: 49, fontWeight: 900, color: ct.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
                             {yr.price}
                           </span>
-                          <span style={{ fontSize: 17, color: t.textMuted }}>/ miesiąc</span>
+                          <span style={{ fontSize: 17, color: ct.textMuted }}>/ miesiąc</span>
                         </div>
                         <div style={{ fontSize: 14, color: '#16a34a', fontWeight: 600, marginTop: 4 }}>{yr.saving}</div>
                       </>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
-                        <span style={{ fontSize: 49, fontWeight: 900, color: t.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
+                        <span style={{ fontSize: 49, fontWeight: 900, color: ct.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
                           {plan.price}
                         </span>
-                        <span style={{ fontSize: 17, color: t.textMuted }}>{plan.period}</span>
+                        <span style={{ fontSize: 17, color: ct.textMuted }}>{plan.period}</span>
                       </div>
                     )}
                   </div>
 
-                  <p style={{ fontSize: 17, color: t.textMuted, marginBottom: 18, lineHeight: 1.65 }}>
+                  <p style={{ fontSize: 17, color: ct.textMuted, marginBottom: 18, lineHeight: 1.65 }}>
                     {plan.desc}
                   </p>
 
@@ -663,7 +671,7 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                   <div style={{
                     borderRadius: 12,
                     background: isHovered || plan.highlighted ? `${plan.iconColor}12` : (dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'),
-                    border: `1px solid ${isHovered || plan.highlighted ? plan.iconColor + '25' : t.divider}`,
+                    border: `1px solid ${isHovered || plan.highlighted ? plan.iconColor + '25' : ct.divider}`,
                     padding: '12px 14px', marginBottom: 20,
                     display: 'flex', alignItems: 'center', gap: 10,
                     transition: 'all .2s',
@@ -672,13 +680,13 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                     <div>
                       <div style={{ fontSize: 21, fontWeight: 900, color: plan.iconColor, letterSpacing: '-0.02em', lineHeight: 1 }}>
                         {plan.tokens.toLocaleString('pl-PL')} tokenów
-                        <span style={{ fontSize: 13, fontWeight: 600, color: t.textFaint, marginLeft: 5 }}>/ mies.</span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: ct.textFaint, marginLeft: 5 }}>/ mies.</span>
                       </div>
-                      <div style={{ fontSize: 13, color: t.textMuted, marginTop: 2 }}>{plan.tokenDesc}</div>
+                      <div style={{ fontSize: 13, color: ct.textMuted, marginTop: 2 }}>{plan.tokenDesc}</div>
                     </div>
                   </div>
 
-                  <div style={{ height: 1, background: t.divider, marginBottom: 16 }} />
+                  <div style={{ height: 1, background: ct.divider, marginBottom: 16 }} />
 
                   {/* Features */}
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
@@ -691,7 +699,7 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                         }}>
                           <Check size={10} strokeWidth={3} color={plan.iconColor} />
                         </div>
-                        <span style={{ fontSize: 17, color: t.textSub, lineHeight: 1.5 }}>{f}</span>
+                        <span style={{ fontSize: 17, color: ct.textSub, lineHeight: 1.5 }}>{f}</span>
                       </div>
                     ))}
                     {plan.missing.map(f => (
@@ -701,9 +709,9 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                           background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>
-                          <div style={{ width: 7, height: 1.5, background: t.textFaint, borderRadius: 1 }} />
+                          <div style={{ width: 7, height: 1.5, background: ct.textFaint, borderRadius: 1 }} />
                         </div>
-                        <span style={{ fontSize: 17, color: t.textMuted, lineHeight: 1.5 }}>{f}</span>
+                        <span style={{ fontSize: 17, color: ct.textMuted, lineHeight: 1.5 }}>{f}</span>
                       </div>
                     ))}
                   </div>
