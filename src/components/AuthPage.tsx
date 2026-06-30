@@ -83,7 +83,7 @@ export function AuthPage({ mode }: AuthPageProps) {
   }
 
   const inp = (field: string): React.CSSProperties => ({
-    width: '100%', padding: '12px 14px', fontSize: 20,
+    width: '100%', padding: '12px 14px', fontSize: 18,
     border: `1.5px solid ${focusField === field ? t.inputFocus : t.inputBorder}`,
     borderRadius: 10, outline: 'none',
     background: t.inputBg,
@@ -115,7 +115,7 @@ export function AuthPage({ mode }: AuthPageProps) {
       <div style={{ position: 'absolute', top: 24, left: 28, zIndex: 2 }}>
         <a href="/" style={{ textDecoration: 'none' }}>
           <span style={{
-            fontSize: 36, fontWeight: 900, color: dark ? '#fff' : '#0f0f12',
+            fontSize: 32, fontWeight: 900, color: dark ? '#fff' : '#0f0f12',
             letterSpacing: '-0.03em', lineHeight: 1,
             fontFamily: 'var(--font-sans, system-ui, sans-serif)',
           }}>
@@ -141,7 +141,7 @@ export function AuthPage({ mode }: AuthPageProps) {
           ? <Sun  size={15} strokeWidth={2} color="#facc15" />
           : <Moon size={15} strokeWidth={2} color="#6366f1" />
         }
-        <span style={{ fontSize: 16, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)', letterSpacing: '0.02em' }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)', letterSpacing: '0.02em' }}>
           {dark ? 'Jasny' : 'Ciemny'}
         </span>
       </button>
@@ -163,17 +163,17 @@ export function AuthPage({ mode }: AuthPageProps) {
         {success ? (
           /* ── Success screen ── */
           <div style={{ textAlign: 'center', padding: '16px 0' }}>
-            <div style={{ fontSize: 68, marginBottom: 16 }}>📧</div>
-            <h2 style={{ fontSize: 29, fontWeight: 800, color: t.text, marginBottom: 10 }}>
+            <div style={{ fontSize: 61, marginBottom: 16 }}>📧</div>
+            <h2 style={{ fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 10 }}>
               Sprawdź skrzynkę
             </h2>
-            <p style={{ fontSize: 20, color: t.textMuted, lineHeight: 1.6, marginBottom: 28 }}>
+            <p style={{ fontSize: 18, color: t.textMuted, lineHeight: 1.6, marginBottom: 28 }}>
               {success}
             </p>
             <a
               href="/"
               style={{
-                fontSize: 17, color: t.linkColor, textDecoration: 'none', fontWeight: 600,
+                fontSize: 15, color: t.linkColor, textDecoration: 'none', fontWeight: 600,
               }}
             >
               ← Wróć na stronę główną
@@ -184,7 +184,7 @@ export function AuthPage({ mode }: AuthPageProps) {
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
               <h1 style={{
-                fontSize: 36, fontWeight: 900, color: t.text,
+                fontSize: 32, fontWeight: 900, color: t.text,
                 letterSpacing: '-0.02em', marginBottom: 6, lineHeight: 1.1,
               }}>
                 {isRegister ? 'Załóż konto' : 'Zaloguj się'}
@@ -193,7 +193,7 @@ export function AuthPage({ mode }: AuthPageProps) {
                   {isRegister ? 'i zacznij tworzyć.' : 'i wróć do pracy.'}
                 </span>
               </h1>
-              <p style={{ fontSize: 18, color: t.textMuted, marginTop: 10 }}>
+              <p style={{ fontSize: 16, color: t.textMuted, marginTop: 10 }}>
                 {isRegister
                   ? 'Bezpłatne konto — tylko email i hasło.'
                   : 'Witaj ponownie 👋'}
@@ -204,7 +204,7 @@ export function AuthPage({ mode }: AuthPageProps) {
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
                 <label style={{
-                  fontSize: 14, fontWeight: 700, color: t.labelColor,
+                  fontSize: 13, fontWeight: 700, color: t.labelColor,
                   marginBottom: 6, display: 'block',
                   textTransform: 'uppercase', letterSpacing: '0.08em',
                 }}>
@@ -223,7 +223,7 @@ export function AuthPage({ mode }: AuthPageProps) {
               </div>
               <div>
                 <label style={{
-                  fontSize: 14, fontWeight: 700, color: t.labelColor,
+                  fontSize: 13, fontWeight: 700, color: t.labelColor,
                   marginBottom: 6, display: 'block',
                   textTransform: 'uppercase', letterSpacing: '0.08em',
                 }}>
@@ -244,7 +244,7 @@ export function AuthPage({ mode }: AuthPageProps) {
 
               {error && (
                 <div style={{
-                  fontSize: 17, color: '#ef4444',
+                  fontSize: 15, color: '#ef4444',
                   background: 'rgba(239,68,68,0.1)',
                   borderRadius: 8, padding: '10px 14px',
                   border: '1px solid rgba(239,68,68,0.2)',
@@ -258,7 +258,7 @@ export function AuthPage({ mode }: AuthPageProps) {
                 type="submit"
                 disabled={loading}
                 style={{
-                  width: '100%', padding: '14px', fontSize: 20, fontWeight: 800,
+                  width: '100%', padding: '14px', fontSize: 18, fontWeight: 800,
                   marginTop: 4, border: 'none', borderRadius: 12,
                   cursor: loading ? 'wait' : 'pointer',
                   background: loading
@@ -279,7 +279,7 @@ export function AuthPage({ mode }: AuthPageProps) {
 
             {/* Switch mode */}
             <p style={{
-              fontSize: 17, color: t.textMuted, textAlign: 'center', marginTop: 24,
+              fontSize: 15, color: t.textMuted, textAlign: 'center', marginTop: 24,
             }}>
               {isRegister ? 'Masz już konto? ' : 'Nie masz jeszcze konta? '}
               <a
@@ -293,7 +293,7 @@ export function AuthPage({ mode }: AuthPageProps) {
             </p>
 
             {/* Back */}
-            <p style={{ fontSize: 16, color: t.textFaint, textAlign: 'center', marginTop: 12 }}>
+            <p style={{ fontSize: 14, color: t.textFaint, textAlign: 'center', marginTop: 12 }}>
               <a href="/" style={{ color: 'inherit', textDecoration: 'none' }}>
                 ← Wróć na stronę główną
               </a>
