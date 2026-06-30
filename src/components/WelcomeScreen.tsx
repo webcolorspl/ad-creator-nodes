@@ -2,6 +2,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import { Wand2, Layers, Sun, Moon, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { LucideIcon } from '@/lib/icons'
+import { SectionComingSoon, SectionFeatures, SectionTestimonials, SectionPricing, SectionFinalCTA } from './WelcomeSections'
 
 // ── Slides ────────────────────────────────────────────────────
 interface Slide { num: string; headline: string; sub: string }
@@ -361,14 +362,24 @@ function BigTile({ tile, dark, onClick }: { tile: ToolTile; dark: boolean; onCli
 
 // ── WelcomeScreen ──────────────────────────────────────────────
 export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
-  const videoRef     = useRef<HTMLVideoElement>(null)   // loop
-  const talkRef      = useRef<HTMLVideoElement>(null)   // talk
+  const videoRef     = useRef<HTMLVideoElement>(null)
+  const talkRef      = useRef<HTMLVideoElement>(null)
   const timerRef     = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const rightRef     = useRef<HTMLDivElement>(null)
   const [videoLoaded, setVideoLoaded] = useState(false)
   const [talkLoaded,  setTalkLoaded]  = useState(false)
   const [talking,     setTalking]     = useState(false)
   const [muted, setMuted]   = useState(true)
   const [dark, setDark]     = useState(false)
+  const [scrollY, setScrollY] = useState(0)
+
+  useEffect(() => {
+    const el = rightRef.current
+    if (!el) return
+    const onScroll = () => setScrollY(el.scrollTop)
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  }, [])
 
   const t = theme(dark)
 
@@ -422,15 +433,15 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
     <div style={{
       position: 'fixed', inset: 0, zIndex: 5000,
       background: t.bg,
-      display: 'flex', alignItems: 'stretch',
+      display: 'flex', alignItems: 'flex-start',
       overflow: 'hidden',
       transition: 'background .3s',
     }}>
 
-      {/* ── LEFT: Hero video ───────────────────────────── */}
+      {/* ── LEFT: Hero video (sticky) ───────────────────── */}
       <div style={{
-        width: '38%', minWidth: 340, position: 'relative',
-        flexShrink: 0, background: t.bgLeft,
+        width: '38%', minWidth: 340, position: 'sticky', top: 0,
+        height: '100vh', flexShrink: 0, background: t.bgLeft,
         transition: 'background .3s',
       }}>
         {/* Loop video (idle) */}
@@ -614,16 +625,18 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
         </div>
       </div>
 
-      {/* ── RIGHT: Content ─────────────────────────────── */}
-      <div style={{
-        flex: 1, display: 'flex', flexDirection: 'column',
-        justifyContent: 'center',
-        padding: '64px 72px 64px 64px',
-        overflowY: 'auto', position: 'relative',
-        backgroundImage: `radial-gradient(circle, ${t.dotColor} 1px, transparent 1px)`,
-        backgroundSize: '28px 28px',
-        transition: 'background .3s',
-      }}>
+      {/* ── RIGHT: Scrollable content ──────────────────── */}
+      <div
+        ref={rightRef}
+        style={{
+          flex: 1, overflowY: 'auto', height: '100vh',
+          position: 'relative',
+          backgroundImage: `radial-gradient(circle, ${t.dotColor} 1px, transparent 1px)`,
+          backgroundSize: '28px 28px',
+          backgroundPosition: `0 ${scrollY * 0.3}px`,
+          transition: 'background-color .3s',
+        }}
+      >
         {/* Vignette */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -711,28 +724,28 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           </button>
         </div>
 
-        <div style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ position: 'relative', zIndex: 1, padding: '64px 72px 0 64px' }}>
           <HeroSlider dark={dark} />
 
-          {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
             <div style={{ flex: 1, height: 1, background: t.divider }} />
-            <span style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: '0.12em',
-              textTransform: 'uppercase', color: t.textMuted,
-            }}>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: t.textMuted }}>
               Wybierz narzędzie
             </span>
             <div style={{ flex: 1, height: 1, background: t.divider }} />
           </div>
 
-          {/* Tiles */}
-          <div style={{ display: 'flex', gap: 16, marginBottom: 44 }}>
+          <div style={{ display: 'flex', gap: 16 }}>
             {TOOL_TILES.map(tile => (
               <BigTile key={tile.id} tile={tile} dark={dark} onClick={() => onSelect(tile.id)} />
             ))}
           </div>
 
+          <SectionComingSoon dark={dark} />
+          <SectionFeatures dark={dark} />
+          <SectionTestimonials dark={dark} />
+          <SectionPricing dark={dark} />
+          <SectionFinalCTA dark={dark} />
         </div>
       </div>
 

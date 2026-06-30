@@ -1,0 +1,521 @@
+'use client'
+import { useEffect, useRef, useState } from 'react'
+import { BookOpen, Video, Camera, Zap, Target, Bot, Package, Lock, Users, Check } from 'lucide-react'
+import type { LucideIcon } from '@/lib/icons'
+
+// ── Theme (mirror WelcomeScreen) ──────────────────────────────
+function theme(dark: boolean) {
+  return dark ? {
+    bg:            '#07070b',
+    text:          '#ffffff',
+    textSub:       'rgba(255,255,255,0.82)',
+    textMuted:     'rgba(255,255,255,0.55)',
+    textFaint:     'rgba(255,255,255,0.28)',
+    divider:       'rgba(255,255,255,0.07)',
+    cardBg:        'rgba(255,255,255,0.03)',
+    cardBorder:    'rgba(255,255,255,0.08)',
+    cardBorderH:   'rgba(255,255,255,0.2)',
+    sectionBg:     'rgba(255,255,255,0.02)',
+    badgeSoon:     { bg: 'rgba(99,102,241,0.15)', color: '#a5b4fc', border: 'rgba(99,102,241,0.3)' },
+    badgeWip:      { bg: 'rgba(234,179,8,0.15)',  color: '#fde047', border: 'rgba(234,179,8,0.3)'  },
+    planBg:        'rgba(255,255,255,0.03)',
+    planBorder:    'rgba(255,255,255,0.08)',
+    planBorderPro: '#16a34a',
+    planProBg:     'rgba(22,163,74,0.06)',
+    checkColor:    '#4ade80',
+    mutedCheck:    'rgba(255,255,255,0.2)',
+    statsColor:    '#fff',
+  } : {
+    bg:            '#f4f4f7',
+    text:          '#0f0f12',
+    textSub:       '#3a3a4a',
+    textMuted:     '#6b6b80',
+    textFaint:     '#aaaabc',
+    divider:       'rgba(0,0,0,0.08)',
+    cardBg:        '#ffffff',
+    cardBorder:    'rgba(0,0,0,0.08)',
+    cardBorderH:   'rgba(0,0,0,0.22)',
+    sectionBg:     'rgba(0,0,0,0.015)',
+    badgeSoon:     { bg: 'rgba(99,102,241,0.08)', color: '#6366f1', border: 'rgba(99,102,241,0.2)' },
+    badgeWip:      { bg: 'rgba(234,179,8,0.1)',   color: '#b45309', border: 'rgba(234,179,8,0.25)'  },
+    planBg:        '#ffffff',
+    planBorder:    'rgba(0,0,0,0.1)',
+    planBorderPro: '#16a34a',
+    planProBg:     'rgba(22,163,74,0.04)',
+    checkColor:    '#16a34a',
+    mutedCheck:    'rgba(0,0,0,0.15)',
+    statsColor:    '#0f0f12',
+  }
+}
+
+// ── Fade-in on scroll ─────────────────────────────────────────
+function useFadeIn() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect() } },
+      { threshold: 0.1 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  return { ref, visible }
+}
+
+function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const { ref, visible } = useFadeIn()
+  return (
+    <div ref={ref} style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'translateY(0)' : 'translateY(32px)',
+      transition: `opacity .6s ease ${delay}ms, transform .6s ease ${delay}ms`,
+    }}>
+      {children}
+    </div>
+  )
+}
+
+// ── Section header ────────────────────────────────────────────
+function SectionHeader({ label, title, green, sub, dark }: {
+  label: string; title: string; green: string; sub: string; dark: boolean
+}) {
+  const t = theme(dark)
+  return (
+    <div style={{ marginBottom: 40 }}>
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', gap: 8,
+        background: 'rgba(22,163,74,0.1)', borderRadius: 20,
+        padding: '4px 14px', marginBottom: 16,
+        border: '1px solid rgba(22,163,74,0.2)',
+      }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#16a34a', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          {label}
+        </span>
+      </div>
+      <h2 style={{ fontSize: 'clamp(28px, 3vw, 42px)', fontWeight: 900, color: t.text, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 12 }}>
+        {title}<br /><span style={{ color: '#16a34a' }}>{green}</span>
+      </h2>
+      <p style={{ fontSize: 17, color: t.textMuted, lineHeight: 1.65, maxWidth: 520 }}>{sub}</p>
+    </div>
+  )
+}
+
+// ── SEKCJA 2: Więcej narzędzi ─────────────────────────────────
+interface ComingTool { Icon: LucideIcon; label: string; desc: string; badge: 'SOON' | 'IN PROGRESS' }
+const COMING: ComingTool[] = [
+  { Icon: BookOpen, label: 'Brandbook', desc: 'Wygeneruj spójną identyfikację wizualną marki — logo, kolory, typografię — w kilka minut.', badge: 'SOON' },
+  { Icon: Video,    label: 'Video Creator', desc: 'Twórz krótkie filmy reklamowe z AI. Podaj brief, wybierz styl — AI montuje za Ciebie.', badge: 'IN PROGRESS' },
+  { Icon: Camera,   label: 'Photo Generator', desc: 'Generuj zdjęcia produktowe i lifestyle bez sesji. Realistyczne fotki AI w każdym formacie.', badge: 'SOON' },
+]
+
+export function SectionComingSoon({ dark }: { dark: boolean }) {
+  const t = theme(dark)
+  return (
+    <section style={{ padding: '80px 0' }}>
+      <FadeSection>
+        <SectionHeader
+          label="Na horyzoncie"
+          title="Kolejne narzędzia"
+          green="już wkrótce."
+          sub="Rozbudowujemy ekosystem. Zarejestruj się dziś i jako pierwszy dostaniesz dostęp do nowych modułów."
+          dark={dark}
+        />
+      </FadeSection>
+      <div style={{ display: 'flex', gap: 16 }}>
+        {COMING.map((tool, i) => {
+          const badge = tool.badge === 'SOON' ? t.badgeSoon : t.badgeWip
+          return (
+            <FadeSection key={tool.label} delay={i * 80}>
+              <div style={{
+                flex: 1, padding: '28px 24px',
+                borderRadius: 20,
+                border: `1px solid ${t.cardBorder}`,
+                background: t.cardBg,
+                position: 'relative', overflow: 'hidden',
+              }}>
+                {/* Badge */}
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center',
+                  background: badge.bg, border: `1px solid ${badge.border}`,
+                  borderRadius: 20, padding: '3px 10px', marginBottom: 18,
+                }}>
+                  <span style={{ fontSize: 9, fontWeight: 800, color: badge.color, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                    {tool.badge}
+                  </span>
+                </div>
+                <tool.Icon size={28} strokeWidth={1.5} color={t.textMuted} style={{ marginBottom: 14, display: 'block' }} />
+                <div style={{ fontSize: 20, fontWeight: 800, color: t.text, marginBottom: 8 }}>{tool.label}</div>
+                <div style={{ fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>{tool.desc}</div>
+                {/* Blur overlay */}
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  backdropFilter: 'blur(1.5px)',
+                  background: dark ? 'rgba(7,7,11,0.35)' : 'rgba(244,244,247,0.3)',
+                  borderRadius: 20,
+                }} />
+              </div>
+            </FadeSection>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+// ── SEKCJA 3: Features ────────────────────────────────────────
+interface Feature { Icon: LucideIcon; title: string; desc: string }
+const FEATURES: Feature[] = [
+  { Icon: Zap,     title: 'Od briefu do kreacji w minuty', desc: 'Zapomnij o godzinach w Photoshopie. Opisz co chcesz — AI robi resztę.' },
+  { Icon: Target,  title: 'Multi-channel w jednym miejscu', desc: 'Meta, Google, TikTok, LinkedIn — wszystkie formaty generujesz w jednej sesji.' },
+  { Icon: Bot,     title: 'AI wbudowane, nie doklejone', desc: 'Generowanie tekstu i grafiki to rdzeń narzędzia, nie dodatek.' },
+  { Icon: Package, title: 'Eksport gotowy do wrzucenia', desc: 'Pliki per format i kanał. ZIP jednym kliknięciem, gotowy do upload.' },
+  { Icon: Lock,    title: 'Twoje dane, tylko Twoje', desc: 'Nie trenujemy na Twoich kreacjach. Zero udostępniania danych do modeli.' },
+  { Icon: Users,   title: 'Praca zespołowa bez chaosu', desc: 'Komentarze, wersje, role. Agencja i klient w jednym workspace.' },
+]
+
+export function SectionFeatures({ dark }: { dark: boolean }) {
+  const t = theme(dark)
+  const [hovered, setHovered] = useState<number | null>(null)
+  return (
+    <section style={{ padding: '80px 0', borderTop: `1px solid ${t.divider}` }}>
+      <FadeSection>
+        <SectionHeader
+          label="Dlaczego XTOOLS"
+          title="Wszystko czego potrzebujesz,"
+          green="nic czego nie potrzebujesz."
+          sub="Zaprojektowane dla agencji i freelancerów, którzy cenią czas bardziej niż możliwości konfiguracji."
+          dark={dark}
+        />
+      </FadeSection>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+        {FEATURES.map((f, i) => (
+          <FadeSection key={f.title} delay={i * 60}>
+            <div
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              style={{
+                padding: '24px 22px',
+                borderRadius: 16,
+                border: `1px solid ${hovered === i ? t.cardBorderH : t.cardBorder}`,
+                background: hovered === i ? (dark ? 'rgba(255,255,255,0.05)' : '#fff') : t.cardBg,
+                transition: 'all .2s',
+                cursor: 'default',
+              }}
+            >
+              <div style={{
+                width: 40, height: 40, borderRadius: 12, marginBottom: 14,
+                background: hovered === i ? 'rgba(22,163,74,0.15)' : (dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background .2s',
+              }}>
+                <f.Icon size={20} strokeWidth={1.5} color={hovered === i ? '#16a34a' : t.textMuted} />
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: t.text, marginBottom: 6 }}>{f.title}</div>
+              <div style={{ fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>{f.desc}</div>
+            </div>
+          </FadeSection>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+// ── SEKCJA 4: Testimonials ────────────────────────────────────
+interface Testimonial { name: string; role: string; company: string; quote: string; avatar: number }
+const TESTIMONIALS: Testimonial[] = [
+  {
+    name: 'Marta Kowalczyk',
+    role: 'Head of Performance',
+    company: 'Agencja Wzrost',
+    quote: 'Skróciliśmy czas produkcji kreacji o 70%. Klienci dostają materiały następnego dnia po briefie, nie po tygodniu.',
+    avatar: 44,
+  },
+  {
+    name: 'Piotr Zając',
+    role: 'Freelance Art Director',
+    company: 'Self-employed',
+    quote: 'W końcu narzędzie, które rozumie workflow agencyjny. Generuję paczki na 5 kanałów jednocześnie — to jest przyszłość.',
+    avatar: 68,
+  },
+  {
+    name: 'Karolina Nowak',
+    role: 'Marketing Manager',
+    company: 'Sklep Zenith',
+    quote: 'Wdrożyliśmy XTOOLS dla całego zespołu marketingu. Oszczędzamy 20h tygodniowo tylko na formatowaniu kreacji.',
+    avatar: 56,
+  },
+]
+
+export function SectionTestimonials({ dark }: { dark: boolean }) {
+  const t = theme(dark)
+  return (
+    <section style={{ padding: '80px 0', borderTop: `1px solid ${t.divider}` }}>
+      <FadeSection>
+        <SectionHeader
+          label="Opinie użytkowników"
+          title="Agencje i freelancerzy"
+          green="już to wiedzą."
+          sub="Dołącz do setek marketerów, którzy skrócili czas produkcji kreacji o połowę."
+          dark={dark}
+        />
+      </FadeSection>
+      <div style={{ display: 'flex', gap: 16 }}>
+        {TESTIMONIALS.map((tm, i) => (
+          <FadeSection key={tm.name} delay={i * 100}>
+            <div style={{
+              flex: 1, padding: '28px 24px',
+              borderRadius: 20,
+              border: `1px solid ${t.cardBorder}`,
+              background: t.cardBg,
+              display: 'flex', flexDirection: 'column', gap: 20,
+            }}>
+              {/* Stars */}
+              <div style={{ display: 'flex', gap: 3 }}>
+                {[...Array(5)].map((_, s) => (
+                  <span key={s} style={{ color: '#facc15', fontSize: 14 }}>★</span>
+                ))}
+              </div>
+              {/* Quote */}
+              <p style={{
+                fontSize: 14, color: t.textSub, lineHeight: 1.7,
+                flex: 1, fontStyle: 'italic',
+              }}>
+                „{tm.quote}"
+              </p>
+              {/* Author */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <img
+                  src={`https://i.pravatar.cc/48?img=${tm.avatar}`}
+                  alt={tm.name}
+                  width={40} height={40}
+                  style={{ borderRadius: '50%', border: `2px solid ${t.cardBorder}` }}
+                />
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{tm.name}</div>
+                  <div style={{ fontSize: 11, color: t.textMuted }}>{tm.role} · {tm.company}</div>
+                </div>
+              </div>
+            </div>
+          </FadeSection>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+// ── SEKCJA 5: Cennik ──────────────────────────────────────────
+interface Plan {
+  name: string
+  price: string
+  period: string
+  desc: string
+  features: string[]
+  missing: string[]
+  cta: string
+  pro?: boolean
+}
+const PLANS: Plan[] = [
+  {
+    name: 'Free',
+    price: '0 zł',
+    period: 'na zawsze',
+    desc: 'Zacznij bez karty kredytowej.',
+    features: ['3 aktywne projekty', 'Creator (generator banerów)', '20 eksportów miesięcznie', 'Formaty: FB, IG, Google'],
+    missing: ['Composer (canvas)', 'Eksport bez watermarku', 'Historia wersji', 'Wsparcie priorytetowe'],
+    cta: 'Zacznij za darmo',
+  },
+  {
+    name: 'Pro',
+    price: '79 zł',
+    period: 'miesięcznie',
+    desc: 'Dla freelancerów i małych agencji.',
+    features: ['Nielimitowane projekty', 'Creator + Composer', 'Nielimitowany eksport', 'Brak watermarku', 'Historia i wersje', 'Wszystkie formaty i kanały', 'Chat support'],
+    missing: ['Multi-klient workspace', 'Brandbook (SOON)', 'White-label'],
+    cta: 'Wypróbuj Pro 14 dni gratis',
+    pro: true,
+  },
+  {
+    name: 'Agency',
+    price: '249 zł',
+    period: 'miesięcznie',
+    desc: 'Dla agencji obsługujących wielu klientów.',
+    features: ['Wszystko z Pro', 'Do 15 klientów / workspace', 'Brandbook (SOON)', 'Video Creator (wkrótce)', 'White-label eksport', 'Dedykowany opiekun', 'Priorytetowe wsparcie'],
+    missing: [],
+    cta: 'Porozmawiaj z nami',
+  },
+]
+
+export function SectionPricing({ dark }: { dark: boolean }) {
+  const t = theme(dark)
+  const [hovered, setHovered] = useState<number | null>(null)
+  return (
+    <section style={{ padding: '80px 0', borderTop: `1px solid ${t.divider}` }}>
+      <FadeSection>
+        <SectionHeader
+          label="Cennik"
+          title="Zacznij za darmo,"
+          green="skaluj gdy rośniesz."
+          sub="Bez umów na rok. Bez ukrytych opłat. Zmień plan w każdej chwili."
+          dark={dark}
+        />
+      </FadeSection>
+      <div style={{ display: 'flex', gap: 14 }}>
+        {PLANS.map((plan, i) => (
+          <FadeSection key={plan.name} delay={i * 80}>
+            <div
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              style={{
+                flex: 1, padding: '28px 22px',
+                borderRadius: 20,
+                border: `2px solid ${plan.pro ? t.planBorderPro : (hovered === i ? t.cardBorderH : t.planBorder)}`,
+                background: plan.pro ? t.planProBg : t.planBg,
+                display: 'flex', flexDirection: 'column', gap: 0,
+                transition: 'all .2s', position: 'relative',
+              }}
+            >
+              {plan.pro && (
+                <div style={{
+                  position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)',
+                  background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                  borderRadius: 20, padding: '4px 14px',
+                  fontSize: 10, fontWeight: 800, color: '#fff', letterSpacing: '0.1em',
+                  textTransform: 'uppercase', whiteSpace: 'nowrap',
+                }}>
+                  Najpopularniejszy
+                </div>
+              )}
+              <div style={{ fontSize: 13, fontWeight: 700, color: plan.pro ? '#16a34a' : t.textMuted, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                {plan.name}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
+                <span style={{ fontSize: 32, fontWeight: 900, color: t.text, letterSpacing: '-0.02em' }}>{plan.price}</span>
+                <span style={{ fontSize: 12, color: t.textMuted }}>{plan.period}</span>
+              </div>
+              <p style={{ fontSize: 12, color: t.textMuted, marginBottom: 22, lineHeight: 1.5 }}>{plan.desc}</p>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
+                {plan.features.map(f => (
+                  <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                    <Check size={13} strokeWidth={2.5} color={t.checkColor} style={{ flexShrink: 0, marginTop: 2 }} />
+                    <span style={{ fontSize: 12, color: t.textSub, lineHeight: 1.5 }}>{f}</span>
+                  </div>
+                ))}
+                {plan.missing.map(f => (
+                  <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, opacity: 0.35 }}>
+                    <div style={{ width: 13, height: 13, flexShrink: 0, marginTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: 8, height: 1.5, background: t.textFaint, borderRadius: 1 }} />
+                    </div>
+                    <span style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.5 }}>{f}</span>
+                  </div>
+                ))}
+              </div>
+              <a
+                href="/rejestracja"
+                style={{
+                  display: 'block', textAlign: 'center',
+                  padding: '12px', borderRadius: 12,
+                  fontSize: 13, fontWeight: 800,
+                  textDecoration: 'none',
+                  background: plan.pro
+                    ? 'linear-gradient(135deg, #16a34a, #15803d)'
+                    : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'),
+                  color: plan.pro ? '#fff' : t.text,
+                  border: plan.pro ? 'none' : `1.5px solid ${t.planBorder}`,
+                  boxShadow: plan.pro ? '0 4px 16px rgba(22,163,74,0.35)' : 'none',
+                  transition: 'all .15s',
+                }}
+              >
+                {plan.cta}
+              </a>
+            </div>
+          </FadeSection>
+        ))}
+      </div>
+      <FadeSection delay={300}>
+        <p style={{ fontSize: 12, color: t.textFaint, textAlign: 'center', marginTop: 20 }}>
+          Wszystkie ceny netto + VAT. Plan Pro: pierwszy miesiąc gratis, potem 79 zł/mies. Anuluj kiedy chcesz.
+        </p>
+      </FadeSection>
+    </section>
+  )
+}
+
+// ── SEKCJA 6: Final CTA ───────────────────────────────────────
+const STATS = [
+  { value: '500+',   label: 'agencji i freelancerów' },
+  { value: '8 min',  label: 'średni czas produkcji kampanii' },
+  { value: '4×',     label: 'szybciej niż tradycyjne narzędzia' },
+]
+
+export function SectionFinalCTA({ dark }: { dark: boolean }) {
+  const t = theme(dark)
+  const [hoverBtn, setHoverBtn] = useState(false)
+  return (
+    <section style={{ padding: '80px 0 100px', borderTop: `1px solid ${t.divider}` }}>
+      <FadeSection>
+        {/* Stats */}
+        <div style={{ display: 'flex', gap: 0, marginBottom: 60 }}>
+          {STATS.map((s, i) => (
+            <div key={s.value} style={{
+              flex: 1, textAlign: 'center', padding: '24px 16px',
+              borderRight: i < STATS.length - 1 ? `1px solid ${t.divider}` : 'none',
+            }}>
+              <div style={{ fontSize: 36, fontWeight: 900, color: '#16a34a', letterSpacing: '-0.02em', marginBottom: 6 }}>
+                {s.value}
+              </div>
+              <div style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.5 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Big CTA */}
+        <div style={{
+          borderRadius: 24,
+          background: dark
+            ? 'linear-gradient(135deg, rgba(22,163,74,0.15) 0%, rgba(15,118,110,0.1) 100%)'
+            : 'linear-gradient(135deg, rgba(22,163,74,0.08) 0%, rgba(15,118,110,0.05) 100%)',
+          border: `1px solid ${dark ? 'rgba(22,163,74,0.25)' : 'rgba(22,163,74,0.2)'}`,
+          padding: '48px 40px', textAlign: 'center',
+        }}>
+          <h2 style={{
+            fontSize: 'clamp(26px, 3vw, 40px)', fontWeight: 900,
+            color: t.text, letterSpacing: '-0.02em', marginBottom: 10, lineHeight: 1.15,
+          }}>
+            Zacznij tworzyć kampanie<br />
+            <span style={{ color: '#16a34a' }}>szybciej niż kiedykolwiek.</span>
+          </h2>
+          <p style={{ fontSize: 16, color: t.textMuted, marginBottom: 32, lineHeight: 1.6 }}>
+            Bezpłatne konto. Bez karty kredytowej. Bez umów.<br />
+            Pierwsze kreacje gotowe w 5 minut.
+          </p>
+          <a
+            href="/rejestracja"
+            onMouseEnter={() => setHoverBtn(true)}
+            onMouseLeave={() => setHoverBtn(false)}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '16px 36px', borderRadius: 50,
+              background: 'linear-gradient(135deg, #16a34a, #15803d)',
+              color: '#fff', textDecoration: 'none',
+              fontSize: 15, fontWeight: 800, letterSpacing: '-0.01em',
+              boxShadow: hoverBtn
+                ? '0 16px 40px rgba(22,163,74,0.55)'
+                : '0 8px 24px rgba(22,163,74,0.4)',
+              transform: hoverBtn ? 'translateY(-2px)' : 'translateY(0)',
+              transition: 'all .2s',
+            }}
+          >
+            Zarejestruj się za darmo
+            <span style={{ transform: hoverBtn ? 'translateX(4px)' : 'translateX(0)', transition: 'transform .15s', display: 'inline-block' }}>→</span>
+          </a>
+          <p style={{ fontSize: 12, color: t.textFaint, marginTop: 16 }}>
+            Dołącz do 500+ marketerów którzy już oszczędzają czas
+          </p>
+        </div>
+      </FadeSection>
+    </section>
+  )
+}
