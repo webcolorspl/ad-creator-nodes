@@ -76,8 +76,8 @@ function FadeSection({ children, delay = 0, gridColumn }: { children: React.Reac
 }
 
 // ── Section header ────────────────────────────────────────────
-function SectionHeader({ label, title, green, sub, dark }: {
-  label: string; title: string; green: string; sub: string; dark: boolean
+function SectionHeader({ label, title, green, sub, dark, subMaxWidth = 560 }: {
+  label: string; title: string; green: string; sub: string; dark: boolean; subMaxWidth?: number
 }) {
   const t = theme(dark)
   return (
@@ -98,7 +98,7 @@ function SectionHeader({ label, title, green, sub, dark }: {
       }}>
         {title}{green && <><br /><span style={{ color: '#16a34a' }}>{green}</span></>}
       </h2>
-      <p style={{ fontSize: 26, color: t.textMuted, lineHeight: 1.7, maxWidth: 560 }}>{sub}</p>
+      <p style={{ fontSize: 26, color: t.textMuted, lineHeight: 1.7, maxWidth: subMaxWidth }}>{sub}</p>
     </div>
   )
 }
@@ -215,7 +215,7 @@ export function SectionComingSoon({ dark }: { dark: boolean }) {
                     <div style={{ fontSize: 21, fontWeight: 600, color: t.textFaint, marginBottom: 16 }}>
                       {tool.desc}
                     </div>
-                    <p style={{ fontSize: 20, color: t.textMuted, lineHeight: 1.75, maxWidth: 580 }}>
+                    <p style={{ fontSize: 20, color: t.textMuted, lineHeight: 1.75, maxWidth: 870 }}>
                       {tool.longDesc}
                     </p>
                   </div>
@@ -264,6 +264,7 @@ export function SectionFeatures({ dark }: { dark: boolean }) {
           title="Mniej narzędzi."
           green="Więcej kampanii."
           sub="Agencje tracą średnio 40% czasu na przełączanie się między narzędziami. XTOOLS łączy planowanie, generowanie kreacji i eksport w jednym miejscu — żeby Twój zespół skupił się na tym, co naprawdę przynosi wyniki."
+          subMaxWidth={840}
           dark={dark}
         />
       </FadeSection>
@@ -341,6 +342,7 @@ export function SectionTestimonials({ dark }: { dark: boolean }) {
           title="Agencje i freelancerzy"
           green="już to wiedzą."
           sub="Dołącz do setek marketerów, którzy skrócili czas produkcji kreacji o połowę."
+          subMaxWidth={840}
           dark={dark}
         />
       </FadeSection>
@@ -710,20 +712,26 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                   <a
                     href="/rejestracja"
                     style={{
-                      display: 'block', textAlign: 'center',
-                      padding: '14px', borderRadius: 14,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                      padding: '16px', borderRadius: 50,
                       fontSize: 18, fontWeight: 800,
                       textDecoration: 'none', letterSpacing: '-0.01em',
-                      background: plan.highlighted
-                        ? `linear-gradient(135deg, ${plan.iconColor}, ${plan.iconColor}cc)`
-                        : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)'),
-                      color: plan.highlighted ? '#fff' : t.text,
-                      border: plan.highlighted ? 'none' : `1.5px solid ${t.planBorder}`,
-                      boxShadow: plan.highlighted ? `0 6px 20px ${plan.iconColor}40` : 'none',
+                      background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                      color: '#fff',
+                      border: 'none',
+                      boxShadow: '0 6px 20px rgba(22,163,74,0.4)',
                       transition: 'all .15s',
                     }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.boxShadow = '0 12px 28px rgba(22,163,74,0.5)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = '0 6px 20px rgba(22,163,74,0.4)'
+                    }}
                   >
-                    {plan.cta}
+                    {plan.cta} →
                   </a>
                 </div>
               </FadeSection>
