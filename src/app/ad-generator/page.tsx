@@ -1,4 +1,4 @@
-export default function CreatorPage() {
+export default function AdGeneratorPage() {
   return (
     <iframe
       src="https://ad-generator-webcolors.vercel.app"
