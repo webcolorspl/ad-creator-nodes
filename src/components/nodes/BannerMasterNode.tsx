@@ -530,12 +530,14 @@ export function BannerMasterNode({ id }: NodeProps) {
     addEdges(newEdges)
     setShowSlavePicker(false)
 
-    const newIds = newNodes.filter(n => n.type === 'bannerSlaveNode').map(n => n.id)
-    if (newIds.length > 0) {
-      setTimeout(() => {
-        fitView({ nodes: newIds.map(nid => ({ id: nid })), padding: 0.18, duration: 500, maxZoom: 1 })
-      }, 350)
-    }
+    setTimeout(() => {
+      const allSlaveIds = getEdges()
+        .filter(e => e.source === id && e.sourceHandle === 'masterData')
+        .map(e => e.target)
+      if (allSlaveIds.length > 0) {
+        fitView({ nodes: allSlaveIds.map(sid => ({ id: sid })), padding: 0.15, duration: 500, maxZoom: 0.9 })
+      }
+    }, 380)
   }
 
   // Programmatically select master + all connected slaves
