@@ -60,7 +60,7 @@ export function BannerGroupNode({ id, data }: NodeProps) {
         minWidth={minW}
         minHeight={GRID_TOP + GRID_PAD * 2 + 160}
         handleStyle={{ opacity: 0, pointerEvents: 'all' }}
-        lineStyle={{ border: `1px solid ${color}33` }}
+        lineStyle={{ border: 'none' }}
         onResizeEnd={onResizeEnd}
       />
 

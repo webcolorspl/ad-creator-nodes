@@ -339,7 +339,7 @@ export function BannerMasterNode({ id }: NodeProps) {
       })
   }, [canvasKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { addNodes, addEdges, getNode, getEdges, getNodes, setNodes } = useReactFlow()
+  const { addNodes, addEdges, getNode, getEdges, getNodes, setNodes, fitView } = useReactFlow()
 
   // Platform preset colors matching PRESETS in BannerGroupNode
   const PLATFORM_PRESET: Record<string, number> = {
@@ -356,13 +356,14 @@ export function BannerMasterNode({ id }: NodeProps) {
 
   function slaveEstW(fmtId: string) {
     const f = AD_FORMATS.find(af => af.id === fmtId)
-    if (!f) return 244
+    if (!f) return 300
     let w = Math.round(f.w * 0.5)
     let h = Math.round(f.h * 0.5)
     const MAX_W = 400, MAX_H = 560
     if (w > MAX_W) { const r = MAX_W / w; w = MAX_W; h = Math.round(h * r) }
     if (h > MAX_H) { const r = MAX_H / h; h = MAX_H; w = Math.round(w * r) }
-    return Math.max(220, w + 24)
+    // nodeW = max(220, w+24); actual card = nodeW + 24px node-body padding, min 300
+    return Math.max(300, Math.max(220, w + 24) + 24)
   }
 
   function spawnSlaves(fmtIds: string[]) {
@@ -528,6 +529,13 @@ export function BannerMasterNode({ id }: NodeProps) {
     addNodes(newNodes)
     addEdges(newEdges)
     setShowSlavePicker(false)
+
+    const newIds = newNodes.filter(n => n.type === 'bannerSlaveNode').map(n => n.id)
+    if (newIds.length > 0) {
+      setTimeout(() => {
+        fitView({ nodes: newIds.map(nid => ({ id: nid })), padding: 0.18, duration: 500, maxZoom: 1 })
+      }, 350)
+    }
   }
 
   // Programmatically select master + all connected slaves

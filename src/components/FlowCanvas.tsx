@@ -191,6 +191,7 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
   const darkMode          = useAppStore(s => s.darkMode)
   const addToast          = useAppStore(s => s.addToast)
   const selectNode        = useAppStore(s => s.selectNode)
+  const selectedId        = useAppStore(s => s.selectedId)
   const zoomToId          = useAppStore(s => s.zoomToId)
   const clearZoom         = useAppStore(s => s.clearZoom)
   const campaignLaunchKey = useAppStore(s => s.campaignLaunchKey)
@@ -210,6 +211,16 @@ function FlowCanvasInner({ onChange, initialNodes, initialEdges }: FlowCanvasInn
     syncEdges(initialEdges)
     onChange(initialNodes, initialEdges)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Center viewport on selected node when selection changes
+  useEffect(() => {
+    if (!selectedId) return
+    const n = getNode(selectedId)
+    if (!n) return
+    const w = (n.measured?.width  ?? 280) / 2
+    const h = (n.measured?.height ?? 200) / 2
+    setCenter(n.position.x + w, n.position.y + h, { duration: 350 })
+  }, [selectedId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Zoom to node on request from sidebar
   useEffect(() => {
