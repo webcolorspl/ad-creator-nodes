@@ -566,21 +566,17 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           </button>
         </div>
 
-        {/* Live badge */}
+        {/* Logo */}
         <div style={{
           position: 'absolute', top: 20, left: 20,
-          display: 'flex', alignItems: 'center', gap: 6,
-          background: t.badgeBg, backdropFilter: 'blur(12px)',
-          borderRadius: 20, padding: '6px 12px',
-          border: `1px solid ${dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)'}`,
-          transition: 'background .3s',
         }}>
-          <div style={{
-            width: 6, height: 6, borderRadius: '50%',
-            background: '#4ade80', boxShadow: '0 0 8px #4ade80',
-          }} />
-          <span style={{ fontSize: 10, color: dark ? 'rgba(255,255,255,0.65)' : '#333', fontWeight: 700, letterSpacing: '0.08em' }}>
-            AI AGENT
+          <span style={{
+            fontSize: 40, fontWeight: 900, color: '#fff',
+            letterSpacing: '-0.03em', lineHeight: 1,
+            textShadow: '0 2px 16px rgba(0,0,0,0.4)',
+            fontFamily: 'var(--font-sans, system-ui, sans-serif)',
+          }}>
+            XTOOLS<span style={{ color: '#4ade80' }}>.PL</span>
           </span>
         </div>
       </div>
