@@ -361,9 +361,12 @@ function BigTile({ tile, dark, onClick }: { tile: ToolTile; dark: boolean; onCli
 
 // ── WelcomeScreen ──────────────────────────────────────────────
 export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const videoRef     = useRef<HTMLVideoElement>(null)   // loop
+  const talkRef      = useRef<HTMLVideoElement>(null)   // talk
+  const timerRef     = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [videoLoaded, setVideoLoaded] = useState(false)
+  const [talkLoaded,  setTalkLoaded]  = useState(false)
+  const [talking,     setTalking]     = useState(false)
   const [muted, setMuted]   = useState(true)
   const [dark, setDark]     = useState(false)
 
@@ -380,6 +383,27 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
     const v = videoRef.current
     if (v) v.muted = muted
   }, [muted])
+
+  // talk video ended → wróć do loop
+  const handleTalkEnded = useCallback(() => {
+    const t = talkRef.current
+    if (t) { t.currentTime = 0; t.pause() }
+    setTalking(false)
+    const v = videoRef.current
+    if (v) { v.currentTime = 0; v.play().catch(() => {}) }
+  }, [])
+
+  // klik w przycisk → przełącz na talk video z dźwiękiem
+  function playTalk() {
+    const t = talkRef.current
+    if (!t) return
+    const v = videoRef.current
+    if (v) v.pause()
+    setTalking(true)
+    t.currentTime = 0
+    t.muted = false
+    t.play().catch(() => {})
+  }
 
   const handleEnded = useCallback(() => {
     timerRef.current = setTimeout(() => {
@@ -409,15 +433,32 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
         flexShrink: 0, background: t.bgLeft,
         transition: 'background .3s',
       }}>
+        {/* Loop video (idle) */}
         <video
           ref={videoRef}
           src="/avatar.mp4"
-          playsInline
+          playsInline loop muted
           onCanPlay={() => setVideoLoaded(true)}
-          onEnded={handleEnded}
           style={{
+            position: 'absolute', inset: 0,
             width: '100%', height: '100%', objectFit: 'cover',
-            opacity: videoLoaded ? 1 : 0, transition: 'opacity .6s',
+            opacity: !talking && videoLoaded ? 1 : 0,
+            transition: 'opacity .4s',
+          }}
+        />
+
+        {/* Talk video (on click) */}
+        <video
+          ref={talkRef}
+          src="/avatar-talk.mp4"
+          playsInline
+          onCanPlay={() => setTalkLoaded(true)}
+          onEnded={handleTalkEnded}
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%', objectFit: 'cover',
+            opacity: talking && talkLoaded ? 1 : 0,
+            transition: 'opacity .4s',
           }}
         />
 
@@ -533,15 +574,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
 
           {/* Green CTA bubble */}
           <button
-            onClick={() => {
-              const v = videoRef.current
-              if (!v) return
-              if (timerRef.current) clearTimeout(timerRef.current)
-              v.currentTime = 0
-              v.muted = false
-              setMuted(false)
-              v.play().catch(() => {})
-            }}
+            onClick={playTalk}
             style={{
               background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
               border: 'none', borderRadius: 50,
