@@ -4,7 +4,7 @@ import { createServerClient } from '@supabase/ssr'
 
 const PROTECTED = ['/creator', '/composer']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   if (!PROTECTED.some(p => pathname.startsWith(p))) return NextResponse.next()
 
