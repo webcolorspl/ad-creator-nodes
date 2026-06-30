@@ -53,7 +53,7 @@ const TOOL_TILES: ToolTile[] = [
     tag: 'AI-powered',
     desc: 'Generuj banery, teksty i kreacje reklamowe w sekundach — wystarczy brief i wybór formatu.',
     color: '#f1f5f9',
-    href: 'https://xtools.pl',
+    href: 'https://xtools.pl/ad-generator',
   },
   {
     id: 'composer',
