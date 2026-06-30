@@ -358,7 +358,10 @@ export function BannerMasterNode({ id }: NodeProps) {
     const f = AD_FORMATS.find(af => af.id === fmtId)
     if (!f) return 244
     let w = Math.round(f.w * 0.5)
-    if (w > 400) w = 400
+    let h = Math.round(f.h * 0.5)
+    const MAX_W = 400, MAX_H = 560
+    if (w > MAX_W) { const r = MAX_W / w; w = MAX_W; h = Math.round(h * r) }
+    if (h > MAX_H) { const r = MAX_H / h; h = MAX_H; w = Math.round(w * r) }
     return Math.max(220, w + 24)
   }
 

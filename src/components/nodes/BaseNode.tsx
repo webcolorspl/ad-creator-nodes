@@ -23,9 +23,11 @@ interface BaseNodeProps {
   id: string
   nodeType: string
   children: React.ReactNode
+  titleOverride?: string
+  badgeContent?: React.ReactNode
 }
 
-export function BaseNode({ id, nodeType, children }: BaseNodeProps) {
+export function BaseNode({ id, nodeType, children, titleOverride, badgeContent }: BaseNodeProps) {
   const selectNode = useAppStore(s => s.selectNode)
   const selectedId = useAppStore(s => s.selectedId)
   const nodeErrors = useAppStore(s => s.nodeErrors)
@@ -68,8 +70,11 @@ export function BaseNode({ id, nodeType, children }: BaseNodeProps) {
         <span className={`node-icon cat-${def.cat}`}>
           {Icon && <Icon size={15} strokeWidth={1.75} />}
         </span>
-        <span className="node-title">{def.label}</span>
-        <span className={`node-badge badge-${def.cat}`}>{def.cat}</span>
+        <span className="node-title">{titleOverride ?? def.label}</span>
+        {badgeContent !== undefined
+          ? badgeContent
+          : <span className={`node-badge badge-${def.cat}`}>{def.cat}</span>
+        }
       </div>
 
       {/* Validation errors */}

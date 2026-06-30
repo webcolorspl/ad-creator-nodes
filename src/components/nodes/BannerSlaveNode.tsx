@@ -25,9 +25,32 @@ const PLATFORM_LABEL: Record<string, string> = {
   fb: 'Facebook', ig: 'Instagram', li: 'LinkedIn',
   tt: 'TikTok', x: 'X / Twitter', yt: 'YouTube', pn: 'Pinterest',
 }
+const PLATFORM_COLOR: Record<string, string> = {
+  fb: '#1877F2', ig: '#E1306C', li: '#0A66C2',
+  tt: '#69C9D0', x: '#8899AA', yt: '#FF0000', pn: '#E60023',
+}
+const PLATFORM_SHORT: Record<string, string> = {
+  fb: 'FB', ig: 'IG', li: 'LI', tt: 'TT', x: 'X', yt: 'YT', pn: 'PN',
+}
+function platformPrefix(id: string) { return id.split('-')[0] }
 function platformLabel(id: string) {
-  const prefix = id.split('-')[0]
+  const prefix = platformPrefix(id)
   return PLATFORM_LABEL[prefix] ?? prefix.toUpperCase()
+}
+function PlatformBadge({ formatId }: { formatId: string }) {
+  const prefix = platformPrefix(formatId)
+  const color  = PLATFORM_COLOR[prefix] ?? '#7A8AB0'
+  const short  = PLATFORM_SHORT[prefix] ?? prefix.toUpperCase()
+  return (
+    <span style={{
+      fontSize: 9, fontWeight: 800, letterSpacing: '0.04em',
+      padding: '2px 6px', borderRadius: 4,
+      background: `${color}22`,
+      color,
+      border: `1px solid ${color}55`,
+      flexShrink: 0,
+    }}>{short}</span>
+  )
 }
 
 function thumbSize(fmt: { w: number; h: number }) {
@@ -182,7 +205,12 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
   const atMaxScale   = displayW >= fmt.w - 1
 
   return (
-    <BaseNode id={id} nodeType="bannerSlaveNode">
+    <BaseNode
+      id={id}
+      nodeType="bannerSlaveNode"
+      titleOverride={`${fmt.w}×${fmt.h} — ${platformLabel(formatId)}`}
+      badgeContent={<PlatformBadge formatId={formatId} />}
+    >
       <div style={{ width: nodeW, position: 'relative' }} onMouseDown={e => e.stopPropagation()}>
 
         {/* Header */}
