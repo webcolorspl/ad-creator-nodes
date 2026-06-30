@@ -108,7 +108,7 @@ interface ComingTool {
   label: string
   desc: string
   longDesc: string
-  badge: 'SOON' | 'IN PROGRESS'
+  badge: 'WKRÓTCE' | 'W TRAKCIE'
   photo: string
   gradient: string
 }
@@ -116,7 +116,7 @@ interface ComingTool {
 const COMING: ComingTool[] = [
   {
     label: 'Brandbook',
-    badge: 'SOON',
+    badge: 'WKRÓTCE',
     photo: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=480&h=320&fit=crop&auto=format',
     gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
     desc: 'Spójna identyfikacja wizualna w minuty.',
@@ -124,7 +124,7 @@ const COMING: ComingTool[] = [
   },
   {
     label: 'Video Creator',
-    badge: 'IN PROGRESS',
+    badge: 'W TRAKCIE',
     photo: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=480&h=320&fit=crop&auto=format',
     gradient: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
     desc: 'Filmy reklamowe z briefu, bez ekipy.',
@@ -132,7 +132,7 @@ const COMING: ComingTool[] = [
   },
   {
     label: 'Photo Generator',
-    badge: 'SOON',
+    badge: 'WKRÓTCE',
     photo: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=480&h=320&fit=crop&auto=format',
     gradient: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
     desc: 'Zdjęcia produktowe bez sesji foto.',
