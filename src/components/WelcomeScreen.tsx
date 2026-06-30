@@ -62,7 +62,7 @@ const TOOL_TILES: ToolTile[] = [
     desc: 'Generuj banery, teksty i kreacje reklamowe w sekundach — wystarczy brief i wybór formatu.',
     colorDark: '#f1f5f9',
     colorLight: '#16a34a',
-    href: 'https://xtools.pl/creator',
+    href: '/creator',
   },
   {
     id: 'composer',
@@ -72,7 +72,7 @@ const TOOL_TILES: ToolTile[] = [
     desc: 'Przeciągnij, połącz, gotowe — kampanię składasz w minuty bez jednej linii kodu.',
     colorDark: '#cbd5e1',
     colorLight: '#7C5CF5',
-    href: 'https://xtools.pl/composer',
+    href: '/composer',
   },
 ]
 
@@ -284,8 +284,9 @@ function BigTile({ tile, dark, onClick }: { tile: ToolTile; dark: boolean; onCli
   const accent = dark ? colorDark : colorLight
 
   function handleClick() {
-    if (href) window.open(href, '_blank', 'noopener,noreferrer')
-    else onClick()
+    if (!href) { onClick(); return }
+    if (href.startsWith('/')) window.location.href = href
+    else window.open(href, '_blank', 'noopener,noreferrer')
   }
 
   return (
