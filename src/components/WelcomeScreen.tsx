@@ -117,16 +117,16 @@ function HeroSlider() {
         transition: 'opacity .28s ease, transform .28s ease',
       }}>
         {/* Slide number + tag */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
           <span style={{
-            fontSize: 11, fontWeight: 900, letterSpacing: '0.12em',
+            fontSize: 9, fontWeight: 900, letterSpacing: '0.12em',
             color: slide.color, fontFamily: 'var(--font-mono, monospace)',
           }}>
             {slide.num}
           </span>
           <div style={{ width: 32, height: 1, background: slide.color + '60' }} />
           <span style={{
-            fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+            fontSize: 8, fontWeight: 700, letterSpacing: '0.1em',
             textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)',
           }}>
             FlowCampaigns · AI Studio
@@ -135,8 +135,8 @@ function HeroSlider() {
 
         {/* Headline */}
         <h1 style={{
-          fontSize: 'clamp(26px, 2.6vw, 40px)', fontWeight: 800,
-          lineHeight: 1.18, color: '#fff', marginBottom: 14,
+          fontSize: 'clamp(14px, 1.4vw, 20px)', fontWeight: 800,
+          lineHeight: 1.18, color: '#fff', marginBottom: 11,
           whiteSpace: 'pre-line',
         }}>
           {slide.headline.split('\n').map((line, i) =>
@@ -151,7 +151,7 @@ function HeroSlider() {
 
         {/* Sub */}
         <p style={{
-          fontSize: 15, color: 'rgba(255,255,255,0.45)',
+          fontSize: 12, color: 'rgba(255,255,255,0.45)',
           lineHeight: 1.65, maxWidth: 440,
         }}>
           {slide.sub}
@@ -165,7 +165,7 @@ function HeroSlider() {
             key={i}
             onClick={() => goTo(i)}
             style={{
-              flex: 1, height: 3, borderRadius: 4, border: 'none',
+              flex: 1, height: 8, borderRadius: 4, border: 'none',
               background: 'rgba(255,255,255,0.1)',
               cursor: 'pointer', padding: 0, position: 'relative', overflow: 'hidden',
             }}
@@ -228,7 +228,7 @@ function BigTile({ tile, onClick }: { tile: ToolTile; onClick: () => void }) {
           <Icon size={24} strokeWidth={1.6} color={hover ? color : color + 'CC'} />
         </div>
         <span style={{
-          fontSize: 9, fontWeight: 800, letterSpacing: '0.1em',
+          fontSize: 7, fontWeight: 800, letterSpacing: '0.1em',
           textTransform: 'uppercase',
           color: hover ? color : 'rgba(255,255,255,0.2)',
           border: `1px solid ${hover ? color + '40' : 'rgba(255,255,255,0.08)'}`,
@@ -242,7 +242,7 @@ function BigTile({ tile, onClick }: { tile: ToolTile; onClick: () => void }) {
       {/* Label */}
       <div>
         <div style={{
-          fontSize: 22, fontWeight: 800,
+          fontSize: 18, fontWeight: 800,
           color: hover ? '#fff' : 'rgba(255,255,255,0.9)',
           lineHeight: 1.15, marginBottom: 8,
           letterSpacing: '-0.01em',
@@ -250,7 +250,7 @@ function BigTile({ tile, onClick }: { tile: ToolTile; onClick: () => void }) {
           {label}
         </div>
         <div style={{
-          fontSize: 13, color: hover ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.32)',
+          fontSize: 10, color: hover ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.32)',
           lineHeight: 1.6,
           transition: 'color .15s',
         }}>
@@ -261,7 +261,7 @@ function BigTile({ tile, onClick }: { tile: ToolTile; onClick: () => void }) {
       {/* CTA arrow */}
       <div style={{
         marginTop: 'auto',
-        fontSize: 12, fontWeight: 700,
+        fontSize: 10, fontWeight: 700,
         color: hover ? color : 'rgba(255,255,255,0.2)',
         display: 'flex', alignItems: 'center', gap: 6,
         transition: 'all .15s',
@@ -422,7 +422,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
         }}>
           <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
           <span style={{
-            fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+            fontSize: 8, fontWeight: 700, letterSpacing: '0.1em',
             textTransform: 'uppercase', color: 'rgba(255,255,255,0.22)',
           }}>
             Wybierz narzędzie
@@ -444,7 +444,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           onClick={onSkip}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: 12, color: 'rgba(255,255,255,0.2)',
+            fontSize: 10, color: 'rgba(255,255,255,0.2)',
             padding: 0, textAlign: 'left',
             transition: 'color .15s',
           }}
