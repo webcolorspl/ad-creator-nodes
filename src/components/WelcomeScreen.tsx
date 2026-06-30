@@ -374,6 +374,59 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           pointerEvents: 'none',
         }} />
 
+        {/* Speech bubble */}
+        <button
+          onClick={() => {
+            const v = videoRef.current
+            if (!v) return
+            if (timerRef.current) clearTimeout(timerRef.current)
+            v.currentTime = 0
+            v.muted = false
+            setMuted(false)
+            v.play().catch(() => {})
+          }}
+          style={{
+            position: 'absolute', bottom: 48, left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+            border: 'none', borderRadius: 18,
+            padding: '14px 22px',
+            cursor: 'pointer',
+            boxShadow: '0 8px 32px rgba(22,163,74,0.45), 0 2px 8px rgba(0,0,0,0.4)',
+            display: 'flex', alignItems: 'center', gap: 10,
+            whiteSpace: 'nowrap',
+            transition: 'transform .15s, box-shadow .15s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'translateX(-50%) translateY(-2px)'
+            e.currentTarget.style.boxShadow = '0 14px 40px rgba(22,163,74,0.55), 0 2px 8px rgba(0,0,0,0.4)'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'translateX(-50%)'
+            e.currentTarget.style.boxShadow = '0 8px 32px rgba(22,163,74,0.45), 0 2px 8px rgba(0,0,0,0.4)'
+          }}
+        >
+          <div style={{
+            width: 8, height: 8, borderRadius: '50%',
+            background: '#bbf7d0', boxShadow: '0 0 6px #4ade80',
+            flexShrink: 0,
+          }} />
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>
+            Hej, w czym mogę Ci pomóc?
+          </span>
+          <Volume2 size={15} strokeWidth={2} color="rgba(255,255,255,0.7)" />
+        </button>
+
+        {/* Bubble tail */}
+        <div style={{
+          position: 'absolute', bottom: 40, left: '50%',
+          transform: 'translateX(-50%)',
+          width: 14, height: 10,
+          background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+          clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+          pointerEvents: 'none',
+        }} />
+
         {/* Live badge */}
         <div style={{
           position: 'absolute', top: 20, left: 20,
