@@ -217,7 +217,7 @@ function HeroSlider({ dark }: { dark: boolean }) {
           {slide.headline.split('\n').map((line, i) =>
             i === 0
               ? <span key={i}>{line}<br /></span>
-              : <span key={i} style={{ color: t.textSub }}>{line}</span>
+              : <span key={i} style={{ color: '#16a34a' }}>{line}</span>
           )}
         </h1>
 
@@ -308,30 +308,18 @@ function BigTile({ tile, dark, onClick }: { tile: ToolTile; dark: boolean; onCli
         flex: 1,
       }}
     >
-      {/* Icon + tag */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-        <div style={{
-          width: 56, height: 56, borderRadius: 16,
-          background: hover ? (dark ? 'rgba(255,255,255,0.12)' : `${accent}18`) : (dark ? 'rgba(255,255,255,0.06)' : `${accent}10`),
-          border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : `${accent}30`}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'all .18s',
-          boxShadow: hover && !dark ? `0 4px 16px ${accent}25` : 'none',
-        }}>
-          <Icon size={26} strokeWidth={1.5}
-            color={dark ? (hover ? '#fff' : 'rgba(255,255,255,0.45)') : (hover ? accent : `${accent}bb`)}
-          />
-        </div>
-        <span style={{
-          fontSize: 10, fontWeight: 800, letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          color: hover ? (dark ? t.tileTagH : accent) : t.tileTag,
-          border: `1px solid ${hover && !dark ? `${accent}40` : t.tileBorder}`,
-          borderRadius: 6, padding: '4px 10px',
-          transition: 'all .15s',
-        }}>
-          {tag}
-        </span>
+      {/* Icon */}
+      <div style={{
+        width: 56, height: 56, borderRadius: 16,
+        background: hover ? (dark ? 'rgba(255,255,255,0.12)' : `${accent}18`) : (dark ? 'rgba(255,255,255,0.06)' : `${accent}10`),
+        border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : `${accent}30`}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'all .18s',
+        boxShadow: hover && !dark ? `0 4px 16px ${accent}25` : 'none',
+      }}>
+        <Icon size={26} strokeWidth={1.5}
+          color={dark ? (hover ? '#fff' : 'rgba(255,255,255,0.45)') : (hover ? accent : `${accent}bb`)}
+        />
       </div>
 
       {/* Label + desc */}
@@ -377,7 +365,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [videoLoaded, setVideoLoaded] = useState(false)
   const [muted, setMuted]   = useState(true)
-  const [dark, setDark]     = useState(true)
+  const [dark, setDark]     = useState(false)
 
   const t = theme(dark)
 
@@ -447,13 +435,6 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
             }} />
           </div>
         )}
-
-        {/* Right edge fade */}
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: `linear-gradient(to right, transparent 50%, ${t.fadeColor} 100%)`,
-          transition: 'background .3s',
-        }} />
 
         {/* Bottom fade */}
         <div style={{
@@ -628,17 +609,21 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           onClick={() => setDark(d => !d)}
           style={{
             position: 'absolute', top: 24, right: 24,
-            width: 38, height: 38, borderRadius: '50%', border: 'none',
-            background: t.toggleBg, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'background .2s', zIndex: 2,
+            height: 36, borderRadius: 18, border: `1.5px solid ${dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'}`,
+            background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)',
+            cursor: 'pointer', zIndex: 2,
+            display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px',
+            transition: 'all .2s',
           }}
           title={dark ? 'Tryb jasny' : 'Tryb ciemny'}
         >
           {dark
-            ? <Sun  size={16} strokeWidth={1.75} color={t.toggleColor} />
-            : <Moon size={16} strokeWidth={1.75} color={t.toggleColor} />
+            ? <Sun  size={15} strokeWidth={2} color="#facc15" />
+            : <Moon size={15} strokeWidth={2} color="#6366f1" />
           }
+          <span style={{ fontSize: 12, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)', letterSpacing: '0.02em' }}>
+            {dark ? 'Jasny' : 'Ciemny'}
+          </span>
         </button>
 
         <div style={{ position: 'relative', zIndex: 1 }}>
