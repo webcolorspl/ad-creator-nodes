@@ -255,9 +255,9 @@ export function SectionFeatures({ dark }: { dark: boolean }) {
       <FadeSection>
         <SectionHeader
           label="Dlaczego XTOOLS"
-          title="Wszystko czego potrzebujesz,"
-          green="nic czego nie potrzebujesz."
-          sub="Zaprojektowane dla agencji i freelancerów, którzy cenią czas bardziej niż możliwości konfiguracji."
+          title="Mniej narzędzi."
+          green="Więcej kampanii."
+          sub="Agencje tracą średnio 40% czasu na przełączanie się między narzędziami. XTOOLS łączy planowanie, generowanie kreacji i eksport w jednym miejscu — żeby Twój zespół skupił się na tym, co naprawdę przynosi wyniki."
           dark={dark}
         />
       </FadeSection>
