@@ -88,10 +88,10 @@ function theme(dark: boolean) {
     textSub:       'rgba(255,255,255,0.82)',
     textMuted:     'rgba(255,255,255,0.55)',
     textFaint:     'rgba(255,255,255,0.28)',
-    tileBg:        'rgba(255,255,255,0.03)',
-    tileBgHover:   'rgba(255,255,255,0.07)',
-    tileBorder:    'rgba(255,255,255,0.08)',
-    tileBorderH:   'rgba(255,255,255,0.22)',
+    tileBg:        'rgba(255,255,255,0.06)',
+    tileBgHover:   'rgba(255,255,255,0.11)',
+    tileBorder:    'rgba(255,255,255,0.13)',
+    tileBorderH:   'rgba(255,255,255,0.28)',
     tileTag:       'rgba(255,255,255,0.2)',
     tileTagH:      'rgba(255,255,255,0.5)',
     progressTrack: 'rgba(255,255,255,0.1)',
@@ -302,8 +302,8 @@ function BigTile({ tile, dark, onClick }: { tile: ToolTile; dark: boolean; onCli
         border: `1px solid ${hover ? t.tileBorderH : t.tileBorder}`,
         background: hover ? t.tileBgHover : t.tileBg,
         boxShadow: hover
-          ? dark ? '0 16px 48px rgba(0,0,0,0.5)' : '0 12px 36px rgba(0,0,0,0.12)'
-          : dark ? '0 2px 8px rgba(0,0,0,0.3)'   : '0 1px 4px rgba(0,0,0,0.06)',
+          ? dark ? '0 20px 56px rgba(0,0,0,0.6)' : '0 14px 40px rgba(0,0,0,0.15)'
+          : dark ? '0 4px 16px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)',
         transform: hover ? 'translateY(-3px)' : 'translateY(0)',
         transition: 'all .2s cubic-bezier(0.34,1.4,0.64,1)',
         flex: 1,

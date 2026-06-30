@@ -12,9 +12,9 @@ function theme(dark: boolean) {
     textMuted:     'rgba(255,255,255,0.55)',
     textFaint:     'rgba(255,255,255,0.28)',
     divider:       'rgba(255,255,255,0.07)',
-    cardBg:        'rgba(255,255,255,0.03)',
-    cardBorder:    'rgba(255,255,255,0.08)',
-    cardBorderH:   'rgba(255,255,255,0.2)',
+    cardBg:        'rgba(255,255,255,0.06)',
+    cardBorder:    'rgba(255,255,255,0.12)',
+    cardBorderH:   'rgba(255,255,255,0.26)',
     badgeSoon:     { bg: 'rgba(99,102,241,0.15)', color: '#a5b4fc', border: 'rgba(99,102,241,0.3)' },
     badgeWip:      { bg: 'rgba(234,179,8,0.15)',  color: '#fde047', border: 'rgba(234,179,8,0.3)'  },
     planBg:        'rgba(255,255,255,0.04)',
@@ -59,13 +59,16 @@ function useFadeIn() {
   return { ref, visible }
 }
 
-function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+function FadeSection({ children, delay = 0, gridColumn }: { children: React.ReactNode; delay?: number; gridColumn?: string }) {
   const { ref, visible } = useFadeIn()
   return (
     <div ref={ref} style={{
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(40px)',
       transition: `opacity .65s ease ${delay}ms, transform .65s ease ${delay}ms`,
+      gridColumn,
+      display: gridColumn ? 'flex' : undefined,
+      flexDirection: gridColumn ? 'column' : undefined,
     }}>
       {children}
     </div>
@@ -164,6 +167,9 @@ export function SectionComingSoon({ dark }: { dark: boolean }) {
                 overflow: 'hidden',
                 filter: dark ? 'grayscale(0.3)' : 'grayscale(0.15)',
                 opacity: 0.85,
+                boxShadow: dark
+                  ? '0 4px 20px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.2)'
+                  : '0 2px 14px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04)',
               }}>
                 {/* Photo */}
                 <div style={{
@@ -261,33 +267,57 @@ export function SectionFeatures({ dark }: { dark: boolean }) {
           dark={dark}
         />
       </FadeSection>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-        {FEATURES.map((f, i) => (
-          <FadeSection key={f.title} delay={i * 60}>
-            <div
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-              style={{
-                padding: '36px 30px',
-                borderRadius: 20,
-                border: `1px solid ${hovered === i ? t.cardBorderH : t.cardBorder}`,
-                background: hovered === i ? (dark ? 'rgba(255,255,255,0.06)' : '#fff') : t.cardBg,
-                transition: 'all .2s', cursor: 'default',
-              }}
-            >
-              <div style={{
-                width: 48, height: 48, borderRadius: 14, marginBottom: 18,
-                background: hovered === i ? 'rgba(22,163,74,0.15)' : (dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'background .2s',
-              }}>
-                <f.Icon size={24} strokeWidth={1.5} color={hovered === i ? '#16a34a' : t.textMuted} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
+        {FEATURES.map((f, i) => {
+          const isHero = i === 0
+          const isWide = i === 5
+          const isHov  = hovered === i
+          return (
+            <FadeSection key={f.title} delay={i * 60} gridColumn={isHero ? 'span 2' : isWide ? 'span 3' : undefined}>
+              <div
+                onMouseEnter={() => setHovered(i)}
+                onMouseLeave={() => setHovered(null)}
+                style={{
+                  height: '100%',
+                  padding: isHero ? '44px 40px' : isWide ? '36px 40px' : '36px 30px',
+                  borderRadius: 20,
+                  border: `1px solid ${isHov ? t.cardBorderH : t.cardBorder}`,
+                  background: isHov ? (dark ? 'rgba(255,255,255,0.09)' : '#fff') : t.cardBg,
+                  boxShadow: isHov
+                    ? (dark ? '0 12px 36px rgba(0,0,0,0.45)' : '0 8px 24px rgba(0,0,0,0.1)')
+                    : (dark ? '0 2px 12px rgba(0,0,0,0.3)' : '0 1px 6px rgba(0,0,0,0.06)'),
+                  transition: 'all .2s', cursor: 'default',
+                  display: 'flex',
+                  flexDirection: isWide ? 'row' : 'column',
+                  alignItems: isWide ? 'center' : 'flex-start',
+                  gap: isWide ? 32 : 0,
+                }}
+              >
+                <div style={{
+                  width: isHero ? 60 : 48,
+                  height: isHero ? 60 : 48,
+                  borderRadius: 14,
+                  marginBottom: isWide ? 0 : 18,
+                  flexShrink: 0,
+                  background: isHov ? 'rgba(22,163,74,0.15)' : (dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)'),
+                  border: `1px solid ${isHov ? 'rgba(22,163,74,0.3)' : t.cardBorder}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all .2s',
+                }}>
+                  <f.Icon size={isHero ? 28 : 22} strokeWidth={1.5} color={isHov ? '#16a34a' : t.textMuted} />
+                </div>
+                <div style={{ flex: isWide ? 1 : undefined }}>
+                  <div style={{
+                    fontSize: isHero ? 24 : 18,
+                    fontWeight: 800, color: t.text,
+                    marginBottom: 10, letterSpacing: '-0.01em',
+                  }}>{f.title}</div>
+                  <div style={{ fontSize: 15, color: t.textMuted, lineHeight: 1.7 }}>{f.desc}</div>
+                </div>
               </div>
-              <div style={{ fontSize: 19, fontWeight: 800, color: t.text, marginBottom: 10 }}>{f.title}</div>
-              <div style={{ fontSize: 15, color: t.textMuted, lineHeight: 1.7 }}>{f.desc}</div>
-            </div>
-          </FadeSection>
-        ))}
+            </FadeSection>
+          )
+        })}
       </div>
     </section>
   )
@@ -323,6 +353,9 @@ export function SectionTestimonials({ dark }: { dark: boolean }) {
               border: `1px solid ${t.cardBorder}`,
               background: t.cardBg,
               display: 'flex', flexDirection: 'column', gap: 24,
+              boxShadow: dark
+                ? '0 4px 20px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.2)'
+                : '0 2px 14px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04)',
             }}>
               <div style={{ display: 'flex', gap: 4 }}>
                 {[...Array(5)].map((_, s) => <span key={s} style={{ color: '#facc15', fontSize: 18 }}>★</span>)}
