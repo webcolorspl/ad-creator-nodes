@@ -561,7 +561,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
             }}
           >
             <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>
-              Hej, jestem Marry! 👋
+              W czym mogę Ci pomóc? 💬
             </span>
           </button>
         </div>
