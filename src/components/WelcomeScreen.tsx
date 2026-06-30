@@ -1,6 +1,6 @@
 'use client'
 import { useRef, useEffect, useState, useCallback } from 'react'
-import { Volume2, VolumeX, Wand2, Layers } from 'lucide-react'
+import { Wand2, Layers } from 'lucide-react'
 import type { LucideIcon } from '@/lib/icons'
 
 // ── Hero slides ───────────────────────────────────────────────
@@ -386,43 +386,40 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
             v.play().catch(() => {})
           }}
           style={{
-            position: 'absolute', bottom: 48, left: '50%',
+            position: 'absolute', bottom: '22%', left: '50%',
             transform: 'translateX(-50%)',
             background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
-            border: 'none', borderRadius: 18,
-            padding: '14px 22px',
+            border: 'none', borderRadius: 20,
+            padding: '16px 26px',
             cursor: 'pointer',
-            boxShadow: '0 8px 32px rgba(22,163,74,0.45), 0 2px 8px rgba(0,0,0,0.4)',
-            display: 'flex', alignItems: 'center', gap: 10,
+            boxShadow: '0 12px 40px rgba(22,163,74,0.5), 0 4px 16px rgba(0,0,0,0.5)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
             whiteSpace: 'nowrap',
             transition: 'transform .15s, box-shadow .15s',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.transform = 'translateX(-50%) translateY(-2px)'
-            e.currentTarget.style.boxShadow = '0 14px 40px rgba(22,163,74,0.55), 0 2px 8px rgba(0,0,0,0.4)'
+            e.currentTarget.style.transform = 'translateX(-50%) translateY(-3px)'
+            e.currentTarget.style.boxShadow = '0 20px 50px rgba(22,163,74,0.6), 0 4px 16px rgba(0,0,0,0.5)'
           }}
           onMouseLeave={e => {
             e.currentTarget.style.transform = 'translateX(-50%)'
-            e.currentTarget.style.boxShadow = '0 8px 32px rgba(22,163,74,0.45), 0 2px 8px rgba(0,0,0,0.4)'
+            e.currentTarget.style.boxShadow = '0 12px 40px rgba(22,163,74,0.5), 0 4px 16px rgba(0,0,0,0.5)'
           }}
         >
-          <div style={{
-            width: 8, height: 8, borderRadius: '50%',
-            background: '#bbf7d0', boxShadow: '0 0 6px #4ade80',
-            flexShrink: 0,
-          }} />
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>
-            Hej, w czym mogę Ci pomóc?
+          <span style={{ fontSize: 28, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+            Hej!
           </span>
-          <Volume2 size={15} strokeWidth={2} color="rgba(255,255,255,0.7)" />
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.01em' }}>
+            Jestem Marry 👋
+          </span>
         </button>
 
         {/* Bubble tail */}
         <div style={{
-          position: 'absolute', bottom: 40, left: '50%',
+          position: 'absolute', bottom: 'calc(22% - 10px)', left: '50%',
           transform: 'translateX(-50%)',
-          width: 14, height: 10,
-          background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+          width: 16, height: 10,
+          background: '#15803d',
           clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
           pointerEvents: 'none',
         }} />
@@ -444,28 +441,6 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           </span>
         </div>
 
-        {/* Sound toggle */}
-        <button
-          onClick={() => setMuted(v => !v)}
-          style={{
-            position: 'absolute', top: 20, right: 20,
-            background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 10, padding: '7px 10px', cursor: 'pointer',
-            color: 'rgba(255,255,255,0.4)',
-            display: 'flex', alignItems: 'center', gap: 6,
-            transition: 'all .15s',
-          }}
-          title={muted ? 'Włącz dźwięk' : 'Wycisz'}
-        >
-          {muted
-            ? <VolumeX size={14} strokeWidth={1.75} />
-            : <Volume2 size={14} strokeWidth={1.75} />
-          }
-          <span style={{ fontSize: 10, fontWeight: 600 }}>
-            {muted ? 'Dźwięk' : 'Wycisz'}
-          </span>
-        </button>
       </div>
 
       {/* ── RIGHT: Content — dot grid bg ───────────────── */}
