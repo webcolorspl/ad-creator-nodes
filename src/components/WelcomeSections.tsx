@@ -357,9 +357,6 @@ export function SectionTestimonials({ dark }: { dark: boolean }) {
                 ? '0 4px 20px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.2)'
                 : '0 2px 14px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04)',
             }}>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {[...Array(5)].map((_, s) => <span key={s} style={{ color: '#facc15', fontSize: 23 }}>★</span>)}
-              </div>
               <p style={{ fontSize: 22, color: t.textSub, lineHeight: 1.75, flex: 1, fontStyle: 'italic' }}>
                 „{tm.quote}"
               </p>
@@ -409,7 +406,7 @@ const PLANS: Plan[] = [
     Icon: Rocket, iconColor: '#16a34a', iconBg: 'rgba(22,163,74,0.15)',
     tokens: 500, tokenDesc: '~100 banerów lub 25 zdjęć AI', tokenRate: '0,24 zł / token',
     features: ['Nielimitowane projekty', 'Creator + Composer', 'Nielimitowany eksport', 'Brak watermarku', 'Historia i wersje', 'Wszystkie formaty i kanały', 'Chat support'],
-    missing: ['Multi-klient workspace', 'Brandbook (SOON)', 'White-label'],
+    missing: ['Multi-klient workspace', 'Brandbook (SOON)'],
     cta: 'Wypróbuj 14 dni gratis',
     highlighted: true,
   },
@@ -420,7 +417,7 @@ const PLANS: Plan[] = [
     tokens: 1500, tokenDesc: '~300 banerów lub 75 zdjęć AI', tokenRate: '0,17 zł / token',
     savings: 'O 30% taniej za token niż Starter',
     features: ['Wszystko ze Starter', '3 workspace\'y klientów', 'Priorytetowe generowanie AI', 'Wczesny dostęp do nowych modułów', 'Brandbook (SOON)'],
-    missing: ['White-label eksport', 'Dedykowany opiekun'],
+    missing: ['Dedykowany opiekun'],
     cta: 'Wybierz Pro',
   },
   {
@@ -429,7 +426,7 @@ const PLANS: Plan[] = [
     Icon: Building2, iconColor: '#0ea5e9', iconBg: 'rgba(14,165,233,0.12)',
     tokens: 5000, tokenDesc: '~1 000 banerów lub 100 filmów AI', tokenRate: '0,14 zł / token',
     savings: 'Oszczędzasz 1 086 zł/mies vs 15 × Starter',
-    features: ['Wszystko z Pro', 'Do 15 workspace\'ów klientów', 'Brandbook (SOON)', 'Video Creator (wkrótce)', 'White-label eksport', 'Dedykowany opiekun', 'Priorytetowe wsparcie 24/7'],
+    features: ['Wszystko z Pro', 'Do 15 workspace\'ów klientów', 'Brandbook (SOON)', 'Video Creator (wkrótce)', 'Dedykowany opiekun', 'Priorytetowe wsparcie 24/7'],
     missing: [],
     cta: 'Porozmawiaj z nami',
   },
