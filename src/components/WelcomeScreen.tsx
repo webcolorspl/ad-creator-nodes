@@ -462,55 +462,128 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           pointerEvents: 'none', transition: 'background .3s',
         }} />
 
-        {/* Speech bubble */}
-        <button
-          onClick={() => {
-            const v = videoRef.current
-            if (!v) return
-            if (timerRef.current) clearTimeout(timerRef.current)
-            v.currentTime = 0
-            v.muted = false
-            setMuted(false)
-            v.play().catch(() => {})
-          }}
-          style={{
-            position: 'absolute', bottom: '22%', left: '50%',
-            transform: 'translateX(-50%)',
-            background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
-            border: 'none', borderRadius: 20,
-            padding: '16px 26px',
-            cursor: 'pointer',
-            boxShadow: `0 12px 40px ${t.bubbleShadow}, 0 4px 16px rgba(0,0,0,0.3)`,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-            whiteSpace: 'nowrap',
-            transition: 'transform .15s, box-shadow .15s',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.transform = 'translateX(-50%) translateY(-3px)'
-            e.currentTarget.style.boxShadow = `0 20px 50px rgba(22,163,74,0.6), 0 4px 16px rgba(0,0,0,0.3)`
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.transform = 'translateX(-50%)'
-            e.currentTarget.style.boxShadow = `0 12px 40px ${t.bubbleShadow}, 0 4px 16px rgba(0,0,0,0.3)`
-          }}
-        >
-          <span style={{ fontSize: 28, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-            Hej!
-          </span>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>
-            Jestem Marry 👋
-          </span>
-        </button>
-
-        {/* Bubble tail */}
+        {/* Chat window + bubble */}
         <div style={{
-          position: 'absolute', bottom: 'calc(22% - 10px)', left: '50%',
+          position: 'absolute', bottom: '14%', left: '50%',
           transform: 'translateX(-50%)',
-          width: 16, height: 10,
-          background: '#15803d',
-          clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
-          pointerEvents: 'none',
-        }} />
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0,
+          width: 240,
+        }}>
+          {/* Chat window */}
+          <div style={{
+            width: '100%',
+            background: 'rgba(12,12,18,0.85)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 16,
+            overflow: 'hidden',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          }}>
+            {/* Chat header */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '10px 14px',
+              borderBottom: '1px solid rgba(255,255,255,0.07)',
+              background: 'rgba(255,255,255,0.04)',
+            }}>
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #16a34a, #0d9488)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 13,
+                }}>M</div>
+                <div style={{
+                  position: 'absolute', bottom: 0, right: 0,
+                  width: 8, height: 8, borderRadius: '50%',
+                  background: '#4ade80', border: '1.5px solid #0c0c12',
+                  boxShadow: '0 0 6px #4ade80',
+                }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Marry</div>
+                <div style={{ fontSize: 9, color: '#4ade80', fontWeight: 600 }}>● online</div>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div style={{ padding: '12px 12px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{
+                alignSelf: 'flex-start',
+                background: 'rgba(255,255,255,0.08)',
+                borderRadius: '12px 12px 12px 3px',
+                padding: '7px 11px',
+                fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.45,
+                maxWidth: '90%',
+              }}>
+                Cześć! 👋 Jak mogę Ci dziś pomóc?
+              </div>
+              <div style={{
+                alignSelf: 'flex-end',
+                background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                borderRadius: '12px 12px 3px 12px',
+                padding: '7px 11px',
+                fontSize: 12, color: '#fff', lineHeight: 1.45,
+              }}>
+                Chcę stworzyć kampanię 🚀
+              </div>
+              {/* Typing indicator */}
+              <div style={{
+                alignSelf: 'flex-start',
+                background: 'rgba(255,255,255,0.08)',
+                borderRadius: '12px 12px 12px 3px',
+                padding: '8px 14px',
+                display: 'flex', gap: 4, alignItems: 'center',
+              }}>
+                {[0, 1, 2].map(i => (
+                  <div key={i} style={{
+                    width: 5, height: 5, borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.45)',
+                    animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
+                  }} />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Connector line */}
+          <div style={{ width: 2, height: 10, background: 'rgba(255,255,255,0.1)' }} />
+
+          {/* Green CTA bubble */}
+          <button
+            onClick={() => {
+              const v = videoRef.current
+              if (!v) return
+              if (timerRef.current) clearTimeout(timerRef.current)
+              v.currentTime = 0
+              v.muted = false
+              setMuted(false)
+              v.play().catch(() => {})
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+              border: 'none', borderRadius: 50,
+              padding: '13px 28px',
+              cursor: 'pointer',
+              boxShadow: `0 8px 28px ${t.bubbleShadow}, 0 2px 8px rgba(0,0,0,0.3)`,
+              whiteSpace: 'nowrap',
+              transition: 'transform .15s, box-shadow .15s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = `0 16px 40px rgba(22,163,74,0.6), 0 2px 8px rgba(0,0,0,0.3)`
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = `0 8px 28px ${t.bubbleShadow}, 0 2px 8px rgba(0,0,0,0.3)`
+            }}
+          >
+            <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>
+              Hej, jestem Marry! 👋
+            </span>
+          </button>
+        </div>
 
         {/* Live badge */}
         <div style={{
@@ -606,7 +679,13 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
         </div>
       </div>
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes bounce {
+          0%, 60%, 100% { transform: translateY(0); opacity: .4; }
+          30%            { transform: translateY(-4px); opacity: 1; }
+        }
+      `}</style>
     </div>
   )
 }
