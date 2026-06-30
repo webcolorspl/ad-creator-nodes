@@ -604,7 +604,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           position: 'absolute', top: 20, left: 20,
         }}>
           <span style={{
-            fontSize: 40, fontWeight: 900, color: '#fff',
+            fontSize: 32, fontWeight: 900, color: '#fff',
             letterSpacing: '-0.03em', lineHeight: 1,
             textShadow: '0 2px 16px rgba(0,0,0,0.4)',
             fontFamily: 'var(--font-sans, system-ui, sans-serif)',
