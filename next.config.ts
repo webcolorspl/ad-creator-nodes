@@ -7,12 +7,12 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: '/ad-generator',
+        source: '/creator',
         destination: 'https://ad-generator-webcolors.vercel.app',
         permanent: false,
       },
       {
-        source: '/ad-generator/:path*',
+        source: '/creator/:path*',
         destination: 'https://ad-generator-webcolors.vercel.app/:path*',
         permanent: false,
       },

@@ -22,13 +22,13 @@ import { useAppStore }       from '@/store/appStore'
 const isNodesSubdomain =
   typeof window !== 'undefined' && window.location.hostname === 'nodes.xtools.pl'
 
-export function AdCreatorApp() {
+export function AdCreatorApp({ skipWelcome }: { skipWelcome?: boolean } = {}) {
   const showApiModal = useAppStore(s => s.showApiModal)
   const showTests    = useAppStore(s => s.showTests)
   const resetCanvas  = useAppStore(s => s.resetCanvas)
   const [liveNodes, setLiveNodes] = useState<Node[]>([])
   const [liveEdges, setLiveEdges] = useState<Edge[]>([])
-  const [showWelcome, setShowWelcome] = useState(!isNodesSubdomain)
+  const [showWelcome, setShowWelcome] = useState(!isNodesSubdomain && !skipWelcome)
   const [campaignType, setCampaignType] = useState<string | undefined>(undefined)
 
   const handleChange = useCallback((nodes: Node[], edges: Edge[]) => {

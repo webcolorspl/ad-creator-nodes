@@ -62,7 +62,7 @@ const TOOL_TILES: ToolTile[] = [
     desc: 'Generuj banery, teksty i kreacje reklamowe w sekundach — wystarczy brief i wybór formatu.',
     colorDark: '#f1f5f9',
     colorLight: '#16a34a',
-    href: 'https://xtools.pl/ad-generator',
+    href: 'https://xtools.pl/creator',
   },
   {
     id: 'composer',
@@ -72,6 +72,7 @@ const TOOL_TILES: ToolTile[] = [
     desc: 'Przeciągnij, połącz, gotowe — kampanię składasz w minuty bez jednej linii kodu.',
     colorDark: '#cbd5e1',
     colorLight: '#7C5CF5',
+    href: 'https://xtools.pl/composer',
   },
 ]
 
