@@ -677,19 +677,6 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
             ))}
           </div>
 
-          {/* Skip */}
-          <button
-            onClick={onSkip}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: 12, color: t.textFaint,
-              padding: 0, textAlign: 'left', transition: 'color .15s',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.color = t.textMuted)}
-            onMouseLeave={e => (e.currentTarget.style.color = t.textFaint)}
-          >
-            Pomiń i zacznij od zera →
-          </button>
         </div>
       </div>
 
