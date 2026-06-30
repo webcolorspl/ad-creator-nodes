@@ -27,6 +27,8 @@ export interface BannerEditorModalProps {
   formatId: string
   masterData: BannerMasterData | null
   overrides: BannerCardOverrides
+  headlineOverride?: HeadlineData | null
+  ctaOverride?: CTAData | null
   onApply: (overrides: BannerCardOverrides, headline: HeadlineData | null, cta: CTAData | null) => void
 }
 
@@ -237,6 +239,8 @@ export function BannerEditorModal({
   formatId,
   masterData,
   overrides,
+  headlineOverride,
+  ctaOverride,
   onApply,
 }: BannerEditorModalProps) {
   // Local overrides copy
@@ -277,8 +281,21 @@ export function BannerEditorModal({
   useEffect(() => {
     if (open) {
       setLocal({ ...overrides })
-      setLocalHeadline(masterData?.headline ? { ...masterData.headline } : null)
-      setLocalCta(masterData?.cta ? { ...masterData.cta } : null)
+      // Prefer slave's existing override; fall back to master data
+      setLocalHeadline(
+        headlineOverride !== undefined && headlineOverride !== null
+          ? { ...headlineOverride }
+          : masterData?.headline
+            ? { ...masterData.headline }
+            : null
+      )
+      setLocalCta(
+        ctaOverride !== undefined && ctaOverride !== null
+          ? { ...ctaOverride }
+          : masterData?.cta
+            ? { ...masterData.cta }
+            : null
+      )
       setPreviewFormatId(formatId)
       setTab('bg')
       loadPresets()

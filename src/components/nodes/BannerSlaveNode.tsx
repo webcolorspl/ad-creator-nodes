@@ -518,6 +518,8 @@ export function BannerSlaveNode({ id, data }: NodeProps) {
         formatId={formatId}
         masterData={masterData ?? null}
         overrides={overrides}
+        headlineOverride={headlineOverride}
+        ctaOverride={ctaOverride}
         onApply={(newOverrides, hl, cta) => {
           setOverrides(newOverrides)
           setHeadlineOverride(hl)
