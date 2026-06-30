@@ -327,7 +327,7 @@ export function SectionFeatures({ dark }: { dark: boolean }) {
 // ── SEKCJA 4: Testimonials ────────────────────────────────────
 interface Testimonial { name: string; role: string; company: string; quote: string; avatar: number }
 const TESTIMONIALS: Testimonial[] = [
-  { name: 'Marta Kowalczyk', role: 'Head of Performance', company: 'Agencja Wzrost',    quote: 'Skróciliśmy czas produkcji kreacji o 70%. Klienci dostają materiały następnego dnia po briefie, nie po tygodniu.', avatar: 44 },
+  { name: 'Marta Kowalczyk', role: 'Head of Performance', company: 'Agencja Build',    quote: 'Skróciliśmy czas produkcji kreacji o 70%. Klienci dostają materiały następnego dnia po briefie, nie po tygodniu.', avatar: 44 },
   { name: 'Piotr Zając',     role: 'Freelance Art Director', company: 'Self-employed',   quote: 'W końcu narzędzie, które rozumie workflow agencyjny. Generuję paczki na 5 kanałów jednocześnie — to jest przyszłość.', avatar: 68 },
   { name: 'Karolina Nowak',  role: 'Marketing Manager',   company: 'Sklep Zenith',      quote: 'Wdrożyliśmy XTOOLS dla całego zespołu marketingu. Oszczędzamy 20h tygodniowo tylko na formatowaniu kreacji.', avatar: 56 },
 ]
