@@ -267,6 +267,8 @@ export function BannerEditorModal({
   const [presetName, setPresetName] = useState('')
   const [savingPreset, setSavingPreset] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [activePresetId, setActivePresetId] = useState<string | null>(null)
+  const [activeAdGenId, setActiveAdGenId] = useState<string | null>(null)
 
   // Right panel tab
   const [rightTab, setRightTab] = useState<RightTab>('presets')
@@ -299,6 +301,8 @@ export function BannerEditorModal({
       )
       setPreviewFormatId(formatId)
       setTab('bg')
+      setActivePresetId(null)
+      setActiveAdGenId(null)
       loadPresets()
       loadAdGenTemplates()
     }
@@ -380,6 +384,8 @@ export function BannerEditorModal({
 
   // Apply Ad Generator template
   const applyAdGenTemplate = (template: AdGenTemplate) => {
+    setActiveAdGenId(template.id)
+    setActivePresetId(null)
     const newOverrides = projectToOverrides(template.project)
     setLocal(newOverrides)
     const hl = projectToHeadline(template.project)
@@ -411,6 +417,8 @@ export function BannerEditorModal({
 
   // Apply preset
   const applyPreset = (preset: BannerPreset) => {
+    setActivePresetId(preset.id)
+    setActiveAdGenId(null)
     const config = preset.config as Record<string, unknown>
     const newOverrides: BannerCardOverrides = {}
     if (typeof config.bgColor === 'string')        newOverrides.bgColor        = config.bgColor
@@ -581,8 +589,8 @@ export function BannerEditorModal({
           borderRadius: 14,
           display: 'flex',
           flexDirection: 'column',
-          width: 'min(98vw, 1340px)',
-          height: 'min(96vh, 940px)',
+          width: 'clamp(640px, 50vw, 1800px)',
+          height: 'clamp(480px, 85vh, 1400px)',
           overflow: 'hidden',
           boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
         }}
@@ -1062,40 +1070,60 @@ export function BannerEditorModal({
                     Brak presetów
                   </div>
                 )}
-                {presets.map(preset => (
-                  <button
-                    key={preset.id}
-                    onClick={() => applyPreset(preset)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      width: '100%',
-                      padding: '7px 12px',
-                      background: 'none',
-                      border: 'none',
-                      borderBottom: '1px solid var(--color-border)',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                    }}
-                  >
-                    {preset.thumbnail ? (
-                      <img
-                        src={preset.thumbnail}
-                        alt={preset.name}
-                        style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 5, flexShrink: 0 }}
-                      />
-                    ) : (
-                      <div style={{
-                        width: 72, height: 72, borderRadius: 5, flexShrink: 0,
-                        background: 'var(--color-process)', opacity: 0.3,
-                      }} />
-                    )}
-                    <span style={{ fontSize: 14, color: 'var(--color-text)', lineHeight: 1.3 }}>
-                      {preset.name}
-                    </span>
-                  </button>
-                ))}
+                {presets.map(preset => {
+                  const isActive = activePresetId === preset.id
+                  return (
+                    <button
+                      key={preset.id}
+                      onClick={() => applyPreset(preset)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        width: '100%',
+                        padding: '8px 12px',
+                        background: isActive ? 'rgba(124,92,245,0.12)' : 'none',
+                        border: 'none',
+                        borderBottom: '1px solid var(--color-border)',
+                        borderLeft: isActive ? '3px solid #7C5CF5' : '3px solid transparent',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'background .12s',
+                      }}
+                    >
+                      <div style={{ position: 'relative', flexShrink: 0 }}>
+                        {preset.thumbnail ? (
+                          <img
+                            src={preset.thumbnail}
+                            alt={preset.name}
+                            style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 5, display: 'block' }}
+                          />
+                        ) : (
+                          <div style={{
+                            width: 72, height: 72, borderRadius: 5,
+                            background: 'var(--color-process)', opacity: 0.3,
+                          }} />
+                        )}
+                        {isActive && (
+                          <div style={{
+                            position: 'absolute', top: 4, right: 4,
+                            width: 18, height: 18, borderRadius: '50%',
+                            background: '#7C5CF5',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: '0 1px 4px rgba(0,0,0,0.4)',
+                          }}>
+                            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                              <path d="M1 4l2.5 2.5L9 1" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <span style={{ fontSize: 14, color: isActive ? 'var(--color-text)' : 'var(--color-text-muted)', lineHeight: 1.3, fontWeight: isActive ? 600 : 400 }}>
+                        {preset.name}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             )}
 
@@ -1112,42 +1140,62 @@ export function BannerEditorModal({
                     Brak szablonów
                   </div>
                 )}
-                {adGenTemplates.map(tpl => (
-                  <button
-                    key={tpl.id}
-                    onClick={() => applyAdGenTemplate(tpl)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      width: '100%',
-                      padding: '7px 12px',
-                      background: 'none',
-                      border: 'none',
-                      borderBottom: '1px solid var(--color-border)',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                    }}
-                  >
-                    {tpl.thumbnail ? (
-                      <img
-                        src={tpl.thumbnail}
-                        alt={tpl.name}
-                        style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 5, flexShrink: 0 }}
-                      />
-                    ) : (
-                      <div style={{
-                        width: 72, height: 72, borderRadius: 5, flexShrink: 0,
-                        background: 'rgba(124,92,245,0.3)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 18, color: 'rgba(255,255,255,0.3)',
-                      }}>◈</div>
-                    )}
-                    <span style={{ fontSize: 14, color: 'var(--color-text)', lineHeight: 1.3 }}>
-                      {tpl.name}
-                    </span>
-                  </button>
-                ))}
+                {adGenTemplates.map(tpl => {
+                  const isActive = activeAdGenId === tpl.id
+                  return (
+                    <button
+                      key={tpl.id}
+                      onClick={() => applyAdGenTemplate(tpl)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        width: '100%',
+                        padding: '8px 12px',
+                        background: isActive ? 'rgba(124,92,245,0.12)' : 'none',
+                        border: 'none',
+                        borderBottom: '1px solid var(--color-border)',
+                        borderLeft: isActive ? '3px solid #7C5CF5' : '3px solid transparent',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'background .12s',
+                      }}
+                    >
+                      <div style={{ position: 'relative', flexShrink: 0 }}>
+                        {tpl.thumbnail ? (
+                          <img
+                            src={tpl.thumbnail}
+                            alt={tpl.name}
+                            style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 5, display: 'block' }}
+                          />
+                        ) : (
+                          <div style={{
+                            width: 72, height: 72, borderRadius: 5,
+                            background: 'rgba(124,92,245,0.3)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: 18, color: 'rgba(255,255,255,0.3)',
+                          }}>◈</div>
+                        )}
+                        {isActive && (
+                          <div style={{
+                            position: 'absolute', top: 4, right: 4,
+                            width: 18, height: 18, borderRadius: '50%',
+                            background: '#7C5CF5',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: '0 1px 4px rgba(0,0,0,0.4)',
+                          }}>
+                            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                              <path d="M1 4l2.5 2.5L9 1" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <span style={{ fontSize: 14, color: isActive ? 'var(--color-text)' : 'var(--color-text-muted)', lineHeight: 1.3, fontWeight: isActive ? 600 : 400 }}>
+                        {tpl.name}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             )}
           </div>
