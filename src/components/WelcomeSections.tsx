@@ -533,6 +533,21 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
           </div>
         </FadeSection>
 
+        {/* Creator gratis banner */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+          marginBottom: 28,
+          padding: '12px 24px', borderRadius: 50,
+          background: 'rgba(22,163,74,0.1)',
+          border: '1px solid rgba(22,163,74,0.25)',
+          width: 'fit-content', margin: '0 auto 28px',
+        }}>
+          <span style={{ fontSize: 16, lineHeight: 1 }}>✦</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#4ade80', letterSpacing: '0.02em' }}>
+            Creator (generator banerów AI) dostępny bezpłatnie w każdym planie
+          </span>
+        </div>
+
         {/* Cards — grid dla równej wysokości */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, alignItems: 'stretch' }}>
           {PLANS.map((plan, i) => {
