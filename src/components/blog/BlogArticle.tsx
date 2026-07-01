@@ -110,10 +110,10 @@ export function BlogArticle({ post, related, prev, next }: Props) {
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
           />
         )}
-        {/* Dark overlay */}
+        {/* Dark overlay — stronger gradient at bottom for text */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%)',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.7) 100%)',
         }} />
 
         {/* Cover text */}

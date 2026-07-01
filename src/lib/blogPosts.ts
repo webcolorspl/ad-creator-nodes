@@ -140,7 +140,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-06-25',
     readTime: 6,
-    cover: 'https://images.unsplash.com/photo-1531746790095-e5fecc040393?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
     content: `<h2>Problem spójności w kreacjach AI</h2>
 <p>Jednym z najczęstszych zarzutów wobec kreacji generowanych przez AI jest brak spójności wizualnej. Każdy baner wygląda inaczej, kolory się nie zgadzają, typografia jest przypadkowa, a style graficzne skaczą od realistycznego po komiksowy. To poważny problem, bo spójność wizualna jest fundamentem rozpoznawalności marki.</p>
 <p>Na szczęście istnieją sprawdzone techniki, które pozwalają utrzymać jednolity styl w całej kampanii - nawet generując kreacje masowo za pomocą AI.</p>
@@ -185,7 +185,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-06-23',
     readTime: 7,
-    cover: 'https://images.unsplash.com/photo-1555255707-c07966088b7c?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800&q=80',
     content: `<h2>Rynek narzędzi AI do kreacji reklamowych w 2025</h2>
 <p>Rynek narzędzi AI do generowania grafik reklamowych eksplodował w ciągu ostatnich dwóch lat. Od uniwersalnych generatorów obrazów po specjalistyczne platformy do banerów - wybór jest ogromny. Dla marketera kluczowe pytanie brzmi: które narzędzie najlepiej pasuje do moich potrzeb?</p>
 <p>W tym przeglądzie skupiamy się na narzędziach dedykowanych reklamom - nie artystycznym generatorom obrazów, ale platformom zaprojektowanym z myślą o produkcji kreacji marketingowych.</p>
@@ -587,7 +587,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-06-06',
     readTime: 7,
-    cover: 'https://images.unsplash.com/photo-1504868584819-f8e8954a3646?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
     content: `<h2>ROI - metryka, która rządzi marketingiem</h2>
 <p>ROI (Return on Investment) to najważniejsza metryka w marketingu cyfrowym. Odpowiada na fundamentalne pytanie: czy pieniądze wydane na reklamę przyniosły zysk? Brzmi prosto, ale w praktyce obliczenie prawdziwego ROI kampanii cyfrowej wymaga uwzględnienia wielu zmiennych.</p>
 <p>Podstawowy wzór: ROI = (Przychód z kampanii - Koszt kampanii) / Koszt kampanii × 100%. Jeśli wydałeś 5000 zł na kampanię, a wygenerowała 15 000 zł przychodu, ROI = (15000 - 5000) / 5000 × 100% = 200%.</p>
@@ -836,7 +836,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-05-26',
     readTime: 6,
-    cover: 'https://images.unsplash.com/photo-1563986768-494b9cd0e01d?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1560472355-536de3962603?w=800&q=80',
     content: `<h2>Wyzwanie wielu budżetów</h2>
 <p>Agencja reklamowa obsługująca 10-20 klientów zarządza budżetami od kilku tysięcy do kilkudziesięciu tysięcy złotych miesięcznie na każdego klienta. Suma budżetów mediowych może sięgać setek tysięcy złotych. Błąd w alokacji, przeoczenie problemu lub brak optymalizacji jednego klienta - to realne straty i utrata zaufania.</p>
 <p>Zarządzanie wieloma budżetami wymaga systemowego podejścia, jasnych procesów i odpowiednich narzędzi. Nie da się tego robić „na oko" powyżej 5 klientów.</p>
@@ -940,7 +940,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-05-21',
     readTime: 7,
-    cover: 'https://images.unsplash.com/photo-1517245386-fbfef1d56ae5?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
     content: `<h2>Skuteczność kreacji - nie zgaduj, mierz</h2>
 <p>Wielu marketerów ocenia kreacje reklamowe „na oko" - podoba się albo nie. To niebezpieczne podejście, bo to, co podoba się marketerowi, nie zawsze podoba się grupie docelowej. Jedyny wiarygodny sposób oceny kreacji to dane. Ale jakie dane analizować i jak je interpretować?</p>
 
@@ -993,7 +993,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-18',
     readTime: 6,
-    cover: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b738?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1611162618758-2a29a995354b?w=800&q=80',
     content: `<h2>Ekosystem reklamowy Meta w 2025</h2>
 <p>Facebook i Instagram to wciąż dwa najważniejsze kanały reklamowe w social media, szczególnie w Polsce. Platforma Meta Ads oferuje kilkanaście formatów reklamowych, z których każdy ma swoje mocne strony i wymagania techniczne. Znajomość tych formatów i ich specyfikacji to fundament skutecznych kampanii social media.</p>
 <p>W 2025 roku Meta mocno promuje formaty wideo i interaktywne, premiując je niższym CPM. Jednocześnie klasyczne formaty obrazkowe nadal stanowią trzon kampanii performance - szczególnie w e-commerce.</p>
@@ -1050,7 +1050,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-16',
     readTime: 7,
-    cover: 'https://images.unsplash.com/photo-1562577309-4932a86e4a2c?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1573152143286-0c422b4d2175?w=800&q=80',
     content: `<h2>Dlaczego TikTok jest ważny dla biznesu</h2>
 <p>TikTok to nie jest już platforma tylko dla nastolatków. W Polsce ponad 10 milionów użytkowników korzysta z TikToka, a grupa wiekowa 25-44 to najszybciej rosnący segment. Średni czas spędzany w aplikacji to ponad 90 minut dziennie - więcej niż na jakiejkolwiek innej platformie social media.</p>
 <p>Dla marketerów TikTok oferuje coś, czego inne platformy nie mają: wyjątkowo wysoki organiczny zasięg i użytkowników w trybie rozrywki, otwarcie nastawionych na nowe treści i marki. CPM na TikToku jest wciąż niższy niż na Facebooku i Instagramie, co czyni go atrakcyjnym kanałem do testowania.</p>
@@ -1097,7 +1097,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-14',
     readTime: 6,
-    cover: 'https://images.unsplash.com/photo-1611162616305-c69b3037c7fc?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=800&q=80',
     content: `<h2>LinkedIn - platforma numer jeden dla B2B</h2>
 <p>LinkedIn to jedyna platforma social media, na której użytkownicy podają prawdziwe stanowiska, firmy i branże. To czyni ją najskuteczniejszym kanałem do targetowania decydentów biznesowych. Jeśli sprzedajesz usługi lub produkty B2B - od oprogramowania SaaS po usługi konsultingowe - LinkedIn Ads powinien być w Twoim media mixie.</p>
 <p>W Polsce LinkedIn ma ponad 5 milionów użytkowników, w tym menedżerów, dyrektorów i właścicieli firm. CPM jest wyższy niż na Facebooku (30-60 zł vs 5-15 zł), ale jakość leadów jest nieporównywalnie wyższa - docierasz do dokładnie tych osób, które podejmują decyzje zakupowe.</p>
@@ -1298,7 +1298,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-03',
     readTime: 6,
-    cover: 'https://images.unsplash.com/photo-1563986768-494b9cd0e01d?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1560472355-536de3962603?w=800&q=80',
     content: `<h2>Pinterest - platforma z intencją zakupową</h2>
 <p>Pinterest to platforma, na którą ludzie przychodzą po inspirację - i to jest klucz do jej skuteczności reklamowej. W przeciwieństwie do Facebooka czy Instagrama, gdzie użytkownicy scrollują bezmyślnie, na Pinterest użytkownicy aktywnie szukają produktów, pomysłów i rozwiązań. 85% użytkowników Pinterest twierdzi, że platforma pomogła im podjąć decyzję zakupową.</p>
 <p>Mimo to Pinterest jest pomijany przez większość polskich marketerów. To błąd - platforma ma ponad 3 miliony aktywnych użytkowników w Polsce i CPM niższy niż na Facebooku.</p>
@@ -1871,7 +1871,7 @@ export const BLOG_POSTS = [
     category: 'Agencje i freelancerzy' as const,
     date: '2026-04-08',
     readTime: 5,
-    cover: 'https://images.unsplash.com/photo-1542744173-8e7e91415657?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&q=80',
     content: `<h2>Raport to komunikacja, nie dokumentacja</h2>
 <p>Raport z kampanii to nie zrzut danych z Google Analytics. To narzędzie komunikacji, które odpowiada na pytanie klienta: „Czy moje pieniądze zostały dobrze wydane?". Dobry raport buduje zaufanie, uzasadnia dalszą współpracę i pozycjonuje Cię jako eksperta. Zły raport - pełen niezrozumiałych tabelek - podkopuje zaufanie i generuje pytania zamiast odpowiedzi.</p>
 
