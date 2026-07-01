@@ -93,7 +93,7 @@ function SectionHeader({ label, title, green, sub, dark, subMaxWidth = 840 }: {
         </span>
       </div>
       <h2 style={{
-        fontSize: 'clamp(27px, 2.62vw, 40px)', fontWeight: 900,
+        fontSize: 'clamp(31px, 3.01vw, 46px)', fontWeight: 900,
         color: t.text, lineHeight: 1.08, letterSpacing: '-0.025em', marginBottom: 18,
       }}>
         {title}{green && <><br /><span style={{ color: '#16a34a' }}>{green}</span></>}
@@ -484,7 +484,7 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
               </span>
             </div>
             <h2 style={{
-              fontSize: 'clamp(27px, 2.62vw, 40px)', fontWeight: 900,
+              fontSize: 'clamp(31px, 3.01vw, 46px)', fontWeight: 900,
               color: t.text, lineHeight: 1.08, letterSpacing: '-0.025em', marginBottom: 18,
             }}>
               Zacznij za darmo,<br /><span style={{ color: '#16a34a' }}>skaluj gdy rośniesz.</span>
@@ -795,7 +795,7 @@ export function SectionFinalCTA({ dark }: { dark: boolean }) {
           padding: '64px 48px', textAlign: 'center',
         }}>
           <h2 style={{
-            fontSize: 'clamp(24px, 2.62vw, 37px)', fontWeight: 900,
+            fontSize: 'clamp(28px, 3.01vw, 43px)', fontWeight: 900,
             color: t.text, letterSpacing: '-0.025em', marginBottom: 14, lineHeight: 1.12,
           }}>
             Zacznij tworzyć kampanie<br />

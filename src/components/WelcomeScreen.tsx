@@ -211,7 +211,7 @@ function HeroSlider({ dark }: { dark: boolean }) {
 
         {/* Headline */}
         <h1 style={{
-          fontSize: 'clamp(32px, 2.99vw, 50px)', fontWeight: 800,
+          fontSize: 'clamp(37px, 3.44vw, 58px)', fontWeight: 800,
           lineHeight: 1.1, color: t.text, marginBottom: 22,
           letterSpacing: '-0.02em',
         }}>
@@ -326,7 +326,7 @@ function BigTile({ tile, dark, onClick }: { tile: ToolTile; dark: boolean; onCli
       {/* Label + desc */}
       <div>
         <div style={{
-          fontSize: 27, fontWeight: 800,
+          fontSize: 31, fontWeight: 800,
           color: hover ? (dark ? '#fff' : accent) : t.text,
           lineHeight: 1.1, marginBottom: 10,
           letterSpacing: '-0.02em',
