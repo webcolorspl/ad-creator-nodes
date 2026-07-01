@@ -650,6 +650,24 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           position: 'absolute', top: 24, right: 24, zIndex: 2,
           display: 'flex', alignItems: 'center', gap: 10,
         }}>
+          {/* Blog */}
+          <a
+            href="/blog"
+            style={{
+              height: 36, borderRadius: 18, padding: '0 16px',
+              background: 'transparent',
+              display: 'flex', alignItems: 'center',
+              fontSize: 11, fontWeight: 700,
+              color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)',
+              textDecoration: 'none', letterSpacing: '0.02em',
+              transition: 'all .15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = dark ? '#fff' : '#0f0f12' }}
+            onMouseLeave={e => { e.currentTarget.style.color = dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)' }}
+          >
+            Blog
+          </a>
+
           {/* Zaloguj się */}
           <a
             href="/logowanie"
