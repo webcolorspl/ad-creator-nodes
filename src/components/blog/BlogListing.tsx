@@ -95,22 +95,22 @@ export function BlogListing() {
       <BlogScrollFix />
       <BlogNav dark={dark} onToggle={toggle} />
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '56px 32px' }}>
+      <div style={{ maxWidth: 1300, margin: '0 auto', padding: '56px 32px' }}>
         {/* Hero */}
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <h1 style={{ fontSize: 'clamp(38px, 4.8vw, 67px)', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 18, lineHeight: 1.1, color: t.text }}>
+          <h1 style={{ fontSize: 'clamp(42px, 5.2vw, 74px)', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 20, lineHeight: 1.1, color: t.text }}>
             Blog <span style={{ color: '#16a34a' }}>XTOOLS.PL</span>
           </h1>
-          <p style={{ fontSize: 22, color: t.textSub, maxWidth: 560, margin: '0 auto 40px', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 24, color: t.textSub, maxWidth: 620, margin: '0 auto 44px', lineHeight: 1.6 }}>
             Praktyczna wiedza o tworzeniu reklam z AI, kampaniach i marketingu cyfrowym
           </p>
-          <div style={{ position: 'relative', maxWidth: 480, margin: '0 auto' }}>
+          <div style={{ position: 'relative', maxWidth: 520, margin: '0 auto' }}>
             <input type="text" placeholder="Szukaj artykułów..." value={search} onChange={e => setSearch(e.target.value)}
               style={{
-                width: '100%', padding: '14px 20px 14px 46px',
-                borderRadius: 12, border: `1.5px solid ${t.inputBorder}`,
+                width: '100%', padding: '15px 22px 15px 50px',
+                borderRadius: 13, border: `1.5px solid ${t.inputBorder}`,
                 background: t.inputBg, color: t.inputColor,
-                fontSize: 18, outline: 'none', boxSizing: 'border-box',
+                fontSize: 20, outline: 'none', boxSizing: 'border-box',
                 fontFamily: 'inherit',
               }}
             />
@@ -124,20 +124,20 @@ export function BlogListing() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button onClick={() => setActiveCategory(null)} style={{
-              padding: '8px 18px', borderRadius: 20, border: `1.5px solid ${!activeCategory ? '#16a34a' : t.filterBorder}`,
+              padding: '9px 20px', borderRadius: 22, border: `1.5px solid ${!activeCategory ? '#16a34a' : t.filterBorder}`,
               background: !activeCategory ? 'rgba(22,163,74,0.12)' : 'transparent',
               color: !activeCategory ? '#16a34a' : t.filterColor,
-              fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+              fontSize: 16, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
             }}>
               Wszystkie ({BLOG_POSTS.length})
             </button>
             {CATEGORIES.map(cat => (
               <button key={cat} onClick={() => setActiveCategory(activeCategory === cat ? null : cat)} style={{
-                padding: '8px 18px', borderRadius: 20,
+                padding: '9px 20px', borderRadius: 22,
                 border: `1.5px solid ${activeCategory === cat ? CAT_COLORS[cat] : t.filterBorder}`,
                 background: activeCategory === cat ? CAT_COLORS[cat] + '18' : 'transparent',
                 color: activeCategory === cat ? CAT_COLORS[cat] : t.filterColor,
-                fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                fontSize: 16, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
               }}>
                 {cat}
               </button>
@@ -189,31 +189,31 @@ export function BlogListing() {
                 }}
                 >
                   <div style={{
-                    height: 180,
+                    height: 200,
                     background: ('cover' in post && post.cover)
                       ? `url(${(post as { cover: string }).cover}) center/cover` : CAT_GRADIENTS[post.category],
                     position: 'relative', flexShrink: 0,
                   }}>
                     <span style={{
-                      position: 'absolute', bottom: 12, left: 16,
-                      padding: '3px 10px', borderRadius: 20,
-                      fontSize: 11, fontWeight: 700, letterSpacing: '0.04em',
+                      position: 'absolute', bottom: 14, left: 18,
+                      padding: '4px 12px', borderRadius: 20,
+                      fontSize: 12, fontWeight: 700, letterSpacing: '0.04em',
                       background: 'rgba(0,0,0,0.4)', color: '#fff', backdropFilter: 'blur(8px)',
                     }}>
                       {post.category}
                     </span>
-                    <span style={{ position: 'absolute', bottom: 12, right: 16, fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>
+                    <span style={{ position: 'absolute', bottom: 14, right: 18, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>
                       {post.readTime} min czytania
                     </span>
                   </div>
-                  <div style={{ padding: '20px 22px 18px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <h2 style={{ fontSize: 22, fontWeight: 800, color: t.text, margin: '0 0 10px', lineHeight: 1.3, letterSpacing: '-0.01em' }}>
+                  <div style={{ padding: '22px 24px 20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <h2 style={{ fontSize: 24, fontWeight: 800, color: t.text, margin: '0 0 12px', lineHeight: 1.3, letterSpacing: '-0.01em' }}>
                       {post.title}
                     </h2>
-                    <p style={{ fontSize: 16, color: t.textSub, lineHeight: 1.6, margin: '0 0 16px', flex: 1 }}>
+                    <p style={{ fontSize: 17, color: t.textSub, lineHeight: 1.6, margin: '0 0 18px', flex: 1 }}>
                       {post.excerpt}
                     </p>
-                    <div style={{ fontSize: 13, color: t.textMuted, fontWeight: 500 }}>
+                    <div style={{ fontSize: 14, color: t.textMuted, fontWeight: 500 }}>
                       {new Date(post.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </div>
                   </div>
@@ -250,15 +250,15 @@ export function BlogListing() {
                     }} />
                     {/* Title + meta */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 17, fontWeight: 700, color: t.text, lineHeight: 1.4 }}>
+                      <div style={{ fontSize: 19, fontWeight: 700, color: t.text, lineHeight: 1.4 }}>
                         {post.title}
                       </div>
                     </div>
                     {/* Right side info */}
-                    <span style={{ fontSize: 13, color: t.textMuted, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: 14, color: t.textMuted, flexShrink: 0, whiteSpace: 'nowrap' }}>
                       {post.readTime} min
                     </span>
-                    <span style={{ fontSize: 12, color: t.textMuted, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: 13, color: t.textMuted, flexShrink: 0, whiteSpace: 'nowrap' }}>
                       {new Date(post.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}
                     </span>
                     {/* Chevron */}
@@ -270,12 +270,12 @@ export function BlogListing() {
                   {/* Expanded content */}
                   {expanded && (
                     <div style={{ padding: '0 22px 18px 48px', borderTop: `1px solid ${t.border}` }}>
-                      <p style={{ fontSize: 15, color: t.textSub, lineHeight: 1.65, marginTop: 16, marginBottom: 16 }}>
+                      <p style={{ fontSize: 16, color: t.textSub, lineHeight: 1.65, marginTop: 16, marginBottom: 16 }}>
                         {post.excerpt}
                       </p>
                       <Link href={`/blog/${post.slug}`} style={{
                         display: 'inline-flex', alignItems: 'center', gap: 6,
-                        fontSize: 14, fontWeight: 700, color: '#16a34a', textDecoration: 'none',
+                        fontSize: 15, fontWeight: 700, color: '#16a34a', textDecoration: 'none',
                       }}>
                         Czytaj dalej
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -301,29 +301,29 @@ export function BlogListing() {
           borderRadius: 24, padding: '56px 48px',
           background: t.nlBg, border: `1px solid ${t.nlBorder}`, textAlign: 'center',
         }}>
-          <h3 style={{ fontSize: 34, fontWeight: 900, letterSpacing: '-0.02em', marginBottom: 14, color: t.text }}>
+          <h3 style={{ fontSize: 37, fontWeight: 900, letterSpacing: '-0.02em', marginBottom: 16, color: t.text }}>
             Newsletter XTOOLS.PL
           </h3>
-          <p style={{ fontSize: 19, color: t.textSub, marginBottom: 32, maxWidth: 440, margin: '0 auto 32px', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 21, color: t.textSub, marginBottom: 36, maxWidth: 480, margin: '0 auto 36px', lineHeight: 1.6 }}>
             Co tydzień: nowe narzędzia AI, case studies kampanii i porady dla marketerów. Zero spamu.
           </p>
           {subscribed ? (
-            <div style={{ fontSize: 19, color: '#16a34a', fontWeight: 700 }}>Zapisano! Sprawdź skrzynkę email.</div>
+            <div style={{ fontSize: 21, color: '#16a34a', fontWeight: 700 }}>Zapisano! Sprawdź skrzynkę email.</div>
           ) : (
             <form onSubmit={e => { e.preventDefault(); if (email) setSubscribed(true) }}
-              style={{ display: 'flex', gap: 12, maxWidth: 420, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center' }}>
+              style={{ display: 'flex', gap: 12, maxWidth: 460, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center' }}>
               <input type="email" required placeholder="twoj@email.com" value={email} onChange={e => setEmail(e.target.value)}
                 style={{
-                  flex: 1, minWidth: 220, padding: '13px 18px',
-                  borderRadius: 10, border: `1.5px solid ${t.inputBorder}`,
+                  flex: 1, minWidth: 240, padding: '14px 20px',
+                  borderRadius: 11, border: `1.5px solid ${t.inputBorder}`,
                   background: t.inputBg, color: t.inputColor,
-                  fontSize: 18, outline: 'none', fontFamily: 'inherit',
+                  fontSize: 20, outline: 'none', fontFamily: 'inherit',
                 }}
               />
               <button type="submit" style={{
-                padding: '13px 24px', borderRadius: 10, border: 'none',
+                padding: '14px 26px', borderRadius: 11, border: 'none',
                 background: 'linear-gradient(135deg, #16a34a, #15803d)',
-                color: '#fff', fontSize: 18, fontWeight: 800, cursor: 'pointer',
+                color: '#fff', fontSize: 20, fontWeight: 800, cursor: 'pointer',
                 boxShadow: '0 4px 16px rgba(22,163,74,0.35)',
               }}>
                 Zapisz się

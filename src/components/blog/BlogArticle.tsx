@@ -99,7 +99,7 @@ export function BlogArticle({ post, related, prev, next }: Props) {
 
       {/* Cover photo */}
       <div style={{
-        width: '100%', height: 400,
+        width: '100%', height: 500,
         background: CAT_GRADIENTS[post.category],
         position: 'relative', overflow: 'hidden',
       }}>
@@ -119,7 +119,7 @@ export function BlogArticle({ post, related, prev, next }: Props) {
         {/* Cover text */}
         <div style={{
           position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)',
-          width: '100%', maxWidth: 740, padding: '0 32px', boxSizing: 'border-box',
+          width: '100%', maxWidth: 900, padding: '0 32px', boxSizing: 'border-box',
         }}>
           <span style={{
             display: 'inline-block', padding: '4px 14px', borderRadius: 20,
@@ -130,7 +130,7 @@ export function BlogArticle({ post, related, prev, next }: Props) {
             {post.category}
           </span>
           <h1 style={{
-            fontSize: 'clamp(22px, 3.5vw, 40px)', fontWeight: 900,
+            fontSize: 'clamp(24px, 3.8vw, 44px)', fontWeight: 900,
             letterSpacing: '-0.02em', lineHeight: 1.2,
             color: '#fff', margin: 0,
             textShadow: '0 2px 20px rgba(0,0,0,0.3)',
@@ -140,7 +140,7 @@ export function BlogArticle({ post, related, prev, next }: Props) {
         </div>
       </div>
 
-      <div style={{ maxWidth: 740, margin: '0 auto', padding: '48px 32px 80px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '48px 32px 80px' }}>
 
         {/* Breadcrumb */}
         <div style={{ fontSize: 14, color: t.textMuted, marginBottom: 28, display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -150,7 +150,7 @@ export function BlogArticle({ post, related, prev, next }: Props) {
         </div>
 
         {/* Excerpt */}
-        <p style={{ fontSize: 22, color: t.textSub, lineHeight: 1.65, marginBottom: 32 }}>
+        <p style={{ fontSize: 24, color: t.textSub, lineHeight: 1.65, marginBottom: 36 }}>
           {post.excerpt}
         </p>
 
@@ -158,7 +158,7 @@ export function BlogArticle({ post, related, prev, next }: Props) {
         <div style={{
           display: 'flex', gap: 20, alignItems: 'center',
           paddingBottom: 28, borderBottom: `1px solid ${t.metaDivider}`,
-          marginBottom: 48, fontSize: 16, color: t.textMuted, flexWrap: 'wrap',
+          marginBottom: 48, fontSize: 17, color: t.textMuted, flexWrap: 'wrap',
         }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -177,7 +177,7 @@ export function BlogArticle({ post, related, prev, next }: Props) {
         <div
           ref={contentRef}
           className="blog-content"
-          style={{ fontSize: 19, lineHeight: 1.8 }}
+          style={{ fontSize: 21, lineHeight: 1.8 }}
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
 
@@ -190,17 +190,17 @@ export function BlogArticle({ post, related, prev, next }: Props) {
           <p style={{ fontSize: 14, color: '#16a34a', fontWeight: 700, marginBottom: 10, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
             Przetestuj XTOOLS.PL
           </p>
-          <h3 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', marginBottom: 14, color: t.text }}>
+          <h3 style={{ fontSize: 29, fontWeight: 900, letterSpacing: '-0.02em', marginBottom: 16, color: t.text }}>
             Twórz banery reklamowe z AI w minuty
           </h3>
-          <p style={{ fontSize: 17, color: t.textSub, marginBottom: 28, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 19, color: t.textSub, marginBottom: 30, lineHeight: 1.6 }}>
             Dołącz do marketerów, którzy oszczędzają godziny na produkcji kreacji.
           </p>
           <Link href="/rejestracja" style={{
-            display: 'inline-block', padding: '14px 32px', borderRadius: 50,
+            display: 'inline-block', padding: '15px 36px', borderRadius: 50,
             textDecoration: 'none',
             background: 'linear-gradient(135deg, #16a34a, #15803d)',
-            color: '#fff', fontSize: 18, fontWeight: 800,
+            color: '#fff', fontSize: 20, fontWeight: 800,
             boxShadow: '0 6px 20px rgba(22,163,74,0.35)',
           }}>
             Zarejestruj się za darmo →
@@ -275,7 +275,7 @@ export function BlogArticle({ post, related, prev, next }: Props) {
         {/* Related — 3 large tiles */}
         {related.length > 0 && (
           <div style={{ marginTop: 64 }}>
-            <h3 style={{ fontSize: 24, fontWeight: 800, marginBottom: 24, letterSpacing: '-0.01em', color: t.text }}>
+            <h3 style={{ fontSize: 26, fontWeight: 800, marginBottom: 26, letterSpacing: '-0.01em', color: t.text }}>
               Powiązane artykuły
             </h3>
             <div style={{
@@ -308,7 +308,7 @@ export function BlogArticle({ post, related, prev, next }: Props) {
                     >
                       {/* Tile cover */}
                       <div style={{
-                        height: 160, width: '100%',
+                        height: 180, width: '100%',
                         background: rCover ? `url(${rCover}) center/cover no-repeat` : CAT_GRADIENTS[r.category],
                         position: 'relative',
                       }}>
@@ -318,23 +318,23 @@ export function BlogArticle({ post, related, prev, next }: Props) {
                         }} />
                       </div>
                       {/* Tile body */}
-                      <div style={{ padding: '16px 18px 20px' }}>
+                      <div style={{ padding: '18px 20px 22px' }}>
                         <span style={{
-                          display: 'inline-block', fontSize: 12, fontWeight: 700,
+                          display: 'inline-block', fontSize: 13, fontWeight: 700,
                           color: CAT_COLORS[r.category], marginBottom: 8,
                           letterSpacing: '0.03em', textTransform: 'uppercase',
                         }}>
                           {r.category}
                         </span>
                         <div style={{
-                          fontSize: 16, fontWeight: 700, color: t.text,
-                          lineHeight: 1.4, marginBottom: 8,
+                          fontSize: 17, fontWeight: 700, color: t.text,
+                          lineHeight: 1.4, marginBottom: 10,
                           display: '-webkit-box', WebkitLineClamp: 3,
                           WebkitBoxOrient: 'vertical', overflow: 'hidden',
                         }}>
                           {r.title}
                         </div>
-                        <div style={{ fontSize: 13, color: t.textMuted }}>
+                        <div style={{ fontSize: 14, color: t.textMuted }}>
                           {r.readTime} min czytania
                         </div>
                       </div>

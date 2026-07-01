@@ -6,6 +6,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-07-02',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
     content: `<h2>Rewolucja w tworzeniu banerów reklamowych</h2>
 <p>Jeszcze kilka lat temu stworzenie profesjonalnego baneru reklamowego wymagało kilku godzin pracy grafika, briefu, poprawek i finalnej akceptacji. Dziś, dzięki narzędziom opartym na sztucznej inteligencji, cały proces można zamknąć w pięciu minutach - bez kompromisów w jakości.</p>
 <p>Narzędzia takie jak XTOOLS.PL pozwalają marketerom i agencjom generować gotowe kreacje reklamowe w wielu formatach jednocześnie. Wystarczy podać kilka parametrów: produkt, grupę docelową, styl wizualny i pożądany format - resztę robi AI.</p>
@@ -47,6 +48,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-06-30',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80',
     content: `<h2>Czym jest prompt engineering w kontekście reklam</h2>
 <p>Prompt engineering to sztuka formułowania poleceń dla sztucznej inteligencji w taki sposób, aby uzyskać jak najlepszy wynik. W kontekście grafik reklamowych oznacza to umiejętność opisania pożądanej kreacji tak precyzyjnie, aby AI wygenerowała baner gotowy do publikacji - bez konieczności wielokrotnych poprawek.</p>
 <p>Jakość promptu bezpośrednio przekłada się na jakość kreacji. Ogólnikowe polecenie typu „stwórz baner dla sklepu" da wynik losowy i nieprzewidywalny. Precyzyjny prompt z określonym stylem, kolorystyką, kompozycją i przekazem - da kreację, którą możesz od razu wrzucić do kampanii.</p>
@@ -91,6 +93,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-06-28',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=800&q=80',
     content: `<h2>Dwa światy tworzenia kreacji</h2>
 <p>Debata o zastąpieniu projektantów graficznych przez sztuczną inteligencję trwa od momentu pojawienia się pierwszych generatorów obrazów. Prawda jest jednak bardziej złożona niż prosty wybór „albo-albo". AI i ludzki grafik to narzędzia, które najlepiej sprawdzają się w różnych kontekstach - a jeszcze lepiej, gdy działają razem.</p>
 <p>Aby podjąć świadomą decyzję, trzeba zrozumieć mocne i słabe strony obu podejść oraz dopasować je do konkretnych potrzeb projektu, budżetu i terminów.</p>
@@ -137,6 +140,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-06-25',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1531746790095-e5fecc040393?w=800&q=80',
     content: `<h2>Problem spójności w kreacjach AI</h2>
 <p>Jednym z najczęstszych zarzutów wobec kreacji generowanych przez AI jest brak spójności wizualnej. Każdy baner wygląda inaczej, kolory się nie zgadzają, typografia jest przypadkowa, a style graficzne skaczą od realistycznego po komiksowy. To poważny problem, bo spójność wizualna jest fundamentem rozpoznawalności marki.</p>
 <p>Na szczęście istnieją sprawdzone techniki, które pozwalają utrzymać jednolity styl w całej kampanii - nawet generując kreacje masowo za pomocą AI.</p>
@@ -181,6 +185,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-06-23',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1555255707-c07966088b7c?w=800&q=80',
     content: `<h2>Rynek narzędzi AI do kreacji reklamowych w 2025</h2>
 <p>Rynek narzędzi AI do generowania grafik reklamowych eksplodował w ciągu ostatnich dwóch lat. Od uniwersalnych generatorów obrazów po specjalistyczne platformy do banerów - wybór jest ogromny. Dla marketera kluczowe pytanie brzmi: które narzędzie najlepiej pasuje do moich potrzeb?</p>
 <p>W tym przeglądzie skupiamy się na narzędziach dedykowanych reklamom - nie artystycznym generatorom obrazów, ale platformom zaprojektowanym z myślą o produkcji kreacji marketingowych.</p>
@@ -233,6 +238,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-06-21',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
     content: `<h2>Problem wielu formatów</h2>
 <p>Każda platforma reklamowa wymaga innych rozmiarów kreacji. Facebook chce 1080x1080 do feedu i 1080x1920 do stories. Google Display Network potrzebuje 300x250, 728x90, 160x600 i jeszcze kilku rozmiarów. LinkedIn ma swoje wymagania, Pinterest swoje. W sumie jedna kampania może wymagać 15-20 formatów tego samego designu.</p>
 <p>Tradycyjnie grafik ręcznie dostosowywał każdy format - przesuwał elementy, zmieniał rozmiar tekstu, kadrował zdjęcia. Przy 20 formatach i 5 wariantach kreacji to 100 plików do ręcznej obróbki. Dzisiaj AI robi to automatycznie.</p>
@@ -275,6 +281,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-06-19',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80',
     content: `<h2>Czas to pieniądz - dosłownie</h2>
 <p>W agencjach reklamowych czas produkcji kreacji bezpośrednio przekłada się na marżę projektu. Im dłużej trwa przygotowanie materiałów, tym wyższe koszty wewnętrzne i mniejszy zysk. Sztuczna inteligencja zmienia tę równanie radykalnie - według danych z agencji korzystających z narzędzi AI, średnia redukcja czasu produkcji kreacji wynosi 70%.</p>
 <p>Ale jak dokładnie wygląda ta oszczędność? Gdzie AI faktycznie skraca proces, a gdzie nadal potrzebujesz ludzkiej pracy?</p>
@@ -329,6 +336,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-06-17',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80',
     content: `<h2>Dlaczego spójność wizualna jest kluczowa</h2>
 <p>Konsumenci potrzebują 5-7 kontaktów z marką, zanim ją zapamiętają. Jeśli każdy kontakt wygląda inaczej - inne kolory, inna typografia, inny styl graficzny - marka nie buduje rozpoznawalności. Spójność wizualna jest fundamentem brandingu i nie może być poświęcona na rzecz szybkości produkcji kreacji.</p>
 <p>To właśnie tu pojawia się wyzwanie AI: jak generować kreacje masowo, zachowując jednocześnie ścisłe standardy identyfikacji wizualnej marki?</p>
@@ -378,6 +386,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-06-15',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1516110833967-0b5716ca1387?w=800&q=80',
     content: `<h2>Tekst reklamowy - najważniejszy element kreacji</h2>
 <p>Możesz mieć idealną grafikę, perfekcyjne kolory i najmodniejszy layout, ale jeśli tekst reklamowy jest słaby - kreacja nie zadziała. Copy to serce reklamy. To tekst przekonuje, budzi emocje, komunikuje wartość i prowadzi do kliknięcia. AI może generować skuteczne teksty reklamowe - pod warunkiem, że wiesz, jak z niego korzystać.</p>
 
@@ -429,6 +438,7 @@ export const BLOG_POSTS = [
     category: 'AI i kreacje' as const,
     date: '2026-06-12',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?w=800&q=80',
     content: `<h2>Personalizacja jako standard reklamy cyfrowej</h2>
 <p>Konsumenci oczekują reklam dopasowanych do ich potrzeb i zainteresowań. Generyczna reklama „dla wszystkich" ma coraz niższy CTR i coraz wyższy koszt konwersji. Problem w tym, że personalizacja tradycyjnie oznacza multiplikację pracy - osobna kreacja dla każdego segmentu, regionu, etapu lejka. AI zmienia tę równanie, umożliwiając personalizację na skalę wcześniej nieosiągalną.</p>
 
@@ -480,6 +490,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-06-10',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
     content: `<h2>Brief reklamowy - fundament każdej kampanii</h2>
 <p>Brief reklamowy to dokument, który definiuje cel, grupę docelową, przekaz i ograniczenia kampanii. Dobry brief to różnica między kreacją, która trafia w dziesiątkę, a kreacją, która wymaga pięciu rund poprawek. Niezależnie od tego, czy pracujesz z grafikiem, agencją czy narzędziem AI - jakość briefu bezpośrednio przekłada się na jakość wyniku.</p>
 <p>W erze AI brief jest jeszcze ważniejszy niż wcześniej. Narzędzia AI potrzebują precyzyjnych instrukcji - im lepszy brief, tym lepszy prompt, tym lepsza kreacja.</p>
@@ -532,6 +543,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-06-08',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1533750516457-a7f992034fec?w=800&q=80',
     content: `<h2>Dlaczego A/B testing kreacji jest konieczny</h2>
 <p>Nawet najlepsi marketerzy nie potrafią przewidzieć, która kreacja zadziała najlepiej. Intuicja to za mało - potrzebujesz danych. A/B testing kreacji to systematyczny sposób na sprawdzenie, które warianty reklamy generują lepsze wyniki, a które marnują budżet.</p>
 <p>Dzięki narzędziom AI do generowania kreacji testy A/B stały się łatwiejsze niż kiedykolwiek. Możesz wygenerować 20 wariantów kreacji w minuty i testować je jednocześnie, zamiast czekać na ręczne przygotowanie każdego wariantu.</p>
@@ -575,6 +587,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-06-06',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1504868584819-f8e8954a3646?w=800&q=80',
     content: `<h2>ROI - metryka, która rządzi marketingiem</h2>
 <p>ROI (Return on Investment) to najważniejsza metryka w marketingu cyfrowym. Odpowiada na fundamentalne pytanie: czy pieniądze wydane na reklamę przyniosły zysk? Brzmi prosto, ale w praktyce obliczenie prawdziwego ROI kampanii cyfrowej wymaga uwzględnienia wielu zmiennych.</p>
 <p>Podstawowy wzór: ROI = (Przychód z kampanii - Koszt kampanii) / Koszt kampanii × 100%. Jeśli wydałeś 5000 zł na kampanię, a wygenerowała 15 000 zł przychodu, ROI = (15000 - 5000) / 5000 × 100% = 200%.</p>
@@ -627,6 +640,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-06-04',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1557838923-2985c318be48?w=800&q=80',
     content: `<h2>Dlaczego retargeting jest niezbędny</h2>
 <p>97% użytkowników odwiedzających sklep internetowy nie dokonuje zakupu przy pierwszej wizycie. To oznacza, że bez retargetingu tracisz 97% potencjalnych klientów. Retargeting pozwala dotrzeć do tych osób ponownie z dopasowanym przekazem, który przypomina im o produkcie i zachęca do powrotu.</p>
 <p>Dobrze skonfigurowany retargeting ma 3-5 razy wyższy CTR niż standardowe reklamy displayowe i generuje konwersje przy znacznie niższym koszcie. To jedna z najefektywniejszych taktyk w arsenale marketera e-commerce.</p>
@@ -673,6 +687,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-06-02',
     readTime: 8,
+    cover: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&q=80',
     content: `<h2>Czym jest Performance Max</h2>
 <p>Performance Max (PMax) to typ kampanii Google Ads, który automatycznie wyświetla reklamy we wszystkich sieciach Google: Search, Display, YouTube, Gmail, Maps i Discover. Zamiast zarządzać osobnymi kampaniami dla każdej sieci, PMax używa machine learningu Google'a do optymalizacji wyświetleń w czasie rzeczywistym.</p>
 <p>PMax to podejście „AI-first" do reklam Google - algorytm decyduje, gdzie, kiedy i komu wyświetlić reklamę, bazując na sygnałach odbiorców i celach kampanii. Dla marketerów oznacza to mniej kontroli operacyjnej, ale potencjalnie lepsze wyniki.</p>
@@ -721,6 +736,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-05-31',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1543286386-713bdd548da4?w=800&q=80',
     content: `<h2>Lejek reklamowy - dlaczego jest ważny</h2>
 <p>Większość marketerów popełnia fundamentalny błąd: próbują sprzedawać ludziom, którzy jeszcze nie wiedzą, że mają problem. Lejek reklamowy rozwiązuje ten problem, prowadząc potencjalnego klienta przez trzy etapy: uświadomienie (awareness), rozważanie (consideration) i decyzja (conversion). Na każdym etapie przekaz, kreacje i taktyki są inne.</p>
 <p>Bez lejka wyrzucasz pieniądze na reklamy sprzedażowe skierowane do zimnej publiczności. Z lejkiem budujesz relację, edugujesz i konwertujesz - w tej kolejności.</p>
@@ -773,6 +789,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-05-29',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
     content: `<h2>Sezonowość w marketingu cyfrowym</h2>
 <p>Black Friday, Walentynki, Dzień Matki, Back to School, Boże Narodzenie - każdy z tych okresów to szansa na znaczący wzrost sprzedaży. Ale sezonowe kampanie wygrywają ci marketerzy, którzy zaczynają planować tygodnie, a nawet miesiące przed szczytem sezonu. Spontaniczne kampanie „na ostatnią chwilę" przegrywają z planowanymi - zarówno pod względem jakości kreacji, jak i kosztów mediów.</p>
 
@@ -819,6 +836,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-05-26',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1563986768-494b9cd0e01d?w=800&q=80',
     content: `<h2>Wyzwanie wielu budżetów</h2>
 <p>Agencja reklamowa obsługująca 10-20 klientów zarządza budżetami od kilku tysięcy do kilkudziesięciu tysięcy złotych miesięcznie na każdego klienta. Suma budżetów mediowych może sięgać setek tysięcy złotych. Błąd w alokacji, przeoczenie problemu lub brak optymalizacji jednego klienta - to realne straty i utrata zaufania.</p>
 <p>Zarządzanie wieloma budżetami wymaga systemowego podejścia, jasnych procesów i odpowiednich narzędzi. Nie da się tego robić „na oko" powyżej 5 klientów.</p>
@@ -874,6 +892,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-05-24',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=800&q=80',
     content: `<h2>Co odróżnia kreację konwertującą od ignorowanej</h2>
 <p>Użytkownik social media widzi średnio 6000-10 000 reklam dziennie. Z tej lawiny tylko ułamek procenta kreacji zatrzymuje scroll, przyciąga uwagę i prowadzi do kliknięcia. Co sprawia, że jedna kreacja konwertuje, a inna jest ignorowana? To nie magia - to zestaw sprawdzonych zasad, których można się nauczyć i stosować systematycznie.</p>
 
@@ -921,6 +940,7 @@ export const BLOG_POSTS = [
     category: 'Kampanie reklamowe' as const,
     date: '2026-05-21',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1517245386-fbfef1d56ae5?w=800&q=80',
     content: `<h2>Skuteczność kreacji - nie zgaduj, mierz</h2>
 <p>Wielu marketerów ocenia kreacje reklamowe „na oko" - podoba się albo nie. To niebezpieczne podejście, bo to, co podoba się marketerowi, nie zawsze podoba się grupie docelowej. Jedyny wiarygodny sposób oceny kreacji to dane. Ale jakie dane analizować i jak je interpretować?</p>
 
@@ -973,6 +993,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-18',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b738?w=800&q=80',
     content: `<h2>Ekosystem reklamowy Meta w 2025</h2>
 <p>Facebook i Instagram to wciąż dwa najważniejsze kanały reklamowe w social media, szczególnie w Polsce. Platforma Meta Ads oferuje kilkanaście formatów reklamowych, z których każdy ma swoje mocne strony i wymagania techniczne. Znajomość tych formatów i ich specyfikacji to fundament skutecznych kampanii social media.</p>
 <p>W 2025 roku Meta mocno promuje formaty wideo i interaktywne, premiując je niższym CPM. Jednocześnie klasyczne formaty obrazkowe nadal stanowią trzon kampanii performance - szczególnie w e-commerce.</p>
@@ -1029,6 +1050,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-16',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1562577309-4932a86e4a2c?w=800&q=80',
     content: `<h2>Dlaczego TikTok jest ważny dla biznesu</h2>
 <p>TikTok to nie jest już platforma tylko dla nastolatków. W Polsce ponad 10 milionów użytkowników korzysta z TikToka, a grupa wiekowa 25-44 to najszybciej rosnący segment. Średni czas spędzany w aplikacji to ponad 90 minut dziennie - więcej niż na jakiejkolwiek innej platformie social media.</p>
 <p>Dla marketerów TikTok oferuje coś, czego inne platformy nie mają: wyjątkowo wysoki organiczny zasięg i użytkowników w trybie rozrywki, otwarcie nastawionych na nowe treści i marki. CPM na TikToku jest wciąż niższy niż na Facebooku i Instagramie, co czyni go atrakcyjnym kanałem do testowania.</p>
@@ -1075,6 +1097,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-14',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1611162616305-c69b3037c7fc?w=800&q=80',
     content: `<h2>LinkedIn - platforma numer jeden dla B2B</h2>
 <p>LinkedIn to jedyna platforma social media, na której użytkownicy podają prawdziwe stanowiska, firmy i branże. To czyni ją najskuteczniejszym kanałem do targetowania decydentów biznesowych. Jeśli sprzedajesz usługi lub produkty B2B - od oprogramowania SaaS po usługi konsultingowe - LinkedIn Ads powinien być w Twoim media mixie.</p>
 <p>W Polsce LinkedIn ma ponad 5 milionów użytkowników, w tym menedżerów, dyrektorów i właścicieli firm. CPM jest wyższy niż na Facebooku (30-60 zł vs 5-15 zł), ale jakość leadów jest nieporównywalnie wyższa - docierasz do dokładnie tych osób, które podejmują decyzje zakupowe.</p>
@@ -1127,6 +1150,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-11',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1596558450268-9c27524ba856?w=800&q=80',
     content: `<h2>Reels - najszybciej rosnący format na Instagramie</h2>
 <p>Instagram Reels to krótkie, pionowe wideo (do 90 sekund), które Instagram aktywnie promuje w algorytmie. Reels mają średnio 2x wyższy zasięg niż standardowe posty w feedzie i znacząco niższy CPM w kampaniach reklamowych. Meta otwarcie komunikuje, że Reels to przyszłość platformy - ignorowanie tego formatu to ignorowanie kierunku, w którym zmierza Instagram.</p>
 
@@ -1180,6 +1204,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-08',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=800&q=80',
     content: `<h2>Stories vs Feed - dane mówią jasno</h2>
 <p>Reklamy w Stories mają średnio 15-25% wyższy CTR niż reklamy w feedzie. Dlaczego? To nie przypadek - to wynik fundamentalnych różnic w sposobie, w jaki użytkownicy konsumują te dwa formaty. Zrozumienie tych różnic pozwala tworzyć kreacje, które wykorzystują pełny potencjał formatu Stories.</p>
 
@@ -1226,6 +1251,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-05',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=800&q=80',
     content: `<h2>Mobile-first to nie opcja - to konieczność</h2>
 <p>Ponad 90% użytkowników social media przegląda treści na smartfonie trzymanym pionowo. Mimo to wielu marketerów nadal projektuje kreacje w formacie poziomym (16:9) i dopiero potem próbuje je dostosować do mobile. To odwrotne podejście. W 2025 roku kreacje powinny być projektowane mobile-first - pionowo, pod palec, pod scroll.</p>
 
@@ -1272,6 +1298,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-03',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1563986768-494b9cd0e01d?w=800&q=80',
     content: `<h2>Pinterest - platforma z intencją zakupową</h2>
 <p>Pinterest to platforma, na którą ludzie przychodzą po inspirację - i to jest klucz do jej skuteczności reklamowej. W przeciwieństwie do Facebooka czy Instagrama, gdzie użytkownicy scrollują bezmyślnie, na Pinterest użytkownicy aktywnie szukają produktów, pomysłów i rozwiązań. 85% użytkowników Pinterest twierdzi, że platforma pomogła im podjąć decyzję zakupową.</p>
 <p>Mimo to Pinterest jest pomijany przez większość polskich marketerów. To błąd - platforma ma ponad 3 miliony aktywnych użytkowników w Polsce i CPM niższy niż na Facebooku.</p>
@@ -1323,6 +1350,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-05-01',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&q=80',
     content: `<h2>YouTube Shorts - odpowiedź Google na TikToka</h2>
 <p>YouTube Shorts to krótkie, pionowe wideo (do 60 sekund), które YouTube wprowadził jako bezpośrednią konkurencję dla TikToka i Instagram Reels. Z ponad 50 miliardami wyświetleń dziennie globalnie, Shorts stały się jednym z najszybciej rosnących formatów wideo. Dla reklamodawców to nowy kanał z ogromnym zasięgiem i jeszcze niezagospodarowanym potencjałem.</p>
 
@@ -1373,6 +1401,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-04-28',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=800&q=80',
     content: `<h2>Jeden przekaz, wiele platform</h2>
 <p>Prowadzisz kampanię na 4-5 platformach jednocześnie i masz jedno USP do zakomunikowania. Czy możesz użyć tej samej kreacji wszędzie? Technicznie tak, ale to marnowanie potencjału każdej platformy. Użytkownicy Facebooka, Instagrama, TikToka i LinkedIn mają inne oczekiwania, nawyki i konteksty przeglądania - Twoje kreacje powinny to odzwierciedlać.</p>
 
@@ -1447,6 +1476,7 @@ export const BLOG_POSTS = [
     category: 'Social Media' as const,
     date: '2026-04-26',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
     content: `<h2>Snapchat w 2025 - wciąż żywy</h2>
 <p>Mimo rosnącej konkurencji ze strony TikToka i Instagram Reels, Snapchat wciąż ma ponad 400 milionów aktywnych użytkowników globalnie. W Polsce platforma jest mniej popularna niż na Zachodzie, ale ma stabilną bazę użytkowników - głównie w grupie 13-24 lata. Pytanie brzmi: czy dla Twojej marki warto inwestować w Snapchat Ads?</p>
 
@@ -1499,6 +1529,7 @@ export const BLOG_POSTS = [
     category: 'Agencje i freelancerzy' as const,
     date: '2026-04-24',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
     content: `<h2>Portfolio - Twoja najlepsza reklama</h2>
 <p>Portfolio agencji reklamowej to nie kolekcja ładnych obrazków - to narzędzie sprzedażowe. Dobrze zbudowane portfolio odpowiada na pytanie potencjalnego klienta: „Czy ta agencja potrafi rozwiązać mój problem?". Każdy element portfolio powinien budować zaufanie i demonstrować kompetencje, które klient szuka.</p>
 <p>Większość agencji popełnia ten sam błąd: pokazuje wszystko, co kiedykolwiek zrobiła. Efekt? Portfolio jest przeładowane, chaotyczne i nie komunikuje specjalizacji. Lepiej mieć 10 silnych case studies niż 100 losowych projektów.</p>
@@ -1551,6 +1582,7 @@ export const BLOG_POSTS = [
     category: 'Agencje i freelancerzy' as const,
     date: '2026-04-21',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1497215842964-222b430dc094?w=800&q=80',
     content: `<h2>Dlaczego procesy są kluczowe</h2>
 <p>Agencja bez procesów to agencja, w której każdy projekt jest realizowany inaczej. Efekt: chaos, przekroczone deadline'y, niespójna jakość i frustracja zarówno zespołu, jak i klientów. Dobrze zdefiniowane procesy to fundament skalowalnej agencji - pozwalają obsługiwać więcej klientów bez proporcjonalnego wzrostu zespołu.</p>
 <p>Proces nie oznacza biurokracji. Proces to jasna ścieżka od punktu A (brief) do punktu B (dostarczone kreacje), z określonymi krokami, odpowiedzialnościami i punktami kontrolnymi.</p>
@@ -1608,6 +1640,7 @@ export const BLOG_POSTS = [
     category: 'Agencje i freelancerzy' as const,
     date: '2026-04-19',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&q=80',
     content: `<h2>Rosnąca lista klientów = rosnący chaos?</h2>
 <p>Każda agencja reklamowa zna ten moment: masz 5 klientów i wszystko idzie gładko. Dostajesz szóstego, siódmego, dziesiątego - i nagle tracisz kontrolę. Deadline'y się nakładają, kreacje się mylą, klienci czekają na odpowiedzi, a Ty nie pamiętasz, na jakim etapie jest który projekt. To nie jest problem wzrostu - to problem braku systemów.</p>
 
@@ -1669,6 +1702,7 @@ export const BLOG_POSTS = [
     category: 'Agencje i freelancerzy' as const,
     date: '2026-04-16',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80',
     content: `<h2>Dlaczego agencje zaniżają ceny</h2>
 <p>Większość młodych agencji i freelancerów popełnia ten sam błąd: zaniżają ceny, aby „zdobyć klientów". Efekt? Pracują więcej za mniej, wypalają się i nie mają budżetu na rozwój. Paradoks: klienci, którzy kupują najtaniej, są zwykle najtrudniejsi w obsłudze i najczęściej niezadowoleni. Prawidłowa wycena to fundament zdrowego biznesu.</p>
 
@@ -1721,6 +1755,7 @@ export const BLOG_POSTS = [
     category: 'Agencje i freelancerzy' as const,
     date: '2026-04-13',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80',
     content: `<h2>Prezentacja kreacji - moment prawdy</h2>
 <p>Możesz stworzyć najlepszą kreację na świecie, ale jeśli źle ją zaprezentujesz - klient jej nie kupi. Prezentacja kreacji to umiejętność sprzedażowa, nie tylko kreatywna. Chodzi o to, aby klient zrozumiał dlaczego kreacja wygląda tak, a nie inaczej, i jak wspiera cele jego biznesu.</p>
 
@@ -1770,6 +1805,7 @@ export const BLOG_POSTS = [
     category: 'Agencje i freelancerzy' as const,
     date: '2026-04-10',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80',
     content: `<h2>Stack technologiczny nowoczesnej agencji</h2>
 <p>Nowoczesna agencja reklamowa potrzebuje zestawu narzędzi, który pokrywa cały workflow: od pozyskania klienta, przez produkcję kreacji, po raportowanie wyników. Dobrze dobrany stack technologiczny to różnica między agencją, która skaluje się efektywnie, a taką, która tonie w chaosie spreadsheetów i e-maili.</p>
 
@@ -1835,6 +1871,7 @@ export const BLOG_POSTS = [
     category: 'Agencje i freelancerzy' as const,
     date: '2026-04-08',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1542744173-8e7e91415657?w=800&q=80',
     content: `<h2>Raport to komunikacja, nie dokumentacja</h2>
 <p>Raport z kampanii to nie zrzut danych z Google Analytics. To narzędzie komunikacji, które odpowiada na pytanie klienta: „Czy moje pieniądze zostały dobrze wydane?". Dobry raport buduje zaufanie, uzasadnia dalszą współpracę i pozycjonuje Cię jako eksperta. Zły raport - pełen niezrozumiałych tabelek - podkopuje zaufanie i generuje pytania zamiast odpowiedzi.</p>
 
@@ -1886,6 +1923,7 @@ export const BLOG_POSTS = [
     category: 'Agencje i freelancerzy' as const,
     date: '2026-04-05',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=800&q=80',
     content: `<h2>Pierwsze wrażenie definiuje relację</h2>
 <p>Onboarding nowego klienta to moment, który definiuje ton całej współpracy. Profesjonalny, uporządkowany onboarding buduje zaufanie i ustawia oczekiwania. Chaotyczny onboarding - brak struktury, zapominanie o materiałach, niejasne następne kroki - podkopuje wiarygodność agencji od pierwszego dnia.</p>
 <p>Dobrze zaprojektowany proces onboardingu trwa 1-2 tygodnie i obejmuje wszystko od zbierania materiałów po uruchomienie pierwszej kampanii.</p>
@@ -1957,6 +1995,7 @@ export const BLOG_POSTS = [
     category: 'Agencje i freelancerzy' as const,
     date: '2026-04-03',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80',
     content: `<h2>Tradycyjny model skalowania agencji</h2>
 <p>Tradycyjnie skalowanie agencji oznaczało: więcej klientów = więcej pracowników. Każdy nowy klient wymagał proporcjonalnie więcej grafików, copywriterów i account managerów. To model liniowy - przychody rosną, ale koszty rosną w tym samym tempie. Marża pozostaje stała lub nawet spada (bo zarządzanie większym zespołem generuje dodatkowe koszty).</p>
 <p>AI zmienia ten model fundamentalnie. Pozwala na skalowanie przychodów bez proporcjonalnego wzrostu kosztów - model sublinearny, gdzie każdy dodatkowy klient wymaga mniej dodatkowej pracy.</p>
@@ -2016,6 +2055,7 @@ export const BLOG_POSTS = [
     category: 'Agencje i freelancerzy' as const,
     date: '2026-03-31',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80',
     content: `<h2>Dwa modele, różne realia</h2>
 <p>Czy lepiej być freelancerem czy prowadzić agencję? Czy jako klient lepiej zatrudnić freelancera czy agencję? To pytania, na które nie ma jednej odpowiedzi - zależy od kontekstu, skali i celów. Obie ścieżki mają wyraźne plusy i minusy, które warto znać przed podjęciem decyzji.</p>
 
@@ -2081,6 +2121,7 @@ export const BLOG_POSTS = [
     category: 'E-commerce' as const,
     date: '2026-03-29',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80',
     content: `<h2>Wyzwanie e-commerce: tysiące produktów, ograniczone zasoby</h2>
 <p>Sklep internetowy z 500 produktami powinien mieć 500 reklam produktowych - każda z unikalnym zdjęciem, nagłówkiem i CTA dopasowanym do konkretnego SKU. Tradycyjnie jest to niemożliwe bez ogromnego budżetu na produkcję kreacji. AI zmienia tę kalkulację radykalnie.</p>
 
@@ -2110,6 +2151,7 @@ export const BLOG_POSTS = [
     category: 'E-commerce' as const,
     date: '2026-03-26',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80',
     content: `<h2>Dlaczego retargeting e-commerce jest wyjątkowy</h2>
 <p>Średnio 70% koszyków jest porzucanych. Retargeting to szansa na odzyskanie tych klientów - ale tylko jeśli kreacja jest odpowiednio spersonalizowana. Generyczna reklama "wróć i kup" ma niski CTR. Kreacja pokazująca dokładnie ten produkt, który klient oglądał - działa kilkukrotnie lepiej.</p>
 
@@ -2135,6 +2177,7 @@ export const BLOG_POSTS = [
     category: 'E-commerce' as const,
     date: '2026-03-23',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&q=80',
     content: `<h2>Kalendarz sezonów e-commerce</h2>
 <p>Rok handlowy ma kilka kluczowych momentów, kiedy konwersja jest naturalnie wyższa: Black Friday/Cyber Monday (listopad), Boże Narodzenie (grudzień), Walentynki (luty), Wielkanoc, Back to School (sierpień/wrzesień), a także lokalne "okazje" jak Dzień Matki czy Dzień Dziecka.</p>
 
@@ -2157,6 +2200,7 @@ export const BLOG_POSTS = [
     category: 'E-commerce' as const,
     date: '2026-03-21',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1556742393-d75f468bfcb0?w=800&q=80',
     content: `<h2>Problem niespójności w e-commerce</h2>
 <p>Klient widzi reklamę czerwonego swetra w stylu minimalistycznym. Klika i trafia na stronę produktu z chaotycznym layoutem, żółtym tłem i zupełnie innym zdjęciem. Efekt? Zamknięta karta i stracona sprzedaż. To nie jest rzadkość - to epidemia w e-commerce.</p>
 
@@ -2176,6 +2220,7 @@ export const BLOG_POSTS = [
     category: 'E-commerce' as const,
     date: '2026-03-19',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
     content: `<h2>Wyzwanie wielu marketplace'ów</h2>
 <p>Sprzedajesz na Allegro, Amazon, OLX i w swoim sklepie? Każda platforma ma inne wymagania: inne rozmiary zdjęć, inne zasady dotyczące tekstu na zdjęciach, różne limity znaków w opisach, specyficzne formaty dla reklam sponsorowanych. Przygotowanie materiałów dla wszystkich platform ręcznie to tygodnie pracy.</p>
 
@@ -2195,6 +2240,7 @@ export const BLOG_POSTS = [
     category: 'E-commerce' as const,
     date: '2026-03-17',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?w=800&q=80',
     content: `<h2>Email w e-commerce: dane nie kłamią</h2>
 <p>Email marketing generuje średnio 42 USD ROI na każdy wydany 1 USD - więcej niż jakikolwiek inny kanał cyfrowy. W e-commerce email odpowiada za 15-25% całkowitych przychodów. Mimo to większość sklepów wysyła te same, generyczne emaile do całej bazy. To ogromna stracona szansa.</p>
 
@@ -2221,6 +2267,7 @@ export const BLOG_POSTS = [
     category: 'E-commerce' as const,
     date: '2026-03-15',
     readTime: 7,
+    cover: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80',
     content: `<h2>Koszt tradycyjnej fotografii produktowej</h2>
 <p>Profesjonalna sesja zdjęciowa dla 50 produktów to koszt 3000-8000 zł (studio, fotograf, stylista, postprodukcja). Dla sklepu z 500 produktami to 30-80 tysięcy złotych - kwota niedostępna dla większości małych i średnich e-commerce. AI zmienia tę ekonomię fundamentalnie.</p>
 
@@ -2248,6 +2295,7 @@ export const BLOG_POSTS = [
     category: 'E-commerce' as const,
     date: '2026-03-12',
     readTime: 6,
+    cover: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80',
     content: `<h2>Dlaczego Google Shopping dominuje w e-commerce</h2>
 <p>Reklamy Google Shopping (Product Listing Ads) generują nawet 76% całkowitych wydatków na reklamy Google dla sklepów e-commerce i osiągają CTR 2-3x wyższy niż tradycyjne reklamy tekstowe. Dzieje się tak, bo pokazują zdjęcie, cenę i nazwę sprzedawcy - informacje, których szukający potrzebuje do podjęcia decyzji.</p>
 
@@ -2273,6 +2321,7 @@ export const BLOG_POSTS = [
     category: 'E-commerce' as const,
     date: '2026-03-10',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1556742111-a301076d9d18?w=800&q=80',
     content: `<h2>Dlaczego większość sklepów nie testuje kreacji</h2>
 <p>Typowy sklep e-commerce tworzy jedną kreację reklamową i puszcza ją w świat. Jeśli działa - dobrze. Jeśli nie - zmienia kreację i zaczyna od nowa. To podejście jest drogie i powolne. Systematyczne testy A/B pozwalają zidentyfikować, co działa, zanim wydasz cały budżet.</p>
 
@@ -2299,6 +2348,7 @@ export const BLOG_POSTS = [
     category: 'E-commerce' as const,
     date: '2026-03-08',
     readTime: 5,
+    cover: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
     content: `<h2>Mobile first: dane mówią same za siebie</h2>
 <p>W Polsce ponad 65% sesji e-commerce pochodzi z urządzeń mobilnych. Mimo to większość kreacji reklamowych jest projektowana z myślą o desktopie i "skalowana w dół". To fundamentalny błąd, który kosztuje sklepy miliony złotych w straconej sprzedaży.</p>
 
