@@ -413,7 +413,7 @@ const PLANS: Plan[] = [
     name: 'Agency', price: '699 zł', period: '/ miesiąc',
     desc: 'Dla agencji obsługujących wielu klientów — 15 workspace\'ów za cenę 6 kont Starter.',
     Icon: Building2, iconColor: '#0ea5e9', iconBg: 'rgba(14,165,233,0.12)',
-    tokens: 5000, tokenDesc: '~1 000 banerów lub 100 filmów AI', tokenRate: '0,14 zł / token',
+    tokens: 3500, tokenDesc: '~700 banerów lub 70 filmów AI', tokenRate: '0,20 zł / token',
     savings: 'Oszczędzasz 1 086 zł/mies vs 15 × Starter',
     features: ['Wszystko z Pro', 'Do 15 workspace\'ów klientów', 'Brandbook (SOON)', 'Video Creator (wkrótce)', 'Dedykowany opiekun', 'Priorytetowe wsparcie 24/7'],
     missing: [],
