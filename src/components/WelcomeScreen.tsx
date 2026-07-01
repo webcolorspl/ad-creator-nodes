@@ -195,14 +195,14 @@ function HeroSlider({ dark }: { dark: boolean }) {
         {/* Number + label */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22 }}>
           <span style={{
-            fontSize: 18, fontWeight: 900, letterSpacing: '0.14em',
+            fontSize: 14, fontWeight: 900, letterSpacing: '0.14em',
             color: t.text, fontFamily: 'var(--font-mono, monospace)',
           }}>
             {slide.num}
           </span>
           <div style={{ width: 28, height: 1, background: t.divider }} />
           <span style={{
-            fontSize: 13, fontWeight: 700, letterSpacing: '0.12em',
+            fontSize: 10, fontWeight: 700, letterSpacing: '0.12em',
             textTransform: 'uppercase', color: t.textSub,
           }}>
             FlowCampaigns · AI Studio
@@ -211,7 +211,7 @@ function HeroSlider({ dark }: { dark: boolean }) {
 
         {/* Headline */}
         <h1 style={{
-          fontSize: 'clamp(40px, 3.74vw, 63px)', fontWeight: 800,
+          fontSize: 'clamp(32px, 2.99vw, 50px)', fontWeight: 800,
           lineHeight: 1.1, color: t.text, marginBottom: 22,
           letterSpacing: '-0.02em',
         }}>
@@ -224,7 +224,7 @@ function HeroSlider({ dark }: { dark: boolean }) {
 
         {/* Sub */}
         <p style={{
-          fontSize: 18, color: t.textSub,
+          fontSize: 14, color: t.textSub,
           lineHeight: 1.65, maxWidth: 560,
         }}>
           {slide.sub}
@@ -326,7 +326,7 @@ function BigTile({ tile, dark, onClick }: { tile: ToolTile; dark: boolean; onCli
       {/* Label + desc */}
       <div>
         <div style={{
-          fontSize: 34, fontWeight: 800,
+          fontSize: 27, fontWeight: 800,
           color: hover ? (dark ? '#fff' : accent) : t.text,
           lineHeight: 1.1, marginBottom: 10,
           letterSpacing: '-0.02em',
@@ -335,7 +335,7 @@ function BigTile({ tile, dark, onClick }: { tile: ToolTile; dark: boolean; onCli
           {label}
         </div>
         <div style={{
-          fontSize: 15, color: t.textSub,
+          fontSize: 12, color: t.textSub,
           lineHeight: 1.65, transition: 'color .15s',
         }}>
           {desc}
@@ -345,7 +345,7 @@ function BigTile({ tile, dark, onClick }: { tile: ToolTile; dark: boolean; onCli
       {/* CTA */}
       <div style={{
         marginTop: 'auto',
-        fontSize: 12, fontWeight: 600,
+        fontSize: 10, fontWeight: 600,
         color: hover ? (dark ? 'rgba(255,255,255,0.7)' : accent) : t.textFaint,
         display: 'flex', alignItems: 'center', gap: 6,
         transition: 'all .15s', letterSpacing: '0.02em',
@@ -525,7 +525,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
                   width: 28, height: 28, borderRadius: '50%',
                   background: 'linear-gradient(135deg, #16a34a, #0d9488)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 12,
+                  fontSize: 10,
                 }}>M</div>
                 <div style={{
                   position: 'absolute', bottom: 0, right: 0,
@@ -535,8 +535,8 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
                 }} />
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Mary</div>
-                <div style={{ fontSize: 9, color: '#4ade80', fontWeight: 600 }}>● online</div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Mary</div>
+                <div style={{ fontSize: 7, color: '#4ade80', fontWeight: 600 }}>● online</div>
               </div>
             </div>
 
@@ -547,7 +547,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
                 background: 'rgba(255,255,255,0.08)',
                 borderRadius: '12px 12px 12px 3px',
                 padding: '7px 11px',
-                fontSize: 11, color: 'rgba(255,255,255,0.85)', lineHeight: 1.45,
+                fontSize: 9, color: 'rgba(255,255,255,0.85)', lineHeight: 1.45,
                 maxWidth: '90%',
               }}>
                 Cześć! 👋 Jak mogę Ci dziś pomóc?
@@ -557,7 +557,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
                 background: 'linear-gradient(135deg, #16a34a, #15803d)',
                 borderRadius: '12px 12px 3px 12px',
                 padding: '7px 11px',
-                fontSize: 11, color: '#fff', lineHeight: 1.45,
+                fontSize: 9, color: '#fff', lineHeight: 1.45,
               }}>
                 Chcę stworzyć kampanię 🚀
               </div>
@@ -604,7 +604,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
               e.currentTarget.style.boxShadow = `0 8px 28px ${t.bubbleShadow}, 0 2px 8px rgba(0,0,0,0.3)`
             }}
           >
-            <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>
               W czym możesz mi pomóc?
             </span>
           </button>
@@ -615,7 +615,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
           position: 'absolute', top: 20, left: 20,
         }}>
           <span style={{
-            fontSize: 30, fontWeight: 900, color: '#fff',
+            fontSize: 24, fontWeight: 900, color: '#fff',
             letterSpacing: '-0.03em', lineHeight: 1,
             fontFamily: 'var(--font-sans, system-ui, sans-serif)',
           }}>
@@ -657,7 +657,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
               height: 36, borderRadius: 18, padding: '0 16px',
               background: 'transparent',
               display: 'flex', alignItems: 'center',
-              fontSize: 11, fontWeight: 700,
+              fontSize: 9, fontWeight: 700,
               color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)',
               textDecoration: 'none', letterSpacing: '0.02em',
               transition: 'all .15s',
@@ -676,7 +676,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
               border: `1.5px solid ${dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'}`,
               background: 'transparent',
               display: 'flex', alignItems: 'center',
-              fontSize: 11, fontWeight: 700,
+              fontSize: 9, fontWeight: 700,
               color: dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)',
               textDecoration: 'none', letterSpacing: '0.02em',
               transition: 'all .15s',
@@ -701,7 +701,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
               border: 'none',
               background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
               display: 'flex', alignItems: 'center',
-              fontSize: 11, fontWeight: 800,
+              fontSize: 9, fontWeight: 800,
               color: '#fff',
               textDecoration: 'none', letterSpacing: '0.02em',
               boxShadow: '0 4px 14px rgba(22,163,74,0.4)',
@@ -735,7 +735,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
               ? <Sun  size={15} strokeWidth={2} color="#facc15" />
               : <Moon size={15} strokeWidth={2} color="#6366f1" />
             }
-            <span style={{ fontSize: 11, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)', letterSpacing: '0.02em' }}>
+            <span style={{ fontSize: 9, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)', letterSpacing: '0.02em' }}>
               {dark ? 'Jasny' : 'Ciemny'}
             </span>
           </button>
@@ -747,7 +747,7 @@ export function WelcomeScreen({ onSelect, onSkip }: WelcomeScreenProps) {
             <HeroSlider dark={dark} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
               <div style={{ flex: 1, height: 1, background: t.divider }} />
-              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: t.textMuted }}>
+              <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: t.textMuted }}>
                 Wybierz narzędzie
               </span>
               <div style={{ flex: 1, height: 1, background: t.divider }} />
