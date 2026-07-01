@@ -88,17 +88,17 @@ function SectionHeader({ label, title, green, sub, dark, subMaxWidth = 840 }: {
         padding: '5px 18px', marginBottom: 22,
         border: '1px solid rgba(22,163,74,0.2)',
       }}>
-        <span style={{ fontSize: 15, fontWeight: 700, color: '#16a34a', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#16a34a', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
           {label}
         </span>
       </div>
       <h2 style={{
-        fontSize: 'clamp(42px, 4.09vw, 63px)', fontWeight: 900,
+        fontSize: 'clamp(34px, 3.27vw, 50px)', fontWeight: 900,
         color: t.text, lineHeight: 1.08, letterSpacing: '-0.025em', marginBottom: 18,
       }}>
         {title}{green && <><br /><span style={{ color: '#16a34a' }}>{green}</span></>}
       </h2>
-      <p style={{ fontSize: 23, color: t.textMuted, lineHeight: 1.7, maxWidth: subMaxWidth }}>{sub}</p>
+      <p style={{ fontSize: 18, color: t.textMuted, lineHeight: 1.7, maxWidth: subMaxWidth }}>{sub}</p>
     </div>
   )
 }
@@ -196,13 +196,13 @@ export function SectionComingSoon({ dark }: { dark: boolean }) {
                 {/* Content */}
                 <div style={{ flex: 1, padding: '36px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div>
-                    <div style={{ fontSize: 32, fontWeight: 900, color: t.textMuted, marginBottom: 6, letterSpacing: '-0.02em' }}>
+                    <div style={{ fontSize: 26, fontWeight: 900, color: t.textMuted, marginBottom: 6, letterSpacing: '-0.02em' }}>
                       {tool.label}
                     </div>
-                    <div style={{ fontSize: 19, fontWeight: 600, color: t.textFaint, marginBottom: 16 }}>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: t.textFaint, marginBottom: 16 }}>
                       {tool.desc}
                     </div>
-                    <p style={{ fontSize: 18, color: t.textMuted, lineHeight: 1.75, maxWidth: 870 }}>
+                    <p style={{ fontSize: 14, color: t.textMuted, lineHeight: 1.75, maxWidth: 870 }}>
                       {tool.longDesc}
                     </p>
                   </div>
@@ -212,7 +212,7 @@ export function SectionComingSoon({ dark }: { dark: boolean }) {
                       href="/rejestracja"
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: 6,
-                        fontSize: 15, fontWeight: 700, color: t.textFaint,
+                        fontSize: 12, fontWeight: 700, color: t.textFaint,
                         textDecoration: 'none', letterSpacing: '0.02em',
                       }}
                     >
@@ -296,11 +296,11 @@ export function SectionFeatures({ dark }: { dark: boolean }) {
                 </div>
                 <div style={{ flex: isWide ? 1 : undefined }}>
                   <div style={{
-                    fontSize: isHero ? 24 : 18,
+                    fontSize: isHero ? 19 : 14,
                     fontWeight: 800, color: t.text,
                     marginBottom: 10, letterSpacing: '-0.01em',
                   }}>{f.title}</div>
-                  <div style={{ fontSize: 18, color: t.textMuted, lineHeight: 1.7 }}>{f.desc}</div>
+                  <div style={{ fontSize: 14, color: t.textMuted, lineHeight: 1.7 }}>{f.desc}</div>
                 </div>
               </div>
             </FadeSection>
@@ -346,7 +346,7 @@ export function SectionTestimonials({ dark }: { dark: boolean }) {
                 ? '0 4px 20px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.2)'
                 : '0 2px 14px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04)',
             }}>
-              <p style={{ fontSize: 20, color: t.textSub, lineHeight: 1.75, flex: 1, fontStyle: 'italic' }}>
+              <p style={{ fontSize: 16, color: t.textSub, lineHeight: 1.75, flex: 1, fontStyle: 'italic' }}>
                 „{tm.quote}"
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -357,8 +357,8 @@ export function SectionTestimonials({ dark }: { dark: boolean }) {
                   style={{ borderRadius: '50%', border: `2px solid ${t.cardBorder}` }}
                 />
                 <div>
-                  <div style={{ fontSize: 19, fontWeight: 700, color: t.text }}>{tm.name}</div>
-                  <div style={{ fontSize: 15, color: t.textMuted }}>{tm.role} · {tm.company}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: t.text }}>{tm.name}</div>
+                  <div style={{ fontSize: 12, color: t.textMuted }}>{tm.role} · {tm.company}</div>
                 </div>
               </div>
             </div>
@@ -479,23 +479,23 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
               padding: '5px 18px', marginBottom: 22,
               border: '1px solid rgba(22,163,74,0.2)',
             }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#16a34a', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#16a34a', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                 Cennik
               </span>
             </div>
             <h2 style={{
-              fontSize: 'clamp(42px, 4.09vw, 63px)', fontWeight: 900,
+              fontSize: 'clamp(34px, 3.27vw, 50px)', fontWeight: 900,
               color: t.text, lineHeight: 1.08, letterSpacing: '-0.025em', marginBottom: 18,
             }}>
               Zacznij za darmo,<br /><span style={{ color: '#16a34a' }}>skaluj gdy rośniesz.</span>
             </h2>
-            <p style={{ fontSize: 22, color: t.textMuted, lineHeight: 1.7, maxWidth: 520, margin: '0 auto 32px' }}>
+            <p style={{ fontSize: 18, color: t.textMuted, lineHeight: 1.7, maxWidth: 520, margin: '0 auto 32px' }}>
               Bez ukrytych opłat. Zmień lub anuluj plan w każdej chwili.
             </p>
 
             {/* Switcher miesięcznie / rocznie */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
-              <span style={{ fontSize: 16, fontWeight: 600, color: !yearly ? t.text : t.textMuted, transition: 'color .2s' }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: !yearly ? t.text : t.textMuted, transition: 'color .2s' }}>
                 Miesięcznie
               </span>
               <button
@@ -518,11 +518,11 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                 }} />
               </button>
               <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 16, fontWeight: 600, color: yearly ? t.text : t.textMuted, transition: 'color .2s' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: yearly ? t.text : t.textMuted, transition: 'color .2s' }}>
                   Rocznie
                 </span>
                 <span style={{
-                  fontSize: 13, fontWeight: 800, color: '#16a34a',
+                  fontSize: 10, fontWeight: 800, color: '#16a34a',
                   background: 'rgba(22,163,74,0.12)', border: '1px solid rgba(22,163,74,0.25)',
                   borderRadius: 20, padding: '2px 10px', letterSpacing: '0.05em',
                 }}>
@@ -574,7 +574,7 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                       position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
                       background: `linear-gradient(135deg, ${plan.iconColor}, ${plan.iconColor}cc)`,
                       borderRadius: 20, padding: '5px 16px',
-                      fontSize: 12, fontWeight: 800, color: '#fff', letterSpacing: '0.1em',
+                      fontSize: 10, fontWeight: 800, color: '#fff', letterSpacing: '0.1em',
                       textTransform: 'uppercase', whiteSpace: 'nowrap',
                       boxShadow: `0 4px 12px ${plan.iconColor}50`,
                     }}>
@@ -596,7 +596,7 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
 
                   {/* Name */}
                   <div style={{
-                    fontSize: 14, fontWeight: 800,
+                    fontSize: 11, fontWeight: 800,
                     color: isHovered || plan.highlighted ? plan.iconColor : ct.textMuted,
                     marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.1em',
                     transition: 'color .2s',
@@ -610,42 +610,42 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                       <>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                           <span style={{
-                            fontSize: 18, fontWeight: 600, color: ct.textFaint,
+                            fontSize: 14, fontWeight: 600, color: ct.textFaint,
                             textDecoration: 'line-through',
                           }}>{yr.crossed}</span>
                           <span style={{
-                            fontSize: 12, fontWeight: 800, color: '#16a34a',
+                            fontSize: 10, fontWeight: 800, color: '#16a34a',
                             background: 'rgba(22,163,74,0.12)', borderRadius: 10, padding: '2px 7px',
                           }}>
                             −{YEARLY_DISCOUNT[i] * 100}%
                           </span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
-                          <span style={{ fontSize: 44, fontWeight: 900, color: ct.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
+                          <span style={{ fontSize: 35, fontWeight: 900, color: ct.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
                             {yr.price}
                           </span>
-                          <span style={{ fontSize: 15, color: ct.textMuted }}>/ miesiąc</span>
+                          <span style={{ fontSize: 12, color: ct.textMuted }}>/ miesiąc</span>
                         </div>
-                        <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, marginTop: 4 }}>{yr.saving}</div>
+                        <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 600, marginTop: 4 }}>{yr.saving}</div>
                       </>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
-                        <span style={{ fontSize: 44, fontWeight: 900, color: ct.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
+                        <span style={{ fontSize: 35, fontWeight: 900, color: ct.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
                           {plan.price}
                         </span>
-                        <span style={{ fontSize: 15, color: ct.textMuted }}>{plan.period}</span>
+                        <span style={{ fontSize: 12, color: ct.textMuted }}>{plan.period}</span>
                       </div>
                     )}
                   </div>
 
-                  <p style={{ fontSize: 15, color: ct.textMuted, marginBottom: 18, lineHeight: 1.65 }}>
+                  <p style={{ fontSize: 12, color: ct.textMuted, marginBottom: 18, lineHeight: 1.65 }}>
                     {plan.desc}
                   </p>
 
                   {/* Savings badge */}
                   {plan.savings && (
                     <div style={{
-                      fontSize: 13, fontWeight: 700, color: plan.iconColor,
+                      fontSize: 10, fontWeight: 700, color: plan.iconColor,
                       background: `${plan.iconColor}12`,
                       border: `1px solid ${plan.iconColor}28`,
                       borderRadius: 10, padding: '5px 10px', marginBottom: 16,
@@ -665,11 +665,11 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                   }}>
                     <Sparkles size={16} strokeWidth={1.5} color={plan.iconColor} style={{ flexShrink: 0 }} />
                     <div>
-                      <div style={{ fontSize: 19, fontWeight: 900, color: plan.iconColor, letterSpacing: '-0.02em', lineHeight: 1 }}>
+                      <div style={{ fontSize: 15, fontWeight: 900, color: plan.iconColor, letterSpacing: '-0.02em', lineHeight: 1 }}>
                         {plan.tokens.toLocaleString('pl-PL')} tokenów
-                        <span style={{ fontSize: 12, fontWeight: 600, color: ct.textFaint, marginLeft: 5 }}>/ mies.</span>
+                        <span style={{ fontSize: 10, fontWeight: 600, color: ct.textFaint, marginLeft: 5 }}>/ mies.</span>
                       </div>
-                      <div style={{ fontSize: 12, color: ct.textMuted, marginTop: 2 }}>{plan.tokenDesc}</div>
+                      <div style={{ fontSize: 10, color: ct.textMuted, marginTop: 2 }}>{plan.tokenDesc}</div>
                     </div>
                   </div>
 
@@ -686,7 +686,7 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                         }}>
                           <Check size={10} strokeWidth={3} color={plan.iconColor} />
                         </div>
-                        <span style={{ fontSize: 15, color: ct.textSub, lineHeight: 1.5 }}>{f}</span>
+                        <span style={{ fontSize: 12, color: ct.textSub, lineHeight: 1.5 }}>{f}</span>
                       </div>
                     ))}
                     {plan.missing.map(f => (
@@ -698,7 +698,7 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                         }}>
                           <div style={{ width: 7, height: 1.5, background: ct.textFaint, borderRadius: 1 }} />
                         </div>
-                        <span style={{ fontSize: 15, color: ct.textMuted, lineHeight: 1.5 }}>{f}</span>
+                        <span style={{ fontSize: 12, color: ct.textMuted, lineHeight: 1.5 }}>{f}</span>
                       </div>
                     ))}
                   </div>
@@ -709,7 +709,7 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                       padding: '16px', borderRadius: 50,
-                      fontSize: 16, fontWeight: 800,
+                      fontSize: 13, fontWeight: 800,
                       textDecoration: 'none', letterSpacing: '-0.01em',
                       background: 'linear-gradient(135deg, #16a34a, #15803d)',
                       color: '#fff',
@@ -735,7 +735,7 @@ export function SectionPricing({ dark, scrollY }: { dark: boolean; scrollY: numb
         </div>
 
         <FadeSection delay={400}>
-          <p style={{ fontSize: 15, color: t.textFaint, textAlign: 'center', marginTop: 28 }}>
+          <p style={{ fontSize: 12, color: t.textFaint, textAlign: 'center', marginTop: 28 }}>
             Wszystkie ceny netto + VAT. Starter i Pro: pierwszy miesiąc gratis. Anuluj kiedy chcesz.
           </p>
         </FadeSection>
@@ -763,10 +763,10 @@ export function SectionFinalCTA({ dark }: { dark: boolean }) {
               flex: 1, textAlign: 'center', padding: '32px 20px',
               borderRight: i < STATS.length - 1 ? `1px solid ${t.divider}` : 'none',
             }}>
-              <div style={{ fontSize: 56, fontWeight: 900, color: '#16a34a', letterSpacing: '-0.025em', marginBottom: 8 }}>
+              <div style={{ fontSize: 45, fontWeight: 900, color: '#16a34a', letterSpacing: '-0.025em', marginBottom: 8 }}>
                 {s.value}
               </div>
-              <div style={{ fontSize: 18, color: t.textMuted, lineHeight: 1.6 }}>{s.label}</div>
+              <div style={{ fontSize: 14, color: t.textMuted, lineHeight: 1.6 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -780,13 +780,13 @@ export function SectionFinalCTA({ dark }: { dark: boolean }) {
           padding: '64px 48px', textAlign: 'center',
         }}>
           <h2 style={{
-            fontSize: 'clamp(38px, 4.09vw, 58px)', fontWeight: 900,
+            fontSize: 'clamp(30px, 3.27vw, 46px)', fontWeight: 900,
             color: t.text, letterSpacing: '-0.025em', marginBottom: 14, lineHeight: 1.12,
           }}>
             Zacznij tworzyć kampanie<br />
             <span style={{ color: '#16a34a' }}>szybciej niż kiedykolwiek.</span>
           </h2>
-          <p style={{ fontSize: 22, color: t.textMuted, marginBottom: 40, lineHeight: 1.7 }}>
+          <p style={{ fontSize: 18, color: t.textMuted, marginBottom: 40, lineHeight: 1.7 }}>
             Bezpłatne konto. Bez karty kredytowej. Bez umów.<br />
             Pierwsze kreacje gotowe w 5 minut.
           </p>
@@ -799,7 +799,7 @@ export function SectionFinalCTA({ dark }: { dark: boolean }) {
               padding: '18px 44px', borderRadius: 50,
               background: 'linear-gradient(135deg, #16a34a, #15803d)',
               color: '#fff', textDecoration: 'none',
-              fontSize: 21, fontWeight: 800, letterSpacing: '-0.01em',
+              fontSize: 17, fontWeight: 800, letterSpacing: '-0.01em',
               boxShadow: hoverBtn ? '0 20px 48px rgba(22,163,74,0.55)' : '0 8px 28px rgba(22,163,74,0.4)',
               transform: hoverBtn ? 'translateY(-2px)' : 'translateY(0)',
               transition: 'all .2s',
@@ -808,7 +808,7 @@ export function SectionFinalCTA({ dark }: { dark: boolean }) {
             Zarejestruj się za darmo
             <span style={{ transform: hoverBtn ? 'translateX(5px)' : 'translateX(0)', transition: 'transform .15s', display: 'inline-block' }}>→</span>
           </a>
-          <p style={{ fontSize: 16, color: t.textFaint, marginTop: 20 }}>
+          <p style={{ fontSize: 13, color: t.textFaint, marginTop: 20 }}>
             Dołącz do 500+ marketerów którzy już oszczędzają czas
           </p>
         </div>
