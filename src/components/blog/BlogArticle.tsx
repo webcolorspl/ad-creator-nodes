@@ -28,14 +28,15 @@ type Post = typeof BLOG_POSTS[number]
 interface Props {
   post: Post
   related: Post[]
+  prev: Post | null
+  next: Post | null
 }
 
-export function BlogArticle({ post, related }: Props) {
+export function BlogArticle({ post, related, prev, next }: Props) {
   const { dark, toggle, mounted } = useBlogTheme()
   const [progress, setProgress] = useState(0)
   const contentRef = useRef<HTMLDivElement>(null)
 
-  // Reading progress
   useEffect(() => {
     const onScroll = () => {
       const el = document.documentElement
@@ -53,12 +54,14 @@ export function BlogArticle({ post, related }: Props) {
     cardBg: 'rgba(255,255,255,0.04)', cardBgHover: 'rgba(255,255,255,0.07)',
     cardBorderHover: 'rgba(255,255,255,0.16)', metaDivider: 'rgba(255,255,255,0.08)',
     ctaBg: 'rgba(22,163,74,0.1)', ctaBorder: 'rgba(22,163,74,0.18)',
+    navArrowBg: 'rgba(255,255,255,0.06)', navArrowBorder: 'rgba(255,255,255,0.1)',
   } : {
     bg: '#f4f5f7', text: '#0f0f12', textSub: 'rgba(0,0,0,0.58)',
     textMuted: 'rgba(0,0,0,0.38)', border: 'rgba(0,0,0,0.07)',
     cardBg: '#fff', cardBgHover: '#f8f9fc',
     cardBorderHover: 'rgba(0,0,0,0.14)', metaDivider: 'rgba(0,0,0,0.08)',
     ctaBg: 'rgba(22,163,74,0.07)', ctaBorder: 'rgba(22,163,74,0.18)',
+    navArrowBg: '#fff', navArrowBorder: 'rgba(0,0,0,0.08)',
   }
 
   const schemaOrg = {
@@ -73,6 +76,8 @@ export function BlogArticle({ post, related }: Props) {
   }
 
   if (!mounted) return null
+
+  const coverImg = (post as Post & { cover?: string }).cover
 
   return (
     <div className={dark ? 'blog-dark' : 'blog-light'} style={{ minHeight: '100vh', background: t.bg, color: t.text, fontFamily: 'system-ui, sans-serif', transition: 'background .2s, color .2s' }}>
@@ -94,18 +99,21 @@ export function BlogArticle({ post, related }: Props) {
 
       {/* Cover photo */}
       <div style={{
-        width: '100%', height: 360,
+        width: '100%', height: 400,
         background: CAT_GRADIENTS[post.category],
         position: 'relative', overflow: 'hidden',
       }}>
-        {/* Overlay pattern */}
+        {coverImg && (
+          <img
+            src={coverImg}
+            alt=""
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        )}
+        {/* Dark overlay */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'repeating-linear-gradient(45deg, transparent, transparent 60px, rgba(255,255,255,0.03) 60px, rgba(255,255,255,0.03) 61px)',
-        }} />
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 100%)',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%)',
         }} />
 
         {/* Cover text */}
@@ -199,40 +207,141 @@ export function BlogArticle({ post, related }: Props) {
           </Link>
         </div>
 
-        {/* Related */}
+        {/* Prev / Next navigation */}
+        {(prev || next) && (
+          <div style={{
+            marginTop: 48, display: 'grid',
+            gridTemplateColumns: prev && next ? '1fr 1fr' : '1fr',
+            gap: 16,
+          }}>
+            {prev && (
+              <Link href={`/blog/${prev.slug}`} style={{ textDecoration: 'none' }}>
+                <div style={{
+                  padding: '20px 24px', borderRadius: 16,
+                  border: `1px solid ${t.navArrowBorder}`,
+                  background: t.navArrowBg, transition: 'all .15s',
+                  boxShadow: dark ? 'none' : '0 1px 4px rgba(0,0,0,0.05)',
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = t.cardBorderHover
+                  el.style.transform = 'translateX(-4px)'
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = t.navArrowBorder
+                  el.style.transform = 'translateX(0)'
+                }}
+                >
+                  <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+                    Poprzedni artykuł
+                  </div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: t.text, lineHeight: 1.4 }}>{prev.title}</div>
+                </div>
+              </Link>
+            )}
+            {next && (
+              <Link href={`/blog/${next.slug}`} style={{ textDecoration: 'none', gridColumn: !prev ? '1' : undefined }}>
+                <div style={{
+                  padding: '20px 24px', borderRadius: 16,
+                  border: `1px solid ${t.navArrowBorder}`,
+                  background: t.navArrowBg, transition: 'all .15s',
+                  textAlign: 'right',
+                  boxShadow: dark ? 'none' : '0 1px 4px rgba(0,0,0,0.05)',
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = t.cardBorderHover
+                  el.style.transform = 'translateX(4px)'
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = t.navArrowBorder
+                  el.style.transform = 'translateX(0)'
+                }}
+                >
+                  <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 6, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+                    Następny artykuł
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: t.text, lineHeight: 1.4 }}>{next.title}</div>
+                </div>
+              </Link>
+            )}
+          </div>
+        )}
+
+        {/* Related — 3 large tiles */}
         {related.length > 0 && (
           <div style={{ marginTop: 64 }}>
             <h3 style={{ fontSize: 24, fontWeight: 800, marginBottom: 24, letterSpacing: '-0.01em', color: t.text }}>
               Powiązane artykuły
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {related.map(r => (
-                <Link key={r.slug} href={`/blog/${r.slug}`} style={{ textDecoration: 'none' }}>
-                  <div style={{
-                    padding: '18px 22px', borderRadius: 14,
-                    border: `1px solid ${t.border}`,
-                    background: t.cardBg, transition: 'all .15s',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    boxShadow: dark ? 'none' : '0 1px 4px rgba(0,0,0,0.05)',
-                  }}
-                  onMouseEnter={e => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.border = `1px solid ${t.cardBorderHover}`
-                    el.style.background = t.cardBgHover
-                    el.style.transform = 'translateX(4px)'
-                  }}
-                  onMouseLeave={e => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.border = `1px solid ${t.border}`
-                    el.style.background = t.cardBg
-                    el.style.transform = 'translateX(0)'
-                  }}
-                  >
-                    <div style={{ fontSize: 18, fontWeight: 700, color: t.text }}>{r.title}</div>
-                    <div style={{ fontSize: 14, color: t.textMuted, flexShrink: 0, marginLeft: 16 }}>{r.readTime} min</div>
-                  </div>
-                </Link>
-              ))}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: `repeat(${Math.min(related.length, 3)}, 1fr)`,
+              gap: 20,
+            }}>
+              {related.slice(0, 3).map(r => {
+                const rCover = (r as Post & { cover?: string }).cover
+                return (
+                  <Link key={r.slug} href={`/blog/${r.slug}`} style={{ textDecoration: 'none' }}>
+                    <div style={{
+                      borderRadius: 16, overflow: 'hidden',
+                      border: `1px solid ${t.border}`,
+                      background: t.cardBg, transition: 'all .2s',
+                      boxShadow: dark ? 'none' : '0 2px 8px rgba(0,0,0,0.06)',
+                    }}
+                    onMouseEnter={e => {
+                      const el = e.currentTarget as HTMLElement
+                      el.style.borderColor = t.cardBorderHover
+                      el.style.transform = 'translateY(-4px)'
+                      el.style.boxShadow = dark ? '0 8px 24px rgba(0,0,0,0.4)' : '0 8px 24px rgba(0,0,0,0.1)'
+                    }}
+                    onMouseLeave={e => {
+                      const el = e.currentTarget as HTMLElement
+                      el.style.borderColor = t.border
+                      el.style.transform = 'translateY(0)'
+                      el.style.boxShadow = dark ? 'none' : '0 2px 8px rgba(0,0,0,0.06)'
+                    }}
+                    >
+                      {/* Tile cover */}
+                      <div style={{
+                        height: 160, width: '100%',
+                        background: rCover ? `url(${rCover}) center/cover no-repeat` : CAT_GRADIENTS[r.category],
+                        position: 'relative',
+                      }}>
+                        <div style={{
+                          position: 'absolute', inset: 0,
+                          background: rCover ? 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.3) 100%)' : 'none',
+                        }} />
+                      </div>
+                      {/* Tile body */}
+                      <div style={{ padding: '16px 18px 20px' }}>
+                        <span style={{
+                          display: 'inline-block', fontSize: 12, fontWeight: 700,
+                          color: CAT_COLORS[r.category], marginBottom: 8,
+                          letterSpacing: '0.03em', textTransform: 'uppercase',
+                        }}>
+                          {r.category}
+                        </span>
+                        <div style={{
+                          fontSize: 16, fontWeight: 700, color: t.text,
+                          lineHeight: 1.4, marginBottom: 8,
+                          display: '-webkit-box', WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                        }}>
+                          {r.title}
+                        </div>
+                        <div style={{ fontSize: 13, color: t.textMuted }}>
+                          {r.readTime} min czytania
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           </div>
         )}

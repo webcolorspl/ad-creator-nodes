@@ -32,10 +32,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
-  const post = BLOG_POSTS.find(p => p.slug === slug)
-  if (!post) notFound()
+  const idx = BLOG_POSTS.findIndex(p => p.slug === slug)
+  if (idx === -1) notFound()
+  const post = BLOG_POSTS[idx]
   const related = BLOG_POSTS
     .filter(p => p.category === post.category && p.slug !== post.slug)
     .slice(0, 3)
-  return <BlogArticle post={post} related={related} />
+  const prev = idx > 0 ? BLOG_POSTS[idx - 1] : null
+  const next = idx < BLOG_POSTS.length - 1 ? BLOG_POSTS[idx + 1] : null
+  return <BlogArticle post={post} related={related} prev={prev} next={next} />
 }
